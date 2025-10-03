@@ -8,10 +8,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const Auth = () => {
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [nomeGuerra, setNomeGuerra] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
@@ -19,26 +20,13 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || (isSignUp && !nomeGuerra)) {
-      toast.error("Preencha todos os campos");
-      return;
-    }
-
-    setLoading(true);
-
-    if (isSignUp) {
-      const { error } = await signUp(email, password, nomeGuerra);
-
-      if (error) {
-        toast.error("Erro ao criar conta: " + error.message);
-        setLoading(false);
+    if (isLogin) {
+      if (!email || !password) {
+        toast.error("Preencha todos os campos");
         return;
       }
 
-      toast.success("Conta criada com sucesso! Você já pode fazer login.");
-      setIsSignUp(false);
-      setPassword("");
-    } else {
+      setLoading(true);
       const { error } = await signIn(email, password);
 
       if (error) {
@@ -49,9 +37,38 @@ const Auth = () => {
 
       toast.success("Login realizado com sucesso!");
       navigate("/");
+      setLoading(false);
+    } else {
+      if (!email || !password || !confirmPassword || !nomeGuerra) {
+        toast.error("Preencha todos os campos");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        toast.error("As senhas não coincidem");
+        return;
+      }
+
+      if (password.length < 6) {
+        toast.error("A senha deve ter pelo menos 6 caracteres");
+        return;
+      }
+
+      setLoading(true);
+      const { error } = await signUp(email, password, nomeGuerra);
+
+      if (error) {
+        toast.error("Erro ao criar conta: " + error.message);
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Conta criada com sucesso! Faça login.");
+      setIsLogin(true);
+      setPassword("");
+      setConfirmPassword("");
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   return (
@@ -67,7 +84,7 @@ const Auth = () => {
         </div>
 
         <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
-          {isSignUp ? "Criar Conta" : "Login"}
+          {isLogin ? "Login" : "Criar Conta"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -85,22 +102,6 @@ const Auth = () => {
             />
           </div>
 
-          {isSignUp && (
-            <div>
-              <Label htmlFor="nomeGuerra" className="text-foreground">
-                Nome de Guerra
-              </Label>
-              <Input
-                id="nomeGuerra"
-                type="text"
-                value={nomeGuerra}
-                onChange={(e) => setNomeGuerra(e.target.value)}
-                className="bg-muted border-border text-foreground"
-                placeholder="Seu nome de guerra"
-              />
-            </div>
-          )}
-
           <div>
             <Label htmlFor="password" className="text-foreground">
               Senha
@@ -115,14 +116,46 @@ const Auth = () => {
             />
           </div>
 
+          {!isLogin && (
+            <>
+              <div>
+                <Label htmlFor="confirmPassword" className="text-foreground">
+                  Confirmar Senha
+                </Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="bg-muted border-border text-foreground"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="nomeGuerra" className="text-foreground">
+                  Nome de Guerra
+                </Label>
+                <Input
+                  id="nomeGuerra"
+                  type="text"
+                  value={nomeGuerra}
+                  onChange={(e) => setNomeGuerra(e.target.value)}
+                  className="bg-muted border-border text-foreground"
+                  placeholder="Seu nome de guerra"
+                />
+              </div>
+            </>
+          )}
+
           <Button
             type="submit"
             className="w-full gradient-primary text-white"
             disabled={loading}
           >
             {loading 
-              ? (isSignUp ? "Criando conta..." : "Entrando...") 
-              : (isSignUp ? "Criar Conta" : "Entrar")
+              ? (isLogin ? "Entrando..." : "Criando conta...") 
+              : (isLogin ? "Entrar" : "Criar Conta")
             }
           </Button>
         </form>
@@ -131,20 +164,20 @@ const Auth = () => {
           <button
             type="button"
             onClick={() => {
-              setIsSignUp(!isSignUp);
+              setIsLogin(!isLogin);
               setPassword("");
-              setNomeGuerra("");
+              setConfirmPassword("");
             }}
             className="text-sm text-primary hover:underline"
           >
-            {isSignUp 
-              ? "Já tem uma conta? Fazer login" 
-              : "Não tem conta? Criar uma nova"
+            {isLogin 
+              ? "Não tem uma conta? Criar conta" 
+              : "Já tem uma conta? Fazer login"
             }
           </button>
         </div>
 
-        {!isSignUp && (
+        {isLogin && (
           <p className="text-sm text-muted-foreground mt-4 text-center">
             Usuários: admin, ptec_com, ptec_mb, ptec_sau, ptec_rh, ptec_trp
           </p>
