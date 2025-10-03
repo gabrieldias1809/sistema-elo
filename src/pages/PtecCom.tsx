@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { toast } from "sonner";
@@ -19,6 +20,9 @@ const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 const PtecCom = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [editingOS, setEditingOS] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [osToDelete, setOsToDelete] = useState<any>(null);
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
   const [marcaSuggestions, setMarcaSuggestions] = useState<string[]>([]);
   const [memSuggestions, setMemSuggestions] = useState<string[]>([]);
@@ -44,10 +48,25 @@ const PtecCom = () => {
   }, []);
 
   useEffect(() => {
-    if (open) {
+    if (open && !editingOS) {
       getNextOSNumber();
+    } else if (open && editingOS) {
+      setFormData({
+        numero_os: editingOS.numero_os,
+        situacao: editingOS.situacao || "",
+        om_apoiada: editingOS.om_apoiada || "",
+        marca: editingOS.marca || "",
+        mem: editingOS.mem || "",
+        sistema: editingOS.sistema || "",
+        servico_solicitado: editingOS.servico_solicitado || "",
+        servico_realizado: editingOS.servico_realizado || "",
+        situacao_atual: editingOS.situacao_atual || "",
+        data_inicio: editingOS.data_inicio || "",
+        data_fim: editingOS.data_fim || "",
+        observacoes: editingOS.observacoes || "",
+      });
     }
-  }, [open]);
+  }, [open, editingOS]);
 
   const fetchOS = async () => {
     const { data, error } = await supabase
@@ -93,20 +112,36 @@ const PtecCom = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { error } = await supabase.from("ptec_com_os").insert([
-      {
-        ...formData,
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      },
-    ]);
+    if (editingOS) {
+      const { error } = await supabase
+        .from("ptec_com_os")
+        .update(formData)
+        .eq("id", editingOS.id);
 
-    if (error) {
-      toast.error("Erro ao criar OS");
-      return;
+      if (error) {
+        toast.error("Erro ao atualizar OS");
+        return;
+      }
+
+      toast.success("OS atualizada com sucesso!");
+    } else {
+      const { error } = await supabase.from("ptec_com_os").insert([
+        {
+          ...formData,
+          created_by: (await supabase.auth.getUser()).data.user?.id,
+        },
+      ]);
+
+      if (error) {
+        toast.error("Erro ao criar OS");
+        return;
+      }
+
+      toast.success("OS criada com sucesso!");
     }
 
-    toast.success("OS criada com sucesso!");
     setOpen(false);
+    setEditingOS(null);
     setFormData({
       numero_os: "",
       situacao: "",
@@ -121,6 +156,35 @@ const PtecCom = () => {
       data_fim: "",
       observacoes: "",
     });
+    fetchOS();
+  };
+
+  const handleEdit = (item: any) => {
+    setEditingOS(item);
+    setOpen(true);
+  };
+
+  const handleDeleteClick = (item: any) => {
+    setOsToDelete(item);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!osToDelete) return;
+
+    const { error } = await supabase
+      .from("ptec_com_os")
+      .delete()
+      .eq("id", osToDelete.id);
+
+    if (error) {
+      toast.error("Erro ao excluir OS");
+      return;
+    }
+
+    toast.success("OS excluída com sucesso!");
+    setDeleteDialogOpen(false);
+    setOsToDelete(null);
     fetchOS();
   };
 
@@ -154,7 +218,10 @@ const PtecCom = () => {
             Companhia de Manutenção de Comunicações
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => {
+          setOpen(isOpen);
+          if (!isOpen) setEditingOS(null);
+        }}>
           <DialogTrigger asChild>
             <Button className="gradient-primary text-white">
               <i className="ri-add-line mr-2"></i>Nova OS
@@ -162,7 +229,7 @@ const PtecCom = () => {
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Nova Ordem de Serviço</DialogTitle>
+              <DialogTitle>{editingOS ? "Editar" : "Nova"} Ordem de Serviço</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -170,7 +237,7 @@ const PtecCom = () => {
                   <Label>Nº OS</Label>
                   <Input
                     value={formData.numero_os}
-                    disabled
+                    disabled={editingOS !== null}
                     className="bg-muted"
                   />
                 </div>
@@ -286,7 +353,7 @@ const PtecCom = () => {
                 />
               </div>
               <Button type="submit" className="w-full gradient-primary text-white">
-                Criar OS
+                {editingOS ? "Atualizar OS" : "Criar OS"}
               </Button>
             </form>
           </DialogContent>
@@ -351,11 +418,15 @@ const PtecCom = () => {
                 <TableHead>Marca</TableHead>
                 <TableHead>Sistema</TableHead>
                 <TableHead>Data Início</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {os.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow 
+                  key={item.id}
+                  className={item.situacao === "Fechada" ? "bg-destructive/10" : ""}
+                >
                   <TableCell>{item.numero_os}</TableCell>
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
@@ -366,12 +437,47 @@ const PtecCom = () => {
                       ? format(new Date(item.data_inicio), "dd/MM/yyyy HH:mm")
                       : "-"}
                   </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(item)}
+                      >
+                        <i className="ri-edit-line"></i>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteClick(item)}
+                      >
+                        <i className="ri-delete-bin-line"></i>
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
       </Card>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir a OS {osToDelete?.numero_os}? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
