@@ -42,6 +42,7 @@ export const AutocompleteInput = ({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onFocus={() => setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 200)}
             placeholder={placeholder}
             className={className}
             required={required}
@@ -53,7 +54,7 @@ export const AutocompleteInput = ({
           <Command>
             <CommandList>
               <CommandEmpty>Nenhuma sugestão encontrada</CommandEmpty>
-              <CommandGroup>
+              <CommandGroup heading="Sugestões (opcional)">
                 {filteredSuggestions.map((suggestion, index) => (
                   <CommandItem
                     key={index}
