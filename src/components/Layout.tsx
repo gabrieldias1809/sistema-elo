@@ -1,12 +1,7 @@
-import { ReactNode } from "react";
-import { NavLink, Navigate } from "react-router-dom";
+import { Outlet, Navigate, NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-const Layout = ({ children }: LayoutProps) => {
+const Layout = () => {
   const { user, loading, hasRole, signOut } = useAuth();
 
   if (loading) {
@@ -28,6 +23,7 @@ const Layout = ({ children }: LayoutProps) => {
     { title: "Ptec Sau", url: "/ptec-sau", icon: "ri-heart-pulse-line", role: "ptec_sau" as const },
     { title: "Ptec RH", url: "/ptec-rh", icon: "ri-team-line", role: "ptec_rh" as const },
     { title: "Ptec Trp", url: "/ptec-trp", icon: "ri-truck-line", role: "ptec_trp" as const },
+    { title: "Gerenciar Usuários", url: "/usuarios", icon: "ri-user-settings-line", role: "admin" as const },
   ];
 
   const navItems = allNavItems.filter(
@@ -95,7 +91,9 @@ const Layout = ({ children }: LayoutProps) => {
 
       {/* Main Content */}
       <main className="ml-64 pt-16 p-6">
-        <div className="max-w-7xl mx-auto">{children}</div>
+        <div className="max-w-7xl mx-auto">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
