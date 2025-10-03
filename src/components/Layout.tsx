@@ -1,20 +1,38 @@
 import { ReactNode } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Navigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  const navItems = [
-    { title: "Dashboard", url: "/", icon: "ri-dashboard-line" },
-    { title: "Assets", url: "/assets", icon: "ri-coins-line" },
-    { title: "Staking Providers", url: "/providers", icon: "ri-building-line" },
-    { title: "Staking Calculator", url: "/calculator", icon: "ri-calculator-line" },
-    { title: "Active Staking", url: "/active", icon: "ri-pulse-line" },
-    { title: "UI Kit", url: "/ui-kit", icon: "ri-palette-line" },
-    { title: "Settings", url: "/settings", icon: "ri-settings-line" },
+  const { user, loading, hasRole, signOut } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  const allNavItems = [
+    { title: "Dashboard", url: "/", icon: "ri-dashboard-line", role: null },
+    { title: "Ptec Com", url: "/ptec-com", icon: "ri-radio-line", role: "ptec_com" as const },
+    { title: "Ptec MB", url: "/ptec-mb", icon: "ri-gun-line", role: "ptec_mb" as const },
+    { title: "Ptec Sau", url: "/ptec-sau", icon: "ri-heart-pulse-line", role: "ptec_sau" as const },
+    { title: "Ptec RH", url: "/ptec-rh", icon: "ri-team-line", role: "ptec_rh" as const },
+    { title: "Ptec Trp", url: "/ptec-trp", icon: "ri-truck-line", role: "ptec_trp" as const },
   ];
+
+  const navItems = allNavItems.filter(
+    (item) => !item.role || hasRole(item.role)
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -26,18 +44,24 @@ const Layout = ({ children }: LayoutProps) => {
               <i className="ri-coins-line text-white text-lg"></i>
             </div>
             <h1 className="text-xl font-bold text-foreground font-pacifico">
-              CryptoStake
+              Sistema ELO
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <button className="whitespace-nowrap cursor-pointer font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2 gradient-primary hover:gradient-primary-hover text-white shadow-lg hover:shadow-xl px-4 py-2 text-sm">
-              <i className="ri-add-line"></i>Deposit
-            </button>
             <div className="flex items-center gap-3 pl-4 border-l border-border">
               <div className="w-8 h-8 gradient-primary rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">JD</span>
+                <span className="text-white text-sm font-medium">
+                  {user.email?.substring(0, 2).toUpperCase()}
+                </span>
               </div>
-              <span className="text-muted-foreground text-sm">João Silva</span>
+              <span className="text-muted-foreground text-sm">{user.email}</span>
+              <button
+                onClick={signOut}
+                className="text-muted-foreground hover:text-foreground ml-2"
+                title="Sair"
+              >
+                <i className="ri-logout-box-line text-lg"></i>
+              </button>
             </div>
           </div>
         </div>
