@@ -146,21 +146,11 @@ const PtecRH = () => {
                   />
                 </div>
                 <div className="col-span-2">
-                  <Label>Data</Label>
+                  <Label>Data e Hora</Label>
                   <DateTimePicker
                     value={formData.data}
                     onChange={(value) =>
                       setFormData({ ...formData, data: value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Hora</Label>
-                  <Input
-                    type="time"
-                    value={formData.hora}
-                    onChange={(e) =>
-                      setFormData({ ...formData, hora: e.target.value })
                     }
                   />
                 </div>

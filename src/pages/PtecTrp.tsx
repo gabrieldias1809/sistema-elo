@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
@@ -152,23 +153,21 @@ const PtecTrp = () => {
                     }
                   />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <Label>Data/Hora Saída</Label>
-                  <Input
-                    type="datetime-local"
+                  <DateTimePicker
                     value={formData.data_hora_saida}
-                    onChange={(e) =>
-                      setFormData({ ...formData, data_hora_saida: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, data_hora_saida: value })
                     }
                   />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <Label>Data/Hora Entrada</Label>
-                  <Input
-                    type="datetime-local"
+                  <DateTimePicker
                     value={formData.data_hora_entrada}
-                    onChange={(e) =>
-                      setFormData({ ...formData, data_hora_entrada: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, data_hora_entrada: value })
                     }
                   />
                 </div>

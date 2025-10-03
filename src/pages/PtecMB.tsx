@@ -292,8 +292,8 @@ const PtecMB = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
                   <Label>Data Início</Label>
                   <DateTimePicker
                     value={formData.data_inicio}
@@ -302,7 +302,7 @@ const PtecMB = () => {
                     }
                   />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <Label>Data Fim</Label>
                   <DateTimePicker
                     value={formData.data_fim}
