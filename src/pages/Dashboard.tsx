@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [ptecComData, setPtecComData] = useState<any[]>([]);
   const [ptecMbData, setPtecMbData] = useState<any[]>([]);
   const [ptecSauData, setPtecSauData] = useState<any[]>([]);
+  const [ptecSauProntuarios, setPtecSauProntuarios] = useState<any[]>([]);
   const [ptecRhData, setPtecRhData] = useState<any[]>([]);
   const [ptecTrpData, setPtecTrpData] = useState<any[]>([]);
 
@@ -25,7 +26,10 @@ const Dashboard = () => {
   useEffect(() => {
     if (canViewPtecCom) fetchPtecCom();
     if (canViewPtecMb) fetchPtecMb();
-    if (canViewPtecSau) fetchPtecSau();
+    if (canViewPtecSau) {
+      fetchPtecSau();
+      fetchPtecSauProntuarios();
+    }
     if (canViewPtecRh) fetchPtecRh();
     if (canViewPtecTrp) fetchPtecTrp();
   }, [roles]);
@@ -55,6 +59,15 @@ const Dashboard = () => {
       .order("data", { ascending: false })
       .limit(10);
     setPtecSauData(data || []);
+  };
+
+  const fetchPtecSauProntuarios = async () => {
+    const { data } = await supabase
+      .from("ptec_sau_prontuarios")
+      .select("*")
+      .order("data", { ascending: false })
+      .limit(10);
+    setPtecSauProntuarios(data || []);
   };
 
   const fetchPtecRh = async () => {
@@ -130,6 +143,16 @@ const Dashboard = () => {
       existing.value++;
     } else {
       acc.push({ name: item.atividade || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const gravidadeDataSau = ptecSauProntuarios.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.nivel_gravidade);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.nivel_gravidade, value: 1 });
     }
     return acc;
   }, []);
@@ -304,6 +327,54 @@ const Dashboard = () => {
                       <TableCell>{item.numero_pms}</TableCell>
                       <TableCell>{item.om_responsavel}</TableCell>
                       <TableCell>{item.atividade || "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Ptec Sau Prontuários Section */}
+      {canViewPtecSau && ptecSauProntuarios.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Ptec Sau - Prontuários</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Prontuários por Nível de Gravidade
+              </h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={gravidadeDataSau}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#0A7373" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Últimos Prontuários
+              </h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Idade</TableHead>
+                    <TableHead>Gravidade</TableHead>
+                    <TableHead>Situação</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ptecSauProntuarios.slice(0, 5).map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.nome}</TableCell>
+                      <TableCell>{item.idade}</TableCell>
+                      <TableCell>{item.nivel_gravidade}</TableCell>
+                      <TableCell>{item.situacao_atual}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
