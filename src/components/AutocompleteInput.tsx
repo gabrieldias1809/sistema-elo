@@ -29,9 +29,6 @@ export const AutocompleteInput = ({
         .filter((s) => s.toLowerCase().includes(value.toLowerCase()))
         .slice(0, 5);
       setFilteredSuggestions(filtered);
-      if (filtered.length > 0) {
-        setOpen(true);
-      }
     } else {
       setFilteredSuggestions(suggestions.slice(0, 5));
     }
