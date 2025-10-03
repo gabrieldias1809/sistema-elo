@@ -8,49 +8,49 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: 171 17% 16%;
+    --foreground: 57 30% 85%;
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 100%;
+    --card: 44 19% 20%;
+    --card-foreground: 57 30% 85%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 44 19% 20%;
+    --popover-foreground: 57 30% 85%;
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 135 48% 28%;
+    --primary-foreground: 57 30% 95%;
 
-    --secondary: 220 13% 18%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 94 78% 31%;
+    --secondary-foreground: 57 30% 95%;
 
-    --muted: 220 13% 18%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 44 19% 23%;
+    --muted-foreground: 57 20% 65%;
 
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 94 78% 31%;
+    --accent-foreground: 57 30% 95%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 262 83% 58%;
+    --border: 57 30% 40%;
+    --input: 44 19% 25%;
+    --ring: 94 78% 31%;
 
     --radius: 0.75rem;
 
     /* Gradient colors */
-    --gradient-from: 262 83% 58%;
-    --gradient-to: 221 83% 53%;
+    --gradient-from: 135 48% 28%;
+    --gradient-to: 94 78% 31%;
     
     /* Sidebar */
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 0 0% 80%;
-    --sidebar-primary: 262 83% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-background: 171 17% 14%;
+    --sidebar-foreground: 57 30% 75%;
+    --sidebar-primary: 135 48% 28%;
+    --sidebar-primary-foreground: 57 30% 95%;
+    --sidebar-accent: 44 19% 23%;
+    --sidebar-accent-foreground: 57 30% 95%;
+    --sidebar-border: 57 30% 35%;
+    --sidebar-ring: 94 78% 31%;
   }
 }
 
@@ -60,7 +60,7 @@ All colors MUST be HSL.
   }
   
   .gradient-primary-hover {
-    background: linear-gradient(to right, hsl(262 83% 50%), hsl(221 83% 45%));
+    background: linear-gradient(to right, hsl(135 48% 24%), hsl(94 78% 27%));
   }
 }
 
