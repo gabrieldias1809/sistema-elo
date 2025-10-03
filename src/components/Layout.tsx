@@ -39,7 +39,7 @@ const Layout = () => {
             <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
               <i className="ri-coins-line text-white text-lg"></i>
             </div>
-            <h1 className="text-xl font-bold text-foreground font-playfair">
+            <h1 className="text-xl font-bold text-foreground font-montserrat">
               Sistema ELO
             </h1>
           </div>
