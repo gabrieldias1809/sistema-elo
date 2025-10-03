@@ -200,59 +200,53 @@ export type Database = {
         }
         Relationships: []
       }
-      ptec_sau_relatorios: {
+      ptec_sau_pms: {
         Row: {
-          cirurgias: number | null
+          atividade: string | null
+          conduta_esperada: string | null
           created_at: string
           created_by: string | null
           data: string
-          evacuacoes: number | null
+          descricao: string | null
+          fracao: string | null
+          hora: string | null
           id: string
-          internados_enfermaria: number | null
-          internados_uti: number | null
-          nivel_grave: number | null
-          nivel_leve: number | null
-          nivel_moderado: number | null
-          nivel_obs: number | null
-          obitos: number | null
+          local: string | null
+          numero_pms: string
           observacoes: string | null
-          retorno_combate: number | null
+          om_responsavel: string
           updated_at: string
         }
         Insert: {
-          cirurgias?: number | null
+          atividade?: string | null
+          conduta_esperada?: string | null
           created_at?: string
           created_by?: string | null
           data: string
-          evacuacoes?: number | null
+          descricao?: string | null
+          fracao?: string | null
+          hora?: string | null
           id?: string
-          internados_enfermaria?: number | null
-          internados_uti?: number | null
-          nivel_grave?: number | null
-          nivel_leve?: number | null
-          nivel_moderado?: number | null
-          nivel_obs?: number | null
-          obitos?: number | null
+          local?: string | null
+          numero_pms: string
           observacoes?: string | null
-          retorno_combate?: number | null
+          om_responsavel: string
           updated_at?: string
         }
         Update: {
-          cirurgias?: number | null
+          atividade?: string | null
+          conduta_esperada?: string | null
           created_at?: string
           created_by?: string | null
           data?: string
-          evacuacoes?: number | null
+          descricao?: string | null
+          fracao?: string | null
+          hora?: string | null
           id?: string
-          internados_enfermaria?: number | null
-          internados_uti?: number | null
-          nivel_grave?: number | null
-          nivel_leve?: number | null
-          nivel_moderado?: number | null
-          nivel_obs?: number | null
-          obitos?: number | null
+          local?: string | null
+          numero_pms?: string
           observacoes?: string | null
-          retorno_combate?: number | null
+          om_responsavel?: string
           updated_at?: string
         }
         Relationships: []

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
+import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
@@ -16,6 +17,9 @@ import { format } from "date-fns";
 const PtecMB = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
+  const [marcaSuggestions, setMarcaSuggestions] = useState<string[]>([]);
+  
   const [formData, setFormData] = useState({
     numero_os: "",
     situacao: "",
@@ -54,6 +58,13 @@ const PtecMB = () => {
     }
 
     setOS(data || []);
+    
+    // Extract unique suggestions
+    const uniqueOms = [...new Set(data?.map(d => d.om_apoiada).filter(Boolean))];
+    const uniqueMarcas = [...new Set(data?.map(d => d.marca).filter(Boolean))];
+    
+    setOmSuggestions(uniqueOms);
+    setMarcaSuggestions(uniqueMarcas);
   };
 
   const getNextOSNumber = async () => {
@@ -172,21 +183,25 @@ const PtecMB = () => {
                 </div>
                 <div>
                   <Label>OM Apoiada</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.om_apoiada}
-                    onChange={(e) =>
-                      setFormData({ ...formData, om_apoiada: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, om_apoiada: value })
                     }
+                    suggestions={omSuggestions}
                     required
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
                   <Label>Marca</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.marca}
-                    onChange={(e) =>
-                      setFormData({ ...formData, marca: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, marca: value })
                     }
+                    suggestions={marcaSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
@@ -213,7 +228,6 @@ const PtecMB = () => {
                     onChange={(value) =>
                       setFormData({ ...formData, data_inicio: value })
                     }
-                    placeholder="Selecione data e hora de início"
                   />
                 </div>
                 <div>
@@ -223,7 +237,6 @@ const PtecMB = () => {
                     onChange={(value) =>
                       setFormData({ ...formData, data_fim: value })
                     }
-                    placeholder="Selecione data e hora de fim"
                   />
                 </div>
               </div>
@@ -234,6 +247,7 @@ const PtecMB = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, servico_solicitado: e.target.value })
                   }
+                  className="placeholder:text-transparent"
                 />
               </div>
               <div>
@@ -243,6 +257,7 @@ const PtecMB = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, observacoes: e.target.value })
                   }
+                  className="placeholder:text-transparent"
                 />
               </div>
               <Button type="submit" className="w-full gradient-primary text-white">

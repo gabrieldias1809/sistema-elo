@@ -50,7 +50,7 @@ const Dashboard = () => {
 
   const fetchPtecSau = async () => {
     const { data } = await supabase
-      .from("ptec_sau_relatorios")
+      .from("ptec_sau_pms")
       .select("*")
       .order("data", { ascending: false })
       .limit(10);
@@ -124,12 +124,15 @@ const Dashboard = () => {
   }, []);
 
   // Gráficos Ptec Sau
-  const atendimentosData = ptecSauData.map((item) => ({
-    data: format(new Date(item.data), "dd/MM"),
-    Leve: item.nivel_leve,
-    Moderado: item.nivel_moderado,
-    Grave: item.nivel_grave,
-  }));
+  const atividadesDataSau = ptecSauData.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.atividade);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.atividade || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
 
   // Gráficos Ptec RH
   const corposPorDia = ptecRhData.map((item) => ({
@@ -267,23 +270,46 @@ const Dashboard = () => {
       {/* Ptec Sau Section */}
       {canViewPtecSau && ptecSauData.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-4">Ptec Sau - Saúde</h2>
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">
-              Atendimentos por Gravidade
-            </h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={atendimentosData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="data" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="Leve" stroke="#9b87f5" />
-                <Line type="monotone" dataKey="Moderado" stroke="#7E69AB" />
-                <Line type="monotone" dataKey="Grave" stroke="#6E59A5" />
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
+          <h2 className="text-2xl font-bold text-foreground mb-4">Ptec Sau - Saúde (PMS)</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                PMS por Atividade
+              </h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={atividadesDataSau}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#9b87f5" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Últimos PMS
+              </h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nº PMS</TableHead>
+                    <TableHead>OM</TableHead>
+                    <TableHead>Atividade</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ptecSauData.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.numero_pms}</TableCell>
+                      <TableCell>{item.om_responsavel}</TableCell>
+                      <TableCell>{item.atividade || "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
         </div>
       )}
 

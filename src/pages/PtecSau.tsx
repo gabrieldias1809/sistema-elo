@@ -7,36 +7,42 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { format } from "date-fns";
+import { Clock } from "lucide-react";
 
 const COLORS = ["#9b87f5", "#7E69AB", "#6E59A5", "#D6BCFA"];
 
 const PtecSau = () => {
-  const [relatorios, setRelatorios] = useState<any[]>([]);
+  const [pms, setPms] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
+  const [atividadeSuggestions, setAtividadeSuggestions] = useState<string[]>([]);
+  const [localSuggestions, setLocalSuggestions] = useState<string[]>([]);
+  const [fracaoSuggestions, setFracaoSuggestions] = useState<string[]>([]);
+  
   const [formData, setFormData] = useState({
+    om_responsavel: "",
+    numero_pms: "",
+    atividade: "",
     data: "",
-    nivel_leve: "0",
-    nivel_moderado: "0",
-    nivel_grave: "0",
-    nivel_obs: "0",
-    cirurgias: "0",
-    obitos: "0",
-    evacuacoes: "0",
-    internados_uti: "0",
-    internados_enfermaria: "0",
-    retorno_combate: "0",
+    hora: "",
+    local: "",
+    fracao: "",
+    descricao: "",
+    conduta_esperada: "",
     observacoes: "",
   });
 
   useEffect(() => {
-    fetchRelatorios();
+    fetchPms();
   }, []);
 
-  const fetchRelatorios = async () => {
+  const fetchPms = async () => {
     const { data, error } = await supabase
-      .from("ptec_sau_relatorios")
+      .from("ptec_sau_pms")
       .select("*")
       .order("data", { ascending: false });
 
@@ -45,214 +51,193 @@ const PtecSau = () => {
       return;
     }
 
-    setRelatorios(data || []);
+    setPms(data || []);
+    
+    // Extract unique suggestions
+    const uniqueOms = [...new Set(data?.map(d => d.om_responsavel).filter(Boolean))];
+    const uniqueAtividades = [...new Set(data?.map(d => d.atividade).filter(Boolean))];
+    const uniqueLocais = [...new Set(data?.map(d => d.local).filter(Boolean))];
+    const uniqueFracoes = [...new Set(data?.map(d => d.fracao).filter(Boolean))];
+    
+    setOmSuggestions(uniqueOms);
+    setAtividadeSuggestions(uniqueAtividades);
+    setLocalSuggestions(uniqueLocais);
+    setFracaoSuggestions(uniqueFracoes);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { error } = await supabase.from("ptec_sau_relatorios").insert([
+    const { error } = await supabase.from("ptec_sau_pms").insert([
       {
-        data: formData.data,
-        nivel_leve: parseInt(formData.nivel_leve),
-        nivel_moderado: parseInt(formData.nivel_moderado),
-        nivel_grave: parseInt(formData.nivel_grave),
-        nivel_obs: parseInt(formData.nivel_obs),
-        cirurgias: parseInt(formData.cirurgias),
-        obitos: parseInt(formData.obitos),
-        evacuacoes: parseInt(formData.evacuacoes),
-        internados_uti: parseInt(formData.internados_uti),
-        internados_enfermaria: parseInt(formData.internados_enfermaria),
-        retorno_combate: parseInt(formData.retorno_combate),
-        observacoes: formData.observacoes,
+        ...formData,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       },
     ]);
 
     if (error) {
-      toast.error("Erro ao criar relatório");
+      toast.error("Erro ao criar PMS");
       return;
     }
 
-    toast.success("Relatório criado com sucesso!");
+    toast.success("PMS criado com sucesso!");
     setOpen(false);
     setFormData({
+      om_responsavel: "",
+      numero_pms: "",
+      atividade: "",
       data: "",
-      nivel_leve: "0",
-      nivel_moderado: "0",
-      nivel_grave: "0",
-      nivel_obs: "0",
-      cirurgias: "0",
-      obitos: "0",
-      evacuacoes: "0",
-      internados_uti: "0",
-      internados_enfermaria: "0",
-      retorno_combate: "0",
+      hora: "",
+      local: "",
+      fracao: "",
+      descricao: "",
+      conduta_esperada: "",
       observacoes: "",
     });
-    fetchRelatorios();
+    fetchPms();
   };
 
   // Dados para gráficos
-  const gravidadeData = relatorios.reduce(
-    (acc, item) => {
-      acc[0].value += item.nivel_leve || 0;
-      acc[1].value += item.nivel_moderado || 0;
-      acc[2].value += item.nivel_grave || 0;
-      acc[3].value += item.nivel_obs || 0;
-      return acc;
-    },
-    [
-      { name: "Leve", value: 0 },
-      { name: "Moderado", value: 0 },
-      { name: "Grave", value: 0 },
-      { name: "OBS", value: 0 },
-    ]
-  );
+  const atividadesData = pms.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.atividade);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.atividade || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
 
-  const cirurgiasData = relatorios.map((r) => ({
-    data: new Date(r.data).toLocaleDateString(),
-    cirurgias: r.cirurgias,
-  }));
-
-  const evacuacoesData = relatorios.reduce(
-    (acc, item) => {
-      acc[0].value += item.evacuacoes || 0;
-      return acc;
-    },
-    [{ name: "Evacuações", value: 0 }]
-  );
+  const omsData = pms.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.om_responsavel);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.om_responsavel || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
 
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Ptec Sau</h1>
-          <p className="text-muted-foreground">Companhia de Saúde</p>
+          <p className="text-muted-foreground">Companhia de Saúde - PMS</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="gradient-primary text-white">
-              <i className="ri-add-line mr-2"></i>Novo Relatório
+              <i className="ri-add-line mr-2"></i>Novo PMS
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Novo Relatório de Saúde</DialogTitle>
+              <DialogTitle>Novo Problema Militar Simulado</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label>Data</Label>
-                <Input
-                  type="date"
-                  value={formData.data}
-                  onChange={(e) =>
-                    setFormData({ ...formData, data: e.target.value })
-                  }
-                  required
-                />
-              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Nível Leve</Label>
-                  <Input
-                    type="number"
-                    value={formData.nivel_leve}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nivel_leve: e.target.value })
+                  <Label>OM Responsável</Label>
+                  <AutocompleteInput
+                    value={formData.om_responsavel}
+                    onChange={(value) =>
+                      setFormData({ ...formData, om_responsavel: value })
                     }
+                    suggestions={omSuggestions}
+                    required
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
-                  <Label>Nível Moderado</Label>
+                  <Label>Número do PMS</Label>
                   <Input
-                    type="number"
-                    value={formData.nivel_moderado}
+                    value={formData.numero_pms}
                     onChange={(e) =>
-                      setFormData({ ...formData, nivel_moderado: e.target.value })
+                      setFormData({ ...formData, numero_pms: e.target.value })
                     }
+                    required
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
-                  <Label>Nível Grave</Label>
-                  <Input
-                    type="number"
-                    value={formData.nivel_grave}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nivel_grave: e.target.value })
+                  <Label>Atividade</Label>
+                  <AutocompleteInput
+                    value={formData.atividade}
+                    onChange={(value) =>
+                      setFormData({ ...formData, atividade: value })
                     }
+                    suggestions={atividadeSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
-                  <Label>Nível OBS</Label>
+                  <Label>Data</Label>
                   <Input
-                    type="number"
-                    value={formData.nivel_obs}
+                    type="date"
+                    value={formData.data}
                     onChange={(e) =>
-                      setFormData({ ...formData, nivel_obs: e.target.value })
+                      setFormData({ ...formData, data: e.target.value })
                     }
+                    required
                   />
                 </div>
                 <div>
-                  <Label>Cirurgias</Label>
-                  <Input
-                    type="number"
-                    value={formData.cirurgias}
-                    onChange={(e) =>
-                      setFormData({ ...formData, cirurgias: e.target.value })
-                    }
-                  />
+                  <Label>Hora</Label>
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                    <Input
+                      type="time"
+                      value={formData.hora}
+                      onChange={(e) =>
+                        setFormData({ ...formData, hora: e.target.value })
+                      }
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Label>Óbitos</Label>
-                  <Input
-                    type="number"
-                    value={formData.obitos}
-                    onChange={(e) =>
-                      setFormData({ ...formData, obitos: e.target.value })
+                  <Label>Local</Label>
+                  <AutocompleteInput
+                    value={formData.local}
+                    onChange={(value) =>
+                      setFormData({ ...formData, local: value })
                     }
+                    suggestions={localSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
-                <div>
-                  <Label>Evacuações</Label>
-                  <Input
-                    type="number"
-                    value={formData.evacuacoes}
-                    onChange={(e) =>
-                      setFormData({ ...formData, evacuacoes: e.target.value })
+                <div className="col-span-2">
+                  <Label>Fração</Label>
+                  <AutocompleteInput
+                    value={formData.fracao}
+                    onChange={(value) =>
+                      setFormData({ ...formData, fracao: value })
                     }
+                    suggestions={fracaoSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
-                <div>
-                  <Label>Internados UTI</Label>
-                  <Input
-                    type="number"
-                    value={formData.internados_uti}
-                    onChange={(e) =>
-                      setFormData({ ...formData, internados_uti: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Internados Enfermaria</Label>
-                  <Input
-                    type="number"
-                    value={formData.internados_enfermaria}
-                    onChange={(e) =>
-                      setFormData({ ...formData, internados_enfermaria: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Retorno ao Combate</Label>
-                  <Input
-                    type="number"
-                    value={formData.retorno_combate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, retorno_combate: e.target.value })
-                    }
-                  />
-                </div>
+              </div>
+              <div>
+                <Label>Descrição do PMS</Label>
+                <Textarea
+                  value={formData.descricao}
+                  onChange={(e) =>
+                    setFormData({ ...formData, descricao: e.target.value })
+                  }
+                  className="placeholder:text-transparent"
+                />
+              </div>
+              <div>
+                <Label>Conduta Esperada no Atendimento</Label>
+                <Textarea
+                  value={formData.conduta_esperada}
+                  onChange={(e) =>
+                    setFormData({ ...formData, conduta_esperada: e.target.value })
+                  }
+                  className="placeholder:text-transparent"
+                />
               </div>
               <div>
                 <Label>Observações</Label>
@@ -261,10 +246,11 @@ const PtecSau = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, observacoes: e.target.value })
                   }
+                  className="placeholder:text-transparent"
                 />
               </div>
               <Button type="submit" className="w-full gradient-primary text-white">
-                Criar Relatório
+                Criar PMS
               </Button>
             </form>
           </DialogContent>
@@ -275,12 +261,27 @@ const PtecSau = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Atendimentos por Gravidade
+            PMS por Atividade
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={atividadesData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#9b87f5" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            PMS por OM Responsável
           </h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
-                data={gravidadeData}
+                data={omsData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -289,76 +290,12 @@ const PtecSau = () => {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {gravidadeData.map((entry, index) => (
+                {omsData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
             </PieChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Cirurgias
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={cirurgiasData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="data" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="cirurgias" fill="#9b87f5" />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Evacuações
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={evacuacoesData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label
-                outerRadius={80}
-                fill="#9b87f5"
-                dataKey="value"
-              >
-                {evacuacoesData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Timeline Geral
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart
-              data={relatorios.map((r) => ({
-                data: new Date(r.data).toLocaleDateString(),
-                total:
-                  (r.nivel_leve || 0) +
-                  (r.nivel_moderado || 0) +
-                  (r.nivel_grave || 0) +
-                  (r.nivel_obs || 0),
-              }))}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="data" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="total" stroke="#9b87f5" />
-            </LineChart>
           </ResponsiveContainer>
         </Card>
       </div>
@@ -366,31 +303,31 @@ const PtecSau = () => {
       {/* Tabela */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">
-          Relatórios de Saúde
+          Registros de PMS
         </h3>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Nº PMS</TableHead>
+                <TableHead>OM Responsável</TableHead>
+                <TableHead>Atividade</TableHead>
                 <TableHead>Data</TableHead>
-                <TableHead>Leve</TableHead>
-                <TableHead>Moderado</TableHead>
-                <TableHead>Grave</TableHead>
-                <TableHead>Cirurgias</TableHead>
-                <TableHead>Óbitos</TableHead>
+                <TableHead>Hora</TableHead>
+                <TableHead>Local</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {relatorios.map((item) => (
+              {pms.map((item) => (
                 <TableRow key={item.id}>
+                  <TableCell>{item.numero_pms}</TableCell>
+                  <TableCell>{item.om_responsavel}</TableCell>
+                  <TableCell>{item.atividade || "-"}</TableCell>
                   <TableCell>
-                    {new Date(item.data).toLocaleDateString()}
+                    {item.data ? format(new Date(item.data), "dd/MM/yyyy") : "-"}
                   </TableCell>
-                  <TableCell>{item.nivel_leve}</TableCell>
-                  <TableCell>{item.nivel_moderado}</TableCell>
-                  <TableCell>{item.nivel_grave}</TableCell>
-                  <TableCell>{item.cirurgias}</TableCell>
-                  <TableCell>{item.obitos}</TableCell>
+                  <TableCell>{item.hora || "-"}</TableCell>
+                  <TableCell>{item.local || "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

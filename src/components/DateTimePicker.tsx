@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Clock } from "lucide-react";
 import { format } from "date-fns";
 
 interface DateTimePickerProps {
@@ -71,12 +71,15 @@ export const DateTimePicker = ({ value, onChange, placeholder = "Selecione data 
           />
         </PopoverContent>
       </Popover>
-      <Input
-        type="time"
-        value={timeValue}
-        onChange={handleTimeChange}
-        className="w-32"
-      />
+      <div className="relative w-32">
+        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          type="time"
+          value={timeValue}
+          onChange={handleTimeChange}
+          className="pl-10"
+        />
+      </div>
     </div>
   );
 };
