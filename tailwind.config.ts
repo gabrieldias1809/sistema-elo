@@ -57,6 +57,13 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        gradient: {
+          from: "hsl(var(--gradient-from))",
+          to: "hsl(var(--gradient-to))",
+        },
+      },
+      fontFamily: {
+        pacifico: ["Pacifico", "cursive"],
       },
       borderRadius: {
         lg: "var(--radius)",
