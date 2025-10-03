@@ -18,8 +18,8 @@ const Layout = () => {
 
   const allNavItems = [
     { title: "Dashboard", url: "/", icon: "ri-dashboard-line", role: null },
-    { title: "Ptec Com", url: "/ptec-com", icon: "ri-radio-line", role: "ptec_com" as const },
-    { title: "Ptec MB", url: "/ptec-mb", icon: "ri-gun-line", role: "ptec_mb" as const },
+    { title: "Ptec Com", url: "/ptec-com", icon: "ri-computer-line", role: "ptec_com" as const },
+    { title: "Ptec MB", url: "/ptec-mb", icon: "ri-tools-line", role: "ptec_mb" as const },
     { title: "Ptec Sau", url: "/ptec-sau", icon: "ri-heart-pulse-line", role: "ptec_sau" as const },
     { title: "Ptec RH", url: "/ptec-rh", icon: "ri-team-line", role: "ptec_rh" as const },
     { title: "Ptec Trp", url: "/ptec-trp", icon: "ri-truck-line", role: "ptec_trp" as const },

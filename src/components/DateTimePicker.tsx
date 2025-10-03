@@ -72,7 +72,13 @@ export const DateTimePicker = ({ value, onChange, placeholder = "Selecione data 
         </PopoverContent>
       </Popover>
       <div className="relative w-32">
-        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Clock 
+          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors z-10" 
+          onClick={() => {
+            const input = document.querySelector('input[type="time"]') as HTMLInputElement;
+            if (input) input.showPicker();
+          }}
+        />
         <Input
           type="time"
           value={timeValue}
