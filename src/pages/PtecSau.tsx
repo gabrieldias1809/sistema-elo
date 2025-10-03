@@ -369,7 +369,7 @@ const PtecSau = () => {
                 <div>
                   <Label>Hora</Label>
                   <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none z-10" />
                     <Input
                       type="time"
                       value={formData.hora}

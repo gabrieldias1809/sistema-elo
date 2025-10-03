@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
+import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
@@ -16,6 +17,12 @@ const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 const PtecTrp = () => {
   const [transportes, setTransportes] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [placaSuggestions, setPlacaSuggestions] = useState<string[]>([]);
+  const [motoristaSuggestions, setMotoristaSuggestions] = useState<string[]>([]);
+  const [chefeVtrSuggestions, setChefeVtrSuggestions] = useState<string[]>([]);
+  const [destinoSuggestions, setDestinoSuggestions] = useState<string[]>([]);
+  const [utilizacaoSuggestions, setUtilizacaoSuggestions] = useState<string[]>([]);
+  const [classeSuggestions, setClasseSuggestions] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     placa_vtr: "",
     data_hora_saida: "",
@@ -47,6 +54,21 @@ const PtecTrp = () => {
     }
 
     setTransportes(data || []);
+    
+    // Extract unique suggestions
+    const uniquePlacas = [...new Set(data?.map(d => d.placa_vtr).filter(Boolean))];
+    const uniqueMotoristas = [...new Set(data?.map(d => d.motorista).filter(Boolean))];
+    const uniqueChefes = [...new Set(data?.map(d => d.chefe_vtr).filter(Boolean))];
+    const uniqueDestinos = [...new Set(data?.map(d => d.destino).filter(Boolean))];
+    const uniqueUtilizacoes = [...new Set(data?.map(d => d.utilizacao).filter(Boolean))];
+    const uniqueClasses = [...new Set(data?.map(d => d.classe_material).filter(Boolean))];
+    
+    setPlacaSuggestions(uniquePlacas);
+    setMotoristaSuggestions(uniqueMotoristas);
+    setChefeVtrSuggestions(uniqueChefes);
+    setDestinoSuggestions(uniqueDestinos);
+    setUtilizacaoSuggestions(uniqueUtilizacoes);
+    setClasseSuggestions(uniqueClasses);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -136,21 +158,25 @@ const PtecTrp = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Placa VTR</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.placa_vtr}
-                    onChange={(e) =>
-                      setFormData({ ...formData, placa_vtr: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, placa_vtr: value })
                     }
+                    suggestions={placaSuggestions}
                     required
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
                   <Label>Destino</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.destino}
-                    onChange={(e) =>
-                      setFormData({ ...formData, destino: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, destino: value })
                     }
+                    suggestions={destinoSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div className="col-span-2">
@@ -195,29 +221,35 @@ const PtecTrp = () => {
                 </div>
                 <div>
                   <Label>Chefe VTR</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.chefe_vtr}
-                    onChange={(e) =>
-                      setFormData({ ...formData, chefe_vtr: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, chefe_vtr: value })
                     }
+                    suggestions={chefeVtrSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
                   <Label>Motorista</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.motorista}
-                    onChange={(e) =>
-                      setFormData({ ...formData, motorista: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, motorista: value })
                     }
+                    suggestions={motoristaSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
                   <Label>Classe de Material</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.classe_material}
-                    onChange={(e) =>
-                      setFormData({ ...formData, classe_material: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, classe_material: value })
                     }
+                    suggestions={classeSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>

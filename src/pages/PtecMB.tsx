@@ -23,6 +23,8 @@ const PtecMB = () => {
   const [osToDelete, setOsToDelete] = useState<any>(null);
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
   const [marcaSuggestions, setMarcaSuggestions] = useState<string[]>([]);
+  const [memSuggestions, setMemSuggestions] = useState<string[]>([]);
+  const [sistemaSuggestions, setSistemaSuggestions] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     numero_os: "",
@@ -82,9 +84,13 @@ const PtecMB = () => {
     // Extract unique suggestions
     const uniqueOms = [...new Set(data?.map(d => d.om_apoiada).filter(Boolean))];
     const uniqueMarcas = [...new Set(data?.map(d => d.marca).filter(Boolean))];
+    const uniqueMems = [...new Set(data?.map(d => d.mem).filter(Boolean))];
+    const uniqueSistemas = [...new Set(data?.map(d => d.sistema).filter(Boolean))];
     
     setOmSuggestions(uniqueOms);
     setMarcaSuggestions(uniqueMarcas);
+    setMemSuggestions(uniqueMems);
+    setSistemaSuggestions(uniqueSistemas);
   };
 
   const getNextOSNumber = async () => {
@@ -273,6 +279,28 @@ const PtecMB = () => {
                       setFormData({ ...formData, marca: value })
                     }
                     suggestions={marcaSuggestions}
+                    className="placeholder:text-transparent"
+                  />
+                </div>
+                <div>
+                  <Label>MEM</Label>
+                  <AutocompleteInput
+                    value={formData.mem}
+                    onChange={(value) =>
+                      setFormData({ ...formData, mem: value })
+                    }
+                    suggestions={memSuggestions}
+                    className="placeholder:text-transparent"
+                  />
+                </div>
+                <div>
+                  <Label>Sistema</Label>
+                  <AutocompleteInput
+                    value={formData.sistema}
+                    onChange={(value) =>
+                      setFormData({ ...formData, sistema: value })
+                    }
+                    suggestions={sistemaSuggestions}
                     className="placeholder:text-transparent"
                   />
                 </div>

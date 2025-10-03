@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
+import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format } from "date-fns";
@@ -17,6 +18,10 @@ const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 const PtecRH = () => {
   const [ocorrencias, setOcorrencias] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [nomeGuerraSuggestions, setNomeGuerraSuggestions] = useState<string[]>([]);
+  const [graduacaoSuggestions, setGraduacaoSuggestions] = useState<string[]>([]);
+  const [localSuggestions, setLocalSuggestions] = useState<string[]>([]);
+  const [causaSuggestions, setCausaSuggestions] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     nome_guerra: "",
     graduacao: "",
@@ -44,6 +49,17 @@ const PtecRH = () => {
     }
 
     setOcorrencias(data || []);
+    
+    // Extract unique suggestions
+    const uniqueNomes = [...new Set(data?.map(d => d.nome_guerra).filter(Boolean))];
+    const uniqueGraduacoes = [...new Set(data?.map(d => d.graduacao).filter(Boolean))];
+    const uniqueLocais = [...new Set(data?.map(d => d.local).filter(Boolean))];
+    const uniqueCausas = [...new Set(data?.map(d => d.causa_provavel).filter(Boolean))];
+    
+    setNomeGuerraSuggestions(uniqueNomes);
+    setGraduacaoSuggestions(uniqueGraduacoes);
+    setLocalSuggestions(uniqueLocais);
+    setCausaSuggestions(uniqueCausas);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,29 +136,35 @@ const PtecRH = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Nome de Guerra</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.nome_guerra}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nome_guerra: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, nome_guerra: value })
                     }
+                    suggestions={nomeGuerraSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
                   <Label>Graduação</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.graduacao}
-                    onChange={(e) =>
-                      setFormData({ ...formData, graduacao: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, graduacao: value })
                     }
+                    suggestions={graduacaoSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div>
                   <Label>Causa Provável</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.causa_provavel}
-                    onChange={(e) =>
-                      setFormData({ ...formData, causa_provavel: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, causa_provavel: value })
                     }
+                    suggestions={causaSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
                 <div className="col-span-2">
@@ -169,11 +191,13 @@ const PtecRH = () => {
                 </div>
                 <div className="col-span-2">
                   <Label>Local</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.local}
-                    onChange={(e) =>
-                      setFormData({ ...formData, local: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, local: value })
                     }
+                    suggestions={localSuggestions}
+                    className="placeholder:text-transparent"
                   />
                 </div>
               </div>
