@@ -158,9 +158,8 @@ export type Database = {
           created_at: string
           created_by: string | null
           data: string
-          dia_semana: string | null
-          gdh: string | null
           graduacao: string | null
+          hora: string | null
           id: string
           local: string | null
           nome_guerra: string | null
@@ -173,9 +172,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           data: string
-          dia_semana?: string | null
-          gdh?: string | null
           graduacao?: string | null
+          hora?: string | null
           id?: string
           local?: string | null
           nome_guerra?: string | null
@@ -188,9 +186,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           data?: string
-          dia_semana?: string | null
-          gdh?: string | null
           graduacao?: string | null
+          hora?: string | null
           id?: string
           local?: string | null
           nome_guerra?: string | null

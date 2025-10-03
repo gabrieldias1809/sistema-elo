@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { format } from "date-fns";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
@@ -16,14 +18,13 @@ const PtecRH = () => {
   const [ocorrencias, setOcorrencias] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
+    nome_guerra: "",
+    graduacao: "",
+    causa_provavel: "",
     data: "",
-    dia_semana: "",
+    hora: "",
     quantidade_corpos: "0",
     local: "",
-    gdh: "",
-    causa_provavel: "",
-    graduacao: "",
-    nome_guerra: "",
     observacoes: "",
   });
 
@@ -64,14 +65,13 @@ const PtecRH = () => {
     toast.success("Ocorrência criada com sucesso!");
     setOpen(false);
     setFormData({
+      nome_guerra: "",
+      graduacao: "",
+      causa_provavel: "",
       data: "",
-      dia_semana: "",
+      hora: "",
       quantidade_corpos: "0",
       local: "",
-      gdh: "",
-      causa_provavel: "",
-      graduacao: "",
-      nome_guerra: "",
       observacoes: "",
     });
     fetchOcorrencias();
@@ -119,22 +119,48 @@ const PtecRH = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Data</Label>
+                  <Label>Nome de Guerra</Label>
                   <Input
-                    type="date"
-                    value={formData.data}
+                    value={formData.nome_guerra}
                     onChange={(e) =>
-                      setFormData({ ...formData, data: e.target.value })
+                      setFormData({ ...formData, nome_guerra: e.target.value })
                     }
-                    required
                   />
                 </div>
                 <div>
-                  <Label>Dia da Semana</Label>
+                  <Label>Graduação</Label>
                   <Input
-                    value={formData.dia_semana}
+                    value={formData.graduacao}
                     onChange={(e) =>
-                      setFormData({ ...formData, dia_semana: e.target.value })
+                      setFormData({ ...formData, graduacao: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Causa Provável</Label>
+                  <Input
+                    value={formData.causa_provavel}
+                    onChange={(e) =>
+                      setFormData({ ...formData, causa_provavel: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Label>Data</Label>
+                  <DateTimePicker
+                    value={formData.data}
+                    onChange={(value) =>
+                      setFormData({ ...formData, data: value })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Hora</Label>
+                  <Input
+                    type="time"
+                    value={formData.hora}
+                    onChange={(e) =>
+                      setFormData({ ...formData, hora: e.target.value })
                     }
                   />
                 </div>
@@ -151,48 +177,12 @@ const PtecRH = () => {
                     }
                   />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <Label>Local</Label>
                   <Input
                     value={formData.local}
                     onChange={(e) =>
                       setFormData({ ...formData, local: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>GDH</Label>
-                  <Input
-                    value={formData.gdh}
-                    onChange={(e) =>
-                      setFormData({ ...formData, gdh: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Causa Provável</Label>
-                  <Input
-                    value={formData.causa_provavel}
-                    onChange={(e) =>
-                      setFormData({ ...formData, causa_provavel: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Graduação</Label>
-                  <Input
-                    value={formData.graduacao}
-                    onChange={(e) =>
-                      setFormData({ ...formData, graduacao: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Nome de Guerra</Label>
-                  <Input
-                    value={formData.nome_guerra}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nome_guerra: e.target.value })
                     }
                   />
                 </div>
@@ -266,25 +256,29 @@ const PtecRH = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Nome Guerra</TableHead>
+                <TableHead>Graduação</TableHead>
+                <TableHead>Causa</TableHead>
                 <TableHead>Data</TableHead>
-                <TableHead>Dia Semana</TableHead>
+                <TableHead>Hora</TableHead>
                 <TableHead>Qnt. Corpos</TableHead>
                 <TableHead>Local</TableHead>
-                <TableHead>Causa</TableHead>
-                <TableHead>Nome Guerra</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {ocorrencias.map((item) => (
                 <TableRow key={item.id}>
+                  <TableCell>{item.nome_guerra}</TableCell>
+                  <TableCell>{item.graduacao}</TableCell>
+                  <TableCell>{item.causa_provavel}</TableCell>
                   <TableCell>
-                    {new Date(item.data).toLocaleDateString()}
+                    {item.data
+                      ? format(new Date(item.data), "dd/MM/yyyy HH:mm")
+                      : "-"}
                   </TableCell>
-                  <TableCell>{item.dia_semana}</TableCell>
+                  <TableCell>{item.hora}</TableCell>
                   <TableCell>{item.quantidade_corpos}</TableCell>
                   <TableCell>{item.local}</TableCell>
-                  <TableCell>{item.causa_provavel}</TableCell>
-                  <TableCell>{item.nome_guerra}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
