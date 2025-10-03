@@ -63,7 +63,7 @@ const Auth = () => {
         return;
       }
 
-      toast.success("Conta criada com sucesso! Faça login.");
+      toast.success("Conta criada com sucesso! Faça login para continuar.");
       setIsLogin(true);
       setPassword("");
       setConfirmPassword("");
@@ -102,6 +102,22 @@ const Auth = () => {
             />
           </div>
 
+          {!isLogin && (
+            <div>
+              <Label htmlFor="nomeGuerra" className="text-foreground">
+                Nome de Guerra
+              </Label>
+              <Input
+                id="nomeGuerra"
+                type="text"
+                value={nomeGuerra}
+                onChange={(e) => setNomeGuerra(e.target.value)}
+                className="bg-muted border-border text-foreground"
+                placeholder="Seu nome de guerra"
+              />
+            </div>
+          )}
+
           <div>
             <Label htmlFor="password" className="text-foreground">
               Senha
@@ -117,35 +133,19 @@ const Auth = () => {
           </div>
 
           {!isLogin && (
-            <>
-              <div>
-                <Label htmlFor="confirmPassword" className="text-foreground">
-                  Confirmar Senha
-                </Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-muted border-border text-foreground"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="nomeGuerra" className="text-foreground">
-                  Nome de Guerra
-                </Label>
-                <Input
-                  id="nomeGuerra"
-                  type="text"
-                  value={nomeGuerra}
-                  onChange={(e) => setNomeGuerra(e.target.value)}
-                  className="bg-muted border-border text-foreground"
-                  placeholder="Seu nome de guerra"
-                />
-              </div>
-            </>
+            <div>
+              <Label htmlFor="confirmPassword" className="text-foreground">
+                Confirmar Senha
+              </Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="bg-muted border-border text-foreground"
+                placeholder="••••••••"
+              />
+            </div>
           )}
 
           <Button
@@ -153,33 +153,27 @@ const Auth = () => {
             className="w-full gradient-primary text-white"
             disabled={loading}
           >
-            {loading 
-              ? (isLogin ? "Entrando..." : "Criando conta...") 
-              : (isLogin ? "Entrar" : "Criar Conta")
-            }
+            {loading ? (isLogin ? "Entrando..." : "Criando conta...") : (isLogin ? "Entrar" : "Criar Conta")}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <button
-            type="button"
             onClick={() => {
               setIsLogin(!isLogin);
               setPassword("");
               setConfirmPassword("");
+              setNomeGuerra("");
             }}
             className="text-sm text-primary hover:underline"
           >
-            {isLogin 
-              ? "Não tem uma conta? Criar conta" 
-              : "Já tem uma conta? Fazer login"
-            }
+            {isLogin ? "Não tem uma conta? Criar conta" : "Já tem uma conta? Fazer login"}
           </button>
         </div>
 
         {isLogin && (
           <p className="text-sm text-muted-foreground mt-4 text-center">
-            Usuários: admin, ptec_com, ptec_mb, ptec_sau, ptec_rh, ptec_trp
+            Usuários existentes: admin, ptec_com, ptec_mb, ptec_sau, ptec_rh, ptec_trp
           </p>
         )}
       </Card>
