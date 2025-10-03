@@ -1,8 +1,79 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { format } from "date-fns";
+
+const COLORS = ["#9b87f5", "#7E69AB", "#6E59A5", "#D6BCFA", "#E5DEFF"];
 
 const Dashboard = () => {
   const { user, roles } = useAuth();
+  const [ptecComData, setPtecComData] = useState<any[]>([]);
+  const [ptecMbData, setPtecMbData] = useState<any[]>([]);
+  const [ptecSauData, setPtecSauData] = useState<any[]>([]);
+  const [ptecRhData, setPtecRhData] = useState<any[]>([]);
+  const [ptecTrpData, setPtecTrpData] = useState<any[]>([]);
+
+  const canViewPtecCom = roles.includes("admin") || roles.includes("ptec_com");
+  const canViewPtecMb = roles.includes("admin") || roles.includes("ptec_mb");
+  const canViewPtecSau = roles.includes("admin") || roles.includes("ptec_sau");
+  const canViewPtecRh = roles.includes("admin") || roles.includes("ptec_rh");
+  const canViewPtecTrp = roles.includes("admin") || roles.includes("ptec_trp");
+
+  useEffect(() => {
+    if (canViewPtecCom) fetchPtecCom();
+    if (canViewPtecMb) fetchPtecMb();
+    if (canViewPtecSau) fetchPtecSau();
+    if (canViewPtecRh) fetchPtecRh();
+    if (canViewPtecTrp) fetchPtecTrp();
+  }, [roles]);
+
+  const fetchPtecCom = async () => {
+    const { data } = await supabase
+      .from("ptec_com_os")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    setPtecComData(data || []);
+  };
+
+  const fetchPtecMb = async () => {
+    const { data } = await supabase
+      .from("ptec_mb_os")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    setPtecMbData(data || []);
+  };
+
+  const fetchPtecSau = async () => {
+    const { data } = await supabase
+      .from("ptec_sau_relatorios")
+      .select("*")
+      .order("data", { ascending: false })
+      .limit(10);
+    setPtecSauData(data || []);
+  };
+
+  const fetchPtecRh = async () => {
+    const { data } = await supabase
+      .from("ptec_rh_ocorrencias")
+      .select("*")
+      .order("data", { ascending: false })
+      .limit(5);
+    setPtecRhData(data || []);
+  };
+
+  const fetchPtecTrp = async () => {
+    const { data } = await supabase
+      .from("ptec_trp_transportes")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    setPtecTrpData(data || []);
+  };
 
   const stats = [
     {
@@ -26,6 +97,56 @@ const Dashboard = () => {
       icon: "ri-checkbox-circle-line",
     },
   ];
+
+  // Gráficos Ptec Com
+  const marcasDataCom = ptecComData.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.marca);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.marca || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  // Gráficos Ptec MB
+  const combustivelPorOM = ptecMbData.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.om_apoiada);
+    if (existing) {
+      existing.value += parseFloat(item.quantidade_classe_iii || 0);
+    } else {
+      acc.push({
+        name: item.om_apoiada,
+        value: parseFloat(item.quantidade_classe_iii || 0),
+      });
+    }
+    return acc;
+  }, []);
+
+  // Gráficos Ptec Sau
+  const atendimentosData = ptecSauData.map((item) => ({
+    data: format(new Date(item.data), "dd/MM"),
+    Leve: item.nivel_leve,
+    Moderado: item.nivel_moderado,
+    Grave: item.nivel_grave,
+  }));
+
+  // Gráficos Ptec RH
+  const corposPorDia = ptecRhData.map((item) => ({
+    data: format(new Date(item.data), "dd/MM"),
+    quantidade: item.quantidade_corpos,
+  }));
+
+  // Gráficos Ptec Trp
+  const destinosData = ptecTrpData.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.destino);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.destino || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
 
   return (
     <div>
@@ -51,80 +172,197 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Módulos Disponíveis */}
-      <Card className="bg-card border-border p-6">
-        <h2 className="text-xl font-semibold text-foreground mb-4">
-          Seus Módulos
-        </h2>
-        <div className="space-y-3">
-          {roles.includes("admin") && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-              <div className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center">
-                <i className="ri-shield-star-line text-white"></i>
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Administrador</p>
-                <p className="text-sm text-muted-foreground">Acesso total ao sistema</p>
-              </div>
-            </div>
-          )}
-          {roles.includes("ptec_com") && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-              <div className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center">
-                <i className="ri-radio-line text-white"></i>
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Ptec Com</p>
-                <p className="text-sm text-muted-foreground">Manutenção de Comunicações</p>
-              </div>
-            </div>
-          )}
-          {roles.includes("ptec_mb") && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-              <div className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center">
-                <i className="ri-gun-line text-white"></i>
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Ptec MB</p>
-                <p className="text-sm text-muted-foreground">Manutenção de Material Bélico</p>
-              </div>
-            </div>
-          )}
-          {roles.includes("ptec_sau") && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-              <div className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center">
-                <i className="ri-heart-pulse-line text-white"></i>
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Ptec Sau</p>
-                <p className="text-sm text-muted-foreground">Companhia de Saúde</p>
-              </div>
-            </div>
-          )}
-          {roles.includes("ptec_rh") && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-              <div className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center">
-                <i className="ri-team-line text-white"></i>
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Ptec RH</p>
-                <p className="text-sm text-muted-foreground">Recursos Humanos</p>
-              </div>
-            </div>
-          )}
-          {roles.includes("ptec_trp") && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-              <div className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center">
-                <i className="ri-truck-line text-white"></i>
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Ptec Trp</p>
-                <p className="text-sm text-muted-foreground">Transporte e Suprimento</p>
-              </div>
-            </div>
-          )}
+      {/* Ptec Com Section */}
+      {canViewPtecCom && ptecComData.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Ptec Com - Comunicações</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Marcas mais recorrentes
+              </h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={marcasDataCom}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#9b87f5" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Últimas OS
+              </h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nº OS</TableHead>
+                    <TableHead>Situação</TableHead>
+                    <TableHead>OM</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ptecComData.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.numero_os}</TableCell>
+                      <TableCell>{item.situacao}</TableCell>
+                      <TableCell>{item.om_apoiada}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
         </div>
-      </Card>
+      )}
+
+      {/* Ptec MB Section */}
+      {canViewPtecMb && ptecMbData.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Ptec MB - Material Bélico</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Combustível por OM (Litros)
+              </h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={combustivelPorOM}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#9b87f5" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Últimas OS
+              </h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nº OS</TableHead>
+                    <TableHead>Situação</TableHead>
+                    <TableHead>Combustível</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ptecMbData.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.numero_os}</TableCell>
+                      <TableCell>{item.situacao}</TableCell>
+                      <TableCell>{item.quantidade_classe_iii || "-"}L</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Ptec Sau Section */}
+      {canViewPtecSau && ptecSauData.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Ptec Sau - Saúde</h2>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">
+              Atendimentos por Gravidade
+            </h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={atendimentosData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="data" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="Leve" stroke="#9b87f5" />
+                <Line type="monotone" dataKey="Moderado" stroke="#7E69AB" />
+                <Line type="monotone" dataKey="Grave" stroke="#6E59A5" />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+        </div>
+      )}
+
+      {/* Ptec RH Section */}
+      {canViewPtecRh && ptecRhData.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Ptec RH - Recursos Humanos</h2>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">
+              Ocorrências Mortuárias
+            </h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={corposPorDia}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="data" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="quantidade" fill="#9b87f5" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Card>
+        </div>
+      )}
+
+      {/* Ptec Trp Section */}
+      {canViewPtecTrp && ptecTrpData.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Ptec Trp - Transporte</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Destinos mais recorrentes
+              </h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={destinosData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {destinosData.map((_entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Últimos Transportes
+              </h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Placa</TableHead>
+                    <TableHead>Destino</TableHead>
+                    <TableHead>Motorista</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ptecTrpData.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.placa_vtr}</TableCell>
+                      <TableCell>{item.destino}</TableCell>
+                      <TableCell>{item.motorista}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

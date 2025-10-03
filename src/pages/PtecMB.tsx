@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { format } from "date-fns";
 
 const PtecMB = () => {
   const [os, setOS] = useState<any[]>([]);
@@ -33,6 +36,12 @@ const PtecMB = () => {
     fetchOS();
   }, []);
 
+  useEffect(() => {
+    if (open) {
+      getNextOSNumber();
+    }
+  }, [open]);
+
   const fetchOS = async () => {
     const { data, error } = await supabase
       .from("ptec_mb_os")
@@ -45,6 +54,22 @@ const PtecMB = () => {
     }
 
     setOS(data || []);
+  };
+
+  const getNextOSNumber = async () => {
+    const { data, error } = await supabase
+      .from("ptec_mb_os")
+      .select("numero_os")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.error("Erro ao buscar último número:", error);
+      return;
+    }
+
+    const lastNumber = data && data.length > 0 ? parseInt(data[0].numero_os) : 0;
+    setFormData(prev => ({ ...prev, numero_os: (lastNumber + 1).toString() }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,21 +149,26 @@ const PtecMB = () => {
                   <Label>Nº OS</Label>
                   <Input
                     value={formData.numero_os}
-                    onChange={(e) =>
-                      setFormData({ ...formData, numero_os: e.target.value })
-                    }
-                    required
+                    disabled
+                    className="bg-muted"
                   />
                 </div>
                 <div>
                   <Label>Situação</Label>
-                  <Input
+                  <Select
                     value={formData.situacao}
-                    onChange={(e) =>
-                      setFormData({ ...formData, situacao: e.target.value })
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, situacao: value })
                     }
-                    required
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Aberta">Aberta</SelectItem>
+                      <SelectItem value="Fechada">Fechada</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>OM Apoiada</Label>
@@ -171,6 +201,29 @@ const PtecMB = () => {
                         quantidade_classe_iii: e.target.value,
                       })
                     }
+                    className="placeholder:text-transparent"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <Label>Data Início</Label>
+                  <DateTimePicker
+                    value={formData.data_inicio}
+                    onChange={(value) =>
+                      setFormData({ ...formData, data_inicio: value })
+                    }
+                    placeholder="Selecione data e hora de início"
+                  />
+                </div>
+                <div>
+                  <Label>Data Fim</Label>
+                  <DateTimePicker
+                    value={formData.data_fim}
+                    onChange={(value) =>
+                      setFormData({ ...formData, data_fim: value })
+                    }
+                    placeholder="Selecione data e hora de fim"
                   />
                 </div>
               </div>

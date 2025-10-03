@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { format } from "date-fns";
 
 const COLORS = ["#9b87f5", "#7E69AB", "#6E59A5", "#D6BCFA", "#E5DEFF"];
 
@@ -34,6 +37,12 @@ const PtecCom = () => {
     fetchOS();
   }, []);
 
+  useEffect(() => {
+    if (open) {
+      getNextOSNumber();
+    }
+  }, [open]);
+
   const fetchOS = async () => {
     const { data, error } = await supabase
       .from("ptec_com_os")
@@ -46,6 +55,22 @@ const PtecCom = () => {
     }
 
     setOS(data || []);
+  };
+
+  const getNextOSNumber = async () => {
+    const { data, error } = await supabase
+      .from("ptec_com_os")
+      .select("numero_os")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.error("Erro ao buscar último número:", error);
+      return;
+    }
+
+    const lastNumber = data && data.length > 0 ? parseInt(data[0].numero_os) : 0;
+    setFormData(prev => ({ ...prev, numero_os: (lastNumber + 1).toString() }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,21 +153,26 @@ const PtecCom = () => {
                   <Label>Nº OS</Label>
                   <Input
                     value={formData.numero_os}
-                    onChange={(e) =>
-                      setFormData({ ...formData, numero_os: e.target.value })
-                    }
-                    required
+                    disabled
+                    className="bg-muted"
                   />
                 </div>
                 <div>
                   <Label>Situação</Label>
-                  <Input
+                  <Select
                     value={formData.situacao}
-                    onChange={(e) =>
-                      setFormData({ ...formData, situacao: e.target.value })
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, situacao: value })
                     }
-                    required
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Aberta">Aberta</SelectItem>
+                      <SelectItem value="Fechada">Fechada</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>OM Apoiada</Label>
@@ -181,24 +211,24 @@ const PtecCom = () => {
                     }
                   />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <Label>Data Início</Label>
-                  <Input
-                    type="datetime-local"
+                  <DateTimePicker
                     value={formData.data_inicio}
-                    onChange={(e) =>
-                      setFormData({ ...formData, data_inicio: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, data_inicio: value })
                     }
+                    placeholder="Selecione data e hora de início"
                   />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <Label>Data Fim</Label>
-                  <Input
-                    type="datetime-local"
+                  <DateTimePicker
                     value={formData.data_fim}
-                    onChange={(e) =>
-                      setFormData({ ...formData, data_fim: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, data_fim: value })
                     }
+                    placeholder="Selecione data e hora de fim"
                   />
                 </div>
               </div>
@@ -307,7 +337,7 @@ const PtecCom = () => {
                   <TableCell>{item.sistema}</TableCell>
                   <TableCell>
                     {item.data_inicio
-                      ? new Date(item.data_inicio).toLocaleDateString()
+                      ? format(new Date(item.data_inicio), "dd/MM/yyyy HH:mm")
                       : "-"}
                   </TableCell>
                 </TableRow>
