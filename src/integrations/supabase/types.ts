@@ -251,6 +251,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ptec_sau_prontuarios: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: string
+          id: string
+          idade: number
+          nivel_gravidade: string
+          nome: string
+          situacao_atual: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          id?: string
+          idade: number
+          nivel_gravidade: string
+          nome: string
+          situacao_atual: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          id?: string
+          idade?: number
+          nivel_gravidade?: string
+          nome?: string
+          situacao_atual?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ptec_trp_transportes: {
         Row: {
           chefe_vtr: string | null
