@@ -11,6 +11,7 @@ interface AuthContextType {
   roles: AppRole[];
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, nomeGuerra: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   hasRole: (role: AppRole) => boolean;
 }
@@ -80,6 +81,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
+  const signUp = async (email: string, password: string, nomeGuerra: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        data: {
+          nome_guerra: nomeGuerra,
+        },
+      },
+    });
+    return { error };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setRoles([]);
@@ -91,7 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, roles, loading, signIn, signOut, hasRole }}>
+    <AuthContext.Provider value={{ user, session, roles, loading, signIn, signUp, signOut, hasRole }}>
       {children}
     </AuthContext.Provider>
   );
