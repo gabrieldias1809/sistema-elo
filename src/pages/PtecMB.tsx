@@ -279,7 +279,7 @@ const PtecMB = () => {
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="value" fill="#31610C" />
+            <Bar dataKey="value" fill="#0A7373" />
           </BarChart>
         </ResponsiveContainer>
       </Card>

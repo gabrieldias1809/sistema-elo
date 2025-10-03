@@ -64,6 +64,7 @@ export default {
       },
       fontFamily: {
         pacifico: ["Pacifico", "cursive"],
+        playfair: ["Playfair Display", "serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

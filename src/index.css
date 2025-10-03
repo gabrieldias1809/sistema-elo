@@ -8,49 +8,49 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 171 17% 16%;
-    --foreground: 57 30% 85%;
+    --background: 237 94% 7%;
+    --foreground: 72 23% 88%;
 
-    --card: 44 19% 20%;
-    --card-foreground: 57 30% 85%;
+    --card: 237 80% 10%;
+    --card-foreground: 72 23% 88%;
 
-    --popover: 44 19% 20%;
-    --popover-foreground: 57 30% 85%;
+    --popover: 237 80% 10%;
+    --popover-foreground: 72 23% 88%;
 
-    --primary: 135 48% 28%;
-    --primary-foreground: 57 30% 95%;
+    --primary: 180 83% 25%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 94 78% 31%;
-    --secondary-foreground: 57 30% 95%;
+    --secondary: 40 84% 54%;
+    --secondary-foreground: 237 94% 7%;
 
-    --muted: 44 19% 23%;
-    --muted-foreground: 57 20% 65%;
+    --muted: 237 60% 15%;
+    --muted-foreground: 72 23% 65%;
 
-    --accent: 94 78% 31%;
-    --accent-foreground: 57 30% 95%;
+    --accent: 40 84% 54%;
+    --accent-foreground: 237 94% 7%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 15 97% 39%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 57 30% 40%;
-    --input: 44 19% 25%;
-    --ring: 94 78% 31%;
+    --border: 180 40% 30%;
+    --input: 237 70% 12%;
+    --ring: 40 84% 54%;
 
     --radius: 0.75rem;
 
     /* Gradient colors */
-    --gradient-from: 135 48% 28%;
-    --gradient-to: 94 78% 31%;
+    --gradient-from: 180 83% 25%;
+    --gradient-to: 40 84% 54%;
     
     /* Sidebar */
-    --sidebar-background: 171 17% 14%;
-    --sidebar-foreground: 57 30% 75%;
-    --sidebar-primary: 135 48% 28%;
-    --sidebar-primary-foreground: 57 30% 95%;
-    --sidebar-accent: 44 19% 23%;
-    --sidebar-accent-foreground: 57 30% 95%;
-    --sidebar-border: 57 30% 35%;
-    --sidebar-ring: 94 78% 31%;
+    --sidebar-background: 237 94% 7%;
+    --sidebar-foreground: 72 23% 75%;
+    --sidebar-primary: 180 83% 25%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 237 70% 12%;
+    --sidebar-accent-foreground: 72 23% 88%;
+    --sidebar-border: 180 40% 30%;
+    --sidebar-ring: 40 84% 54%;
   }
 }
 
@@ -60,7 +60,7 @@ All colors MUST be HSL.
   }
   
   .gradient-primary-hover {
-    background: linear-gradient(to right, hsl(135 48% 24%), hsl(94 78% 27%));
+    background: linear-gradient(to right, hsl(180 83% 20%), hsl(40 84% 48%));
   }
 }
 

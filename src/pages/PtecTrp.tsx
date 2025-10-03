@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-const COLORS = ["#31610C", "#184523", "#ABA762", "#22302E", "#474130"];
+const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
 const PtecTrp = () => {
   const [transportes, setTransportes] = useState<any[]>([]);
@@ -274,7 +274,7 @@ const PtecTrp = () => {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#31610C" />
+              <Bar dataKey="value" fill="#0A7373" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
