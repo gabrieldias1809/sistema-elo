@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 
-const COLORS = ["#9b87f5", "#7E69AB", "#6E59A5", "#D6BCFA", "#E5DEFF"];
+const COLORS = ["#31610C", "#184523", "#ABA762", "#22302E", "#474130"];
 
 const Dashboard = () => {
   const { user, roles } = useAuth();
@@ -190,7 +190,7 @@ const Dashboard = () => {
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#9b87f5" />
+                  <Bar dataKey="value" fill="#31610C" />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
@@ -236,7 +236,7 @@ const Dashboard = () => {
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#9b87f5" />
+                  <Bar dataKey="value" fill="#31610C" />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
@@ -282,7 +282,7 @@ const Dashboard = () => {
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#9b87f5" />
+                  <Bar dataKey="value" fill="#31610C" />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
@@ -327,7 +327,7 @@ const Dashboard = () => {
                 <XAxis dataKey="data" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="quantidade" fill="#9b87f5" />
+                <Bar dataKey="quantidade" fill="#31610C" />
               </BarChart>
             </ResponsiveContainer>
           </Card>

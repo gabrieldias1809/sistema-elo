@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format } from "date-fns";
 
-const COLORS = ["#9b87f5", "#7E69AB", "#6E59A5", "#D6BCFA", "#E5DEFF"];
+const COLORS = ["#31610C", "#184523", "#ABA762", "#22302E", "#474130"];
 
 const PtecCom = () => {
   const [os, setOS] = useState<any[]>([]);
@@ -305,7 +305,7 @@ const PtecCom = () => {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#9b87f5" />
+              <Bar dataKey="value" fill="#31610C" />
             </BarChart>
           </ResponsiveContainer>
         </Card>

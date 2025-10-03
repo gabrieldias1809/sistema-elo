@@ -13,7 +13,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { format } from "date-fns";
 import { Clock } from "lucide-react";
 
-const COLORS = ["#9b87f5", "#7E69AB", "#6E59A5", "#D6BCFA"];
+const COLORS = ["#31610C", "#184523", "#ABA762", "#22302E"];
 
 const PtecSau = () => {
   const [pms, setPms] = useState<any[]>([]);
@@ -269,7 +269,7 @@ const PtecSau = () => {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#9b87f5" />
+              <Bar dataKey="value" fill="#31610C" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
