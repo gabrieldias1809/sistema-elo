@@ -14,16 +14,345 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          nome_guerra: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          nome_guerra?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome_guerra?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ptec_com_os: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          marca: string | null
+          mem: string | null
+          numero_os: string
+          observacoes: string | null
+          om_apoiada: string
+          servico_realizado: string | null
+          servico_solicitado: string | null
+          sistema: string | null
+          situacao: string
+          situacao_atual: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os: string
+          observacoes?: string | null
+          om_apoiada: string
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os?: string
+          observacoes?: string | null
+          om_apoiada?: string
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao?: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ptec_mb_os: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          marca: string | null
+          mem: string | null
+          numero_os: string
+          observacoes: string | null
+          om_apoiada: string
+          quantidade_classe_iii: number | null
+          servico_realizado: string | null
+          servico_solicitado: string | null
+          sistema: string | null
+          situacao: string
+          situacao_atual: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os: string
+          observacoes?: string | null
+          om_apoiada: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os?: string
+          observacoes?: string | null
+          om_apoiada?: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao?: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ptec_rh_ocorrencias: {
+        Row: {
+          causa_provavel: string | null
+          created_at: string
+          created_by: string | null
+          data: string
+          dia_semana: string | null
+          gdh: string | null
+          graduacao: string | null
+          id: string
+          local: string | null
+          nome_guerra: string | null
+          observacoes: string | null
+          quantidade_corpos: number | null
+          updated_at: string
+        }
+        Insert: {
+          causa_provavel?: string | null
+          created_at?: string
+          created_by?: string | null
+          data: string
+          dia_semana?: string | null
+          gdh?: string | null
+          graduacao?: string | null
+          id?: string
+          local?: string | null
+          nome_guerra?: string | null
+          observacoes?: string | null
+          quantidade_corpos?: number | null
+          updated_at?: string
+        }
+        Update: {
+          causa_provavel?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          dia_semana?: string | null
+          gdh?: string | null
+          graduacao?: string | null
+          id?: string
+          local?: string | null
+          nome_guerra?: string | null
+          observacoes?: string | null
+          quantidade_corpos?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ptec_sau_relatorios: {
+        Row: {
+          cirurgias: number | null
+          created_at: string
+          created_by: string | null
+          data: string
+          evacuacoes: number | null
+          id: string
+          internados_enfermaria: number | null
+          internados_uti: number | null
+          nivel_grave: number | null
+          nivel_leve: number | null
+          nivel_moderado: number | null
+          nivel_obs: number | null
+          obitos: number | null
+          observacoes: string | null
+          retorno_combate: number | null
+          updated_at: string
+        }
+        Insert: {
+          cirurgias?: number | null
+          created_at?: string
+          created_by?: string | null
+          data: string
+          evacuacoes?: number | null
+          id?: string
+          internados_enfermaria?: number | null
+          internados_uti?: number | null
+          nivel_grave?: number | null
+          nivel_leve?: number | null
+          nivel_moderado?: number | null
+          nivel_obs?: number | null
+          obitos?: number | null
+          observacoes?: string | null
+          retorno_combate?: number | null
+          updated_at?: string
+        }
+        Update: {
+          cirurgias?: number | null
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          evacuacoes?: number | null
+          id?: string
+          internados_enfermaria?: number | null
+          internados_uti?: number | null
+          nivel_grave?: number | null
+          nivel_leve?: number | null
+          nivel_moderado?: number | null
+          nivel_obs?: number | null
+          obitos?: number | null
+          observacoes?: string | null
+          retorno_combate?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ptec_trp_transportes: {
+        Row: {
+          chefe_vtr: string | null
+          classe_material: string | null
+          created_at: string
+          created_by: string | null
+          data_hora_entrada: string | null
+          data_hora_saida: string | null
+          destino: string | null
+          id: string
+          motorista: string | null
+          observacoes: string | null
+          odometro_retorno: number | null
+          odometro_saida: number | null
+          placa_vtr: string
+          quantidade_transportada: number | null
+          updated_at: string
+          utilizacao: string | null
+        }
+        Insert: {
+          chefe_vtr?: string | null
+          classe_material?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_hora_entrada?: string | null
+          data_hora_saida?: string | null
+          destino?: string | null
+          id?: string
+          motorista?: string | null
+          observacoes?: string | null
+          odometro_retorno?: number | null
+          odometro_saida?: number | null
+          placa_vtr: string
+          quantidade_transportada?: number | null
+          updated_at?: string
+          utilizacao?: string | null
+        }
+        Update: {
+          chefe_vtr?: string | null
+          classe_material?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_hora_entrada?: string | null
+          data_hora_saida?: string | null
+          destino?: string | null
+          id?: string
+          motorista?: string | null
+          observacoes?: string | null
+          odometro_retorno?: number | null
+          odometro_saida?: number | null
+          placa_vtr?: string
+          quantidade_transportada?: number | null
+          updated_at?: string
+          utilizacao?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "admin"
+        | "ptec_com"
+        | "ptec_mb"
+        | "ptec_sau"
+        | "ptec_rh"
+        | "ptec_trp"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +479,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "admin",
+        "ptec_com",
+        "ptec_mb",
+        "ptec_sau",
+        "ptec_rh",
+        "ptec_trp",
+      ],
+    },
   },
 } as const
