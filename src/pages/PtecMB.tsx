@@ -70,7 +70,7 @@ const PtecMB = () => {
 
   const fetchOS = async () => {
     const { data, error } = await supabase
-      .from("ptec_mb_os")
+      .from("ptec_com_os")
       .select("*")
       .order("created_at", { ascending: false });
 
@@ -95,7 +95,7 @@ const PtecMB = () => {
 
   const getNextOSNumber = async () => {
     const { data, error } = await supabase
-      .from("ptec_mb_os")
+      .from("ptec_com_os")
       .select("numero_os")
       .order("created_at", { ascending: false })
       .limit(1);
@@ -121,7 +121,7 @@ const PtecMB = () => {
 
     if (editingOS) {
       const { error } = await supabase
-        .from("ptec_mb_os")
+        .from("ptec_com_os")
         .update(dataToSubmit)
         .eq("id", editingOS.id);
 
@@ -132,7 +132,7 @@ const PtecMB = () => {
 
       toast.success("OS atualizada com sucesso!");
     } else {
-      const { error } = await supabase.from("ptec_mb_os").insert([
+      const { error } = await supabase.from("ptec_com_os").insert([
         {
           ...dataToSubmit,
           created_by: (await supabase.auth.getUser()).data.user?.id,
@@ -181,7 +181,7 @@ const PtecMB = () => {
     if (!osToDelete) return;
 
     const { error } = await supabase
-      .from("ptec_mb_os")
+      .from("ptec_com_os")
       .delete()
       .eq("id", osToDelete.id);
 
