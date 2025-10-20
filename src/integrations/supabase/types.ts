@@ -380,6 +380,16 @@ export type Database = {
         | "ptec_sau"
         | "ptec_rh"
         | "ptec_trp"
+        | "ptec_auto"
+        | "ptec_blind"
+        | "ptec_op"
+        | "ptec_armto"
+        | "p_distr"
+        | "oficina_com"
+        | "oficina_auto"
+        | "oficina_blind"
+        | "oficina_op"
+        | "oficina_armto"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -514,6 +524,16 @@ export const Constants = {
         "ptec_sau",
         "ptec_rh",
         "ptec_trp",
+        "ptec_auto",
+        "ptec_blind",
+        "ptec_op",
+        "ptec_armto",
+        "p_distr",
+        "oficina_com",
+        "oficina_auto",
+        "oficina_blind",
+        "oficina_op",
+        "oficina_armto",
       ],
     },
   },
