@@ -9,6 +9,16 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import PtecCom from "./pages/PtecCom";
 import PtecMB from "./pages/PtecMB";
+import PtecAuto from "./pages/PtecAuto";
+import PtecBlind from "./pages/PtecBlind";
+import PtecOp from "./pages/PtecOp";
+import PtecArmto from "./pages/PtecArmto";
+import OficinaCom from "./pages/OficinaCom";
+import OficinaAuto from "./pages/OficinaAuto";
+import OficinaBlind from "./pages/OficinaBlind";
+import OficinaOp from "./pages/OficinaOp";
+import OficinaArmto from "./pages/OficinaArmto";
+import PostoDistribuicao from "./pages/PostoDistribuicao";
 import PtecSau from "./pages/PtecSau";
 import PtecRH from "./pages/PtecRH";
 import PtecTrp from "./pages/PtecTrp";
@@ -30,6 +40,16 @@ const App = () => (
               <Route index element={<Dashboard />} />
               <Route path="ptec-com" element={<PtecCom />} />
               <Route path="ptec-mb" element={<PtecMB />} />
+              <Route path="ptec-auto" element={<PtecAuto />} />
+              <Route path="ptec-blind" element={<PtecBlind />} />
+              <Route path="ptec-op" element={<PtecOp />} />
+              <Route path="ptec-armto" element={<PtecArmto />} />
+              <Route path="oficina-com" element={<OficinaCom />} />
+              <Route path="oficina-auto" element={<OficinaAuto />} />
+              <Route path="oficina-blind" element={<OficinaBlind />} />
+              <Route path="oficina-op" element={<OficinaOp />} />
+              <Route path="oficina-armto" element={<OficinaArmto />} />
+              <Route path="posto-distribuicao" element={<PostoDistribuicao />} />
               <Route path="ptec-sau" element={<PtecSau />} />
               <Route path="ptec-rh" element={<PtecRH />} />
               <Route path="ptec-trp" element={<PtecTrp />} />

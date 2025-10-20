@@ -62,6 +62,26 @@ All colors MUST be HSL.
   .gradient-primary-hover {
     background: linear-gradient(to right, hsl(180 83% 20%), hsl(40 84% 48%));
   }
+
+  .gradient-com {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600;
+  }
+  
+  .gradient-auto {
+    @apply bg-gradient-to-r from-orange-500 to-yellow-500;
+  }
+  
+  .gradient-blind {
+    @apply bg-gradient-to-r from-slate-600 to-gray-800;
+  }
+  
+  .gradient-op {
+    @apply bg-gradient-to-r from-green-500 to-emerald-600;
+  }
+  
+  .gradient-armto {
+    @apply bg-gradient-to-r from-red-600 to-rose-600;
+  }
 }
 
 @layer base {
