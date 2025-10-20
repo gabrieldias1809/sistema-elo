@@ -10,7 +10,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import { format } from "date-fns";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
@@ -38,10 +49,7 @@ const PtecRH = () => {
   }, []);
 
   const fetchOcorrencias = async () => {
-    const { data, error } = await supabase
-      .from("ptec_rh_ocorrencias")
-      .select("*")
-      .order("data", { ascending: false });
+    const { data, error } = await supabase.from("ptec_rh_ocorrencias").select("*").order("data", { ascending: false });
 
     if (error) {
       toast.error("Erro ao carregar dados");
@@ -49,13 +57,13 @@ const PtecRH = () => {
     }
 
     setOcorrencias(data || []);
-    
+
     // Extract unique suggestions
-    const uniqueNomes = [...new Set(data?.map(d => d.nome_guerra).filter(Boolean))];
-    const uniqueGraduacoes = [...new Set(data?.map(d => d.graduacao).filter(Boolean))];
-    const uniqueLocais = [...new Set(data?.map(d => d.local).filter(Boolean))];
-    const uniqueCausas = [...new Set(data?.map(d => d.causa_provavel).filter(Boolean))];
-    
+    const uniqueNomes = [...new Set(data?.map((d) => d.nome_guerra).filter(Boolean))];
+    const uniqueGraduacoes = [...new Set(data?.map((d) => d.graduacao).filter(Boolean))];
+    const uniqueLocais = [...new Set(data?.map((d) => d.local).filter(Boolean))];
+    const uniqueCausas = [...new Set(data?.map((d) => d.causa_provavel).filter(Boolean))];
+
     setNomeGuerraSuggestions(uniqueNomes);
     setGraduacaoSuggestions(uniqueGraduacoes);
     setLocalSuggestions(uniqueLocais);
@@ -119,7 +127,7 @@ const PtecRH = () => {
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Ptec RH</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Cia RH</h1>
           <p className="text-muted-foreground">Companhia de Recursos Humanos</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -138,9 +146,7 @@ const PtecRH = () => {
                   <Label>Nome de Guerra</Label>
                   <AutocompleteInput
                     value={formData.nome_guerra}
-                    onChange={(value) =>
-                      setFormData({ ...formData, nome_guerra: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, nome_guerra: value })}
                     suggestions={nomeGuerraSuggestions}
                     className="placeholder:text-transparent"
                   />
@@ -149,9 +155,7 @@ const PtecRH = () => {
                   <Label>Graduação</Label>
                   <AutocompleteInput
                     value={formData.graduacao}
-                    onChange={(value) =>
-                      setFormData({ ...formData, graduacao: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, graduacao: value })}
                     suggestions={graduacaoSuggestions}
                     className="placeholder:text-transparent"
                   />
@@ -160,9 +164,7 @@ const PtecRH = () => {
                   <Label>Causa Provável</Label>
                   <AutocompleteInput
                     value={formData.causa_provavel}
-                    onChange={(value) =>
-                      setFormData({ ...formData, causa_provavel: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, causa_provavel: value })}
                     suggestions={causaSuggestions}
                     className="placeholder:text-transparent"
                   />
@@ -171,9 +173,7 @@ const PtecRH = () => {
                   <Label>Data e Hora</Label>
                   <DateTimePicker
                     value={formData.data}
-                    onChange={(value) =>
-                      setFormData({ ...formData, data: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, data: value })}
                   />
                 </div>
                 <div>
@@ -193,9 +193,7 @@ const PtecRH = () => {
                   <Label>Local</Label>
                   <AutocompleteInput
                     value={formData.local}
-                    onChange={(value) =>
-                      setFormData({ ...formData, local: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, local: value })}
                     suggestions={localSuggestions}
                     className="placeholder:text-transparent"
                   />
@@ -205,9 +203,7 @@ const PtecRH = () => {
                 <Label>Observações</Label>
                 <Textarea
                   value={formData.observacoes}
-                  onChange={(e) =>
-                    setFormData({ ...formData, observacoes: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
                 />
               </div>
               <Button type="submit" className="w-full gradient-primary text-white">
@@ -221,9 +217,7 @@ const PtecRH = () => {
       {/* Gráficos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Corpos coletados por dia
-          </h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Corpos coletados por dia</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={corposPorDia}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -236,9 +230,7 @@ const PtecRH = () => {
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Causas mais recorrentes
-          </h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Causas mais recorrentes</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
@@ -263,9 +255,7 @@ const PtecRH = () => {
 
       {/* Tabela */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">
-          Ocorrências Mortuárias
-        </h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Ocorrências Mortuárias</h3>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -285,11 +275,7 @@ const PtecRH = () => {
                   <TableCell>{item.nome_guerra}</TableCell>
                   <TableCell>{item.graduacao}</TableCell>
                   <TableCell>{item.causa_provavel}</TableCell>
-                  <TableCell>
-                    {item.data
-                      ? format(new Date(item.data), "dd/MM/yyyy HH:mm")
-                      : "-"}
-                  </TableCell>
+                  <TableCell>{item.data ? format(new Date(item.data), "dd/MM/yyyy HH:mm") : "-"}</TableCell>
                   <TableCell>{item.hora}</TableCell>
                   <TableCell>{item.quantidade_corpos}</TableCell>
                   <TableCell>{item.local}</TableCell>

@@ -10,7 +10,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
@@ -54,15 +65,15 @@ const PtecTrp = () => {
     }
 
     setTransportes(data || []);
-    
+
     // Extract unique suggestions
-    const uniquePlacas = [...new Set(data?.map(d => d.placa_vtr).filter(Boolean))];
-    const uniqueMotoristas = [...new Set(data?.map(d => d.motorista).filter(Boolean))];
-    const uniqueChefes = [...new Set(data?.map(d => d.chefe_vtr).filter(Boolean))];
-    const uniqueDestinos = [...new Set(data?.map(d => d.destino).filter(Boolean))];
-    const uniqueUtilizacoes = [...new Set(data?.map(d => d.utilizacao).filter(Boolean))];
-    const uniqueClasses = [...new Set(data?.map(d => d.classe_material).filter(Boolean))];
-    
+    const uniquePlacas = [...new Set(data?.map((d) => d.placa_vtr).filter(Boolean))];
+    const uniqueMotoristas = [...new Set(data?.map((d) => d.motorista).filter(Boolean))];
+    const uniqueChefes = [...new Set(data?.map((d) => d.chefe_vtr).filter(Boolean))];
+    const uniqueDestinos = [...new Set(data?.map((d) => d.destino).filter(Boolean))];
+    const uniqueUtilizacoes = [...new Set(data?.map((d) => d.utilizacao).filter(Boolean))];
+    const uniqueClasses = [...new Set(data?.map((d) => d.classe_material).filter(Boolean))];
+
     setPlacaSuggestions(uniquePlacas);
     setMotoristaSuggestions(uniqueMotoristas);
     setChefeVtrSuggestions(uniqueChefes);
@@ -77,15 +88,9 @@ const PtecTrp = () => {
     const { error } = await supabase.from("ptec_trp_transportes").insert([
       {
         ...formData,
-        odometro_saida: formData.odometro_saida
-          ? parseFloat(formData.odometro_saida)
-          : null,
-        odometro_retorno: formData.odometro_retorno
-          ? parseFloat(formData.odometro_retorno)
-          : null,
-        quantidade_transportada: formData.quantidade_transportada
-          ? parseFloat(formData.quantidade_transportada)
-          : null,
+        odometro_saida: formData.odometro_saida ? parseFloat(formData.odometro_saida) : null,
+        odometro_retorno: formData.odometro_retorno ? parseFloat(formData.odometro_retorno) : null,
+        quantidade_transportada: formData.quantidade_transportada ? parseFloat(formData.quantidade_transportada) : null,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       },
     ]);
@@ -139,10 +144,8 @@ const PtecTrp = () => {
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Ptec Trp</h1>
-          <p className="text-muted-foreground">
-            Companhia de Transporte / Suprimento
-          </p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Cia TRP</h1>
+          <p className="text-muted-foreground">Companhia de Transporte / Suprimento</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -160,9 +163,7 @@ const PtecTrp = () => {
                   <Label>Placa VTR</Label>
                   <AutocompleteInput
                     value={formData.placa_vtr}
-                    onChange={(value) =>
-                      setFormData({ ...formData, placa_vtr: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, placa_vtr: value })}
                     suggestions={placaSuggestions}
                     required
                     className="placeholder:text-transparent"
@@ -172,9 +173,7 @@ const PtecTrp = () => {
                   <Label>Destino</Label>
                   <AutocompleteInput
                     value={formData.destino}
-                    onChange={(value) =>
-                      setFormData({ ...formData, destino: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, destino: value })}
                     suggestions={destinoSuggestions}
                     className="placeholder:text-transparent"
                   />
@@ -183,18 +182,14 @@ const PtecTrp = () => {
                   <Label>Data/Hora Saída</Label>
                   <DateTimePicker
                     value={formData.data_hora_saida}
-                    onChange={(value) =>
-                      setFormData({ ...formData, data_hora_saida: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, data_hora_saida: value })}
                   />
                 </div>
                 <div className="col-span-2">
                   <Label>Data/Hora Entrada</Label>
                   <DateTimePicker
                     value={formData.data_hora_entrada}
-                    onChange={(value) =>
-                      setFormData({ ...formData, data_hora_entrada: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, data_hora_entrada: value })}
                   />
                 </div>
                 <div>
@@ -203,9 +198,7 @@ const PtecTrp = () => {
                     type="number"
                     step="0.1"
                     value={formData.odometro_saida}
-                    onChange={(e) =>
-                      setFormData({ ...formData, odometro_saida: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, odometro_saida: e.target.value })}
                   />
                 </div>
                 <div>
@@ -214,18 +207,14 @@ const PtecTrp = () => {
                     type="number"
                     step="0.1"
                     value={formData.odometro_retorno}
-                    onChange={(e) =>
-                      setFormData({ ...formData, odometro_retorno: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, odometro_retorno: e.target.value })}
                   />
                 </div>
                 <div>
                   <Label>Chefe VTR</Label>
                   <AutocompleteInput
                     value={formData.chefe_vtr}
-                    onChange={(value) =>
-                      setFormData({ ...formData, chefe_vtr: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, chefe_vtr: value })}
                     suggestions={chefeVtrSuggestions}
                     className="placeholder:text-transparent"
                   />
@@ -234,9 +223,7 @@ const PtecTrp = () => {
                   <Label>Motorista</Label>
                   <AutocompleteInput
                     value={formData.motorista}
-                    onChange={(value) =>
-                      setFormData({ ...formData, motorista: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, motorista: value })}
                     suggestions={motoristaSuggestions}
                     className="placeholder:text-transparent"
                   />
@@ -245,9 +232,7 @@ const PtecTrp = () => {
                   <Label>Classe de Material</Label>
                   <AutocompleteInput
                     value={formData.classe_material}
-                    onChange={(value) =>
-                      setFormData({ ...formData, classe_material: value })
-                    }
+                    onChange={(value) => setFormData({ ...formData, classe_material: value })}
                     suggestions={classeSuggestions}
                     className="placeholder:text-transparent"
                   />
@@ -271,18 +256,14 @@ const PtecTrp = () => {
                 <Label>Utilização</Label>
                 <Textarea
                   value={formData.utilizacao}
-                  onChange={(e) =>
-                    setFormData({ ...formData, utilizacao: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, utilizacao: e.target.value })}
                 />
               </div>
               <div>
                 <Label>Observações</Label>
                 <Textarea
                   value={formData.observacoes}
-                  onChange={(e) =>
-                    setFormData({ ...formData, observacoes: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
                 />
               </div>
               <Button type="submit" className="w-full gradient-primary text-white">
@@ -296,9 +277,7 @@ const PtecTrp = () => {
       {/* Gráficos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Recorrência dos destinos
-          </h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Recorrência dos destinos</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={destinosData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -311,9 +290,7 @@ const PtecTrp = () => {
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Classe de material transportada
-          </h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Classe de material transportada</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
@@ -338,9 +315,7 @@ const PtecTrp = () => {
 
       {/* Tabela */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">
-          Registros de Transporte
-        </h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Registros de Transporte</h3>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
