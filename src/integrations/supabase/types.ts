@@ -35,6 +35,186 @@ export type Database = {
         }
         Relationships: []
       }
+      ptec_armto_os: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          marca: string | null
+          mem: string | null
+          numero_os: string
+          observacoes: string | null
+          om_apoiada: string
+          quantidade_classe_iii: number | null
+          servico_realizado: string | null
+          servico_solicitado: string | null
+          sistema: string | null
+          situacao: string
+          situacao_atual: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os: string
+          observacoes?: string | null
+          om_apoiada: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os?: string
+          observacoes?: string | null
+          om_apoiada?: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao?: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ptec_auto_os: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          marca: string | null
+          mem: string | null
+          numero_os: string
+          observacoes: string | null
+          om_apoiada: string
+          quantidade_classe_iii: number | null
+          servico_realizado: string | null
+          servico_solicitado: string | null
+          sistema: string | null
+          situacao: string
+          situacao_atual: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os: string
+          observacoes?: string | null
+          om_apoiada: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os?: string
+          observacoes?: string | null
+          om_apoiada?: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao?: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ptec_blind_os: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          marca: string | null
+          mem: string | null
+          numero_os: string
+          observacoes: string | null
+          om_apoiada: string
+          quantidade_classe_iii: number | null
+          servico_realizado: string | null
+          servico_solicitado: string | null
+          sistema: string | null
+          situacao: string
+          situacao_atual: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os: string
+          observacoes?: string | null
+          om_apoiada: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os?: string
+          observacoes?: string | null
+          om_apoiada?: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao?: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ptec_com_os: {
         Row: {
           created_at: string
@@ -148,6 +328,105 @@ export type Database = {
           sistema?: string | null
           situacao?: string
           situacao_atual?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ptec_op_os: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          marca: string | null
+          mem: string | null
+          numero_os: string
+          observacoes: string | null
+          om_apoiada: string
+          quantidade_classe_iii: number | null
+          servico_realizado: string | null
+          servico_solicitado: string | null
+          sistema: string | null
+          situacao: string
+          situacao_atual: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os: string
+          observacoes?: string | null
+          om_apoiada: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os?: string
+          observacoes?: string | null
+          om_apoiada?: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao?: string
+          situacao_atual?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ptec_pedidos_material: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          material: string
+          oficina_destino: string
+          os_id: string
+          ptec_origem: string
+          quantidade: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          material: string
+          oficina_destino: string
+          os_id: string
+          ptec_origem: string
+          quantidade?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          material?: string
+          oficina_destino?: string
+          os_id?: string
+          ptec_origem?: string
+          quantidade?: number
+          status?: string
           updated_at?: string
         }
         Relationships: []
