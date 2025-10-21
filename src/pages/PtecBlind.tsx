@@ -214,9 +214,9 @@ const PtecBlind = () => {
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Ptec MB</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Ptec Blind</h1>
           <p className="text-muted-foreground">
-            Companhia de Manutenção de Material Bélico
+            Companhia de Manutenção de Blindados
           </p>
         </div>
         <Dialog open={open} onOpenChange={(isOpen) => {
@@ -254,8 +254,10 @@ const PtecBlind = () => {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Aberta">Aberta</SelectItem>
-                      <SelectItem value="Fechada">Fechada</SelectItem>
+                      <SelectItem value="Aguardando">Aguardando</SelectItem>
+                      <SelectItem value="Em andamento">Em andamento</SelectItem>
+                      <SelectItem value="Concluída">Concluída</SelectItem>
+                      <SelectItem value="Cancelada">Cancelada</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

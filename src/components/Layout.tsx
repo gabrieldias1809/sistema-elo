@@ -63,7 +63,7 @@ const Layout = () => {
       </header>
 
       {/* Sidebar */}
-      <aside className="fixed left-0 top-16 bottom-0 w-64 bg-sidebar border-r border-sidebar-border z-40">
+      <aside className="fixed left-0 top-16 bottom-0 w-64 bg-sidebar border-r border-sidebar-border z-40 overflow-y-auto">
         <nav className="p-4">
           <ul className="space-y-2">
             {navItems.map((item) => (
