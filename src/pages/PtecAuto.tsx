@@ -14,6 +14,7 @@ import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
+import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 
 const PtecAuto = () => {
   const [os, setOS] = useState<any[]>([]);
@@ -219,15 +220,22 @@ const PtecAuto = () => {
             Companhia de Manutenção Automotiva
           </p>
         </div>
-        <Dialog open={open} onOpenChange={(isOpen) => {
-          setOpen(isOpen);
-          if (!isOpen) setEditingOS(null);
-        }}>
-          <DialogTrigger asChild>
-            <Button className="gradient-primary text-white">
-              <i className="ri-add-line mr-2"></i>Nova OS
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <PedidoMaterialForm
+            osOptions={os.map(item => ({ id: item.id, numero_os: item.numero_os }))}
+            ptecOrigem="auto"
+            oficinaDestino="auto"
+            onSuccess={fetchOS}
+          />
+          <Dialog open={open} onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            if (!isOpen) setEditingOS(null);
+          }}>
+            <DialogTrigger asChild>
+              <Button className="gradient-primary text-white">
+                <i className="ri-add-line mr-2"></i>Nova OS
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingOS ? "Editar" : "Nova"} Ordem de Serviço</DialogTitle>
@@ -368,6 +376,7 @@ const PtecAuto = () => {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Gráfico */}

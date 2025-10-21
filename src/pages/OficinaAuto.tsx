@@ -95,7 +95,7 @@ const OficinaAuto = () => {
 
   const getNextOSNumber = async () => {
     const { data, error } = await supabase
-      .from("ptec_com_os")
+      .from("ptec_auto_os")
       .select("numero_os")
       .order("created_at", { ascending: false })
       .limit(1);

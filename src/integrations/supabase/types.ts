@@ -394,6 +394,7 @@ export type Database = {
       }
       ptec_pedidos_material: {
         Row: {
+          classe_material: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -406,6 +407,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          classe_material?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -418,6 +420,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          classe_material?: string | null
           created_at?: string
           created_by?: string | null
           id?: string

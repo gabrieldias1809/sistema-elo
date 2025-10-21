@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
+import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -100,11 +101,19 @@ const OficinaBlind = () => {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Oficina Blind</h1>
-        <p className="text-muted-foreground">
-          Oficina de Blindados
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Oficina Blind</h1>
+          <p className="text-muted-foreground">
+            Oficina de Blindados
+          </p>
+        </div>
+        <PedidoMaterialForm
+          osOptions={os.map(item => ({ id: item.id, numero_os: item.numero_os }))}
+          ptecOrigem="blind"
+          oficinaDestino="blind"
+          onSuccess={fetchOS}
+        />
       </div>
 
       <Dialog open={open} onOpenChange={(isOpen) => {
