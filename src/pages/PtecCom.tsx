@@ -95,11 +95,9 @@ const PtecCom = () => {
   };
 
   const getNextOSNumber = async () => {
-    const currentYear = new Date().getFullYear();
     const { data, error } = await supabase
       .from("ptec_com_os")
       .select("numero_os")
-      .ilike("numero_os", `${currentYear}-%`)
       .order("created_at", { ascending: false })
       .limit(1);
 
@@ -108,18 +106,27 @@ const PtecCom = () => {
       return;
     }
 
-    let nextNumber = 1;
-    if (data && data.length > 0) {
-      const lastNumber = parseInt(data[0].numero_os.split("-")[1]);
-      nextNumber = lastNumber + 1;
-    }
-    
-    const osNumber = `${currentYear}-${nextNumber.toString().padStart(3, "0")}`;
+    const lastNumber = data && data.length > 0 ? parseInt(data[0].numero_os) : 0;
+    const osNumber = (lastNumber + 1).toString().padStart(3, "0");
     setFormData(prev => ({ ...prev, numero_os: osNumber }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validação de campos obrigatórios
+    const missingFields: string[] = [];
+    if (!formData.situacao) missingFields.push("Situação");
+    if (!formData.om_apoiada) missingFields.push("OM Apoiada");
+    if (!formData.marca) missingFields.push("Marca");
+    if (!formData.mem) missingFields.push("MEM");
+    if (!formData.sistema) missingFields.push("Sistema");
+    if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
+
+    if (missingFields.length > 0) {
+      toast.error(`Preencha os seguintes campos: ${missingFields.join(", ")}`);
+      return;
+    }
 
     if (editingOS) {
       const { error } = await supabase

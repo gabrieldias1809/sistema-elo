@@ -3,7 +3,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-type AppRole = "admin" | "ptec_com" | "ptec_mb" | "ptec_sau" | "ptec_rh" | "ptec_trp" | "ptec_auto" | "ptec_blind" | "ptec_op" | "ptec_armto" | "p_distr" | "oficina_com" | "oficina_auto" | "oficina_blind" | "oficina_op" | "oficina_armto";
+type AppRole = "admin" | "col" | "ptec_com" | "ptec_mb" | "ptec_sau" | "ptec_rh" | "ptec_trp" | "ptec_auto" | "ptec_blind" | "ptec_op" | "ptec_armto" | "p_distr" | "oficina_com" | "oficina_auto" | "oficina_blind" | "oficina_op" | "oficina_armto";
 
 interface AuthContextType {
   user: User | null;

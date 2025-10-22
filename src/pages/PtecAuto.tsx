@@ -113,6 +113,20 @@ const PtecAuto = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validação de campos obrigatórios
+    const missingFields: string[] = [];
+    if (!formData.situacao) missingFields.push("Situação");
+    if (!formData.om_apoiada) missingFields.push("OM Apoiada");
+    if (!formData.marca) missingFields.push("Marca");
+    if (!formData.mem) missingFields.push("MEM");
+    if (!formData.sistema) missingFields.push("Sistema");
+    if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
+
+    if (missingFields.length > 0) {
+      toast.error(`Preencha os seguintes campos: ${missingFields.join(", ")}`);
+      return;
+    }
+
     const dataToSubmit = {
       ...formData,
       quantidade_classe_iii: formData.quantidade_classe_iii
