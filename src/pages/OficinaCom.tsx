@@ -33,6 +33,8 @@ import {
   Cell,
 } from "recharts";
 
+const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
+
 const OficinaCom = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
@@ -105,7 +107,6 @@ const OficinaCom = () => {
     setEditingOS(item);
     setOpen(true);
   };
-
   const handleDeleteConfirm = async () => {
     if (!osToDelete) return;
 
