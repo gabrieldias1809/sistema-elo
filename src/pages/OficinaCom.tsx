@@ -37,6 +37,12 @@ const OficinaCom = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editingOS, setEditingOS] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [osToDelete, setOsToDelete] = useState<any>(null);
+  const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
+  const [marcaSuggestions, setMarcaSuggestions] = useState<string[]>([]);
+  const [memSuggestions, setMemSuggestions] = useState<string[]>([]);
+  const [sistemaSuggestions, setSistemaSuggestions] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     servico_realizado: "",
@@ -95,6 +101,11 @@ const OficinaCom = () => {
     fetchOS();
   };
 
+  const handleEdit = (item: any) => {
+    setEditingOS(item);
+    setOpen(true);
+  };
+
   const handleDeleteConfirm = async () => {
     if (!osToDelete) return;
 
@@ -109,11 +120,6 @@ const OficinaCom = () => {
     setDeleteDialogOpen(false);
     setOsToDelete(null);
     fetchOS();
-  };
-
-  const handleEdit = (item: any) => {
-    setEditingOS(item);
-    setOpen(true);
   };
 
   // Dados para gráficos
