@@ -37,6 +37,7 @@ const OficinaCom = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editingOS, setEditingOS] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     servico_realizado: "",
