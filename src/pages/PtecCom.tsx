@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { AutocompleteInput } from "@/components/AutocompleteInput";
+import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format } from "date-fns";
@@ -94,9 +95,11 @@ const PtecCom = () => {
   };
 
   const getNextOSNumber = async () => {
+    const currentYear = new Date().getFullYear();
     const { data, error } = await supabase
       .from("ptec_com_os")
       .select("numero_os")
+      .ilike("numero_os", `${currentYear}-%`)
       .order("created_at", { ascending: false })
       .limit(1);
 
@@ -105,8 +108,14 @@ const PtecCom = () => {
       return;
     }
 
-    const lastNumber = data && data.length > 0 ? parseInt(data[0].numero_os) : 0;
-    setFormData(prev => ({ ...prev, numero_os: (lastNumber + 1).toString() }));
+    let nextNumber = 1;
+    if (data && data.length > 0) {
+      const lastNumber = parseInt(data[0].numero_os.split("-")[1]);
+      nextNumber = lastNumber + 1;
+    }
+    
+    const osNumber = `${currentYear}-${nextNumber.toString().padStart(3, "0")}`;
+    setFormData(prev => ({ ...prev, numero_os: osNumber }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -218,16 +227,23 @@ const PtecCom = () => {
             Companhia de Manutenção de Comunicações
           </p>
         </div>
-        <Dialog open={open} onOpenChange={(isOpen) => {
-          setOpen(isOpen);
-          if (!isOpen) setEditingOS(null);
-        }}>
-          <DialogTrigger asChild>
-            <Button className="gradient-primary text-white">
-              <i className="ri-add-line mr-2"></i>Nova OS
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <div className="flex gap-3">
+          <PedidoMaterialForm
+            osOptions={os.map(item => ({ id: item.id, numero_os: item.numero_os }))}
+            ptecOrigem="com"
+            oficinaDestino="com"
+            onSuccess={fetchOS}
+          />
+          <Dialog open={open} onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            if (!isOpen) setEditingOS(null);
+          }}>
+            <DialogTrigger asChild>
+              <Button className="gradient-primary text-white">
+                <i className="ri-add-line mr-2"></i>Nova OS
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingOS ? "Editar" : "Nova"} Ordem de Serviço</DialogTitle>
             </DialogHeader>
@@ -253,8 +269,10 @@ const PtecCom = () => {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Aberta">Aberta</SelectItem>
-                      <SelectItem value="Fechada">Fechada</SelectItem>
+                      <SelectItem value="Aguardando">Aguardando</SelectItem>
+                      <SelectItem value="Em andamento">Em andamento</SelectItem>
+                      <SelectItem value="Concluída">Concluída</SelectItem>
+                      <SelectItem value="Cancelada">Cancelada</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -358,6 +376,7 @@ const PtecCom = () => {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Gráficos */}
