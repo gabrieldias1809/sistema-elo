@@ -7,31 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const OficinaCom = () => {
   const [os, setOS] = useState<any[]>([]);
@@ -101,22 +80,15 @@ const OficinaCom = () => {
   };
 
   // Dados para gráficos
-  const marcasData = os.reduce((acc: any[], item) => {
-    const existing = acc.find((x) => x.name === item.marca);
-    if (existing) {
-      existing.value++;
-    } else {
-      acc.push({ name: item.marca || "N/A", value: 1 });
-    }
-    return acc;
-  }, []);
-
-  const omData = os.reduce((acc: any[], item) => {
+  const combustivelPorOM = os.reduce((acc: any[], item) => {
     const existing = acc.find((x) => x.name === item.om_apoiada);
     if (existing) {
-      existing.value++;
+      existing.value += parseFloat(item.quantidade_classe_iii || 0);
     } else {
-      acc.push({ name: item.om_apoiada, value: 1 });
+      acc.push({
+        name: item.om_apoiada,
+        value: parseFloat(item.quantidade_classe_iii || 0),
+      });
     }
     return acc;
   }, []);
@@ -180,44 +152,19 @@ const OficinaCom = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Marcas mais recorrentes</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={marcasData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#0A7373" />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">OM mais recorrentes</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={omData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {omData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
-      </div>
+      {/* Gráfico */}
+      <Card className="p-6 mb-8">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Combustível utilizado por OM (Litros)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={combustivelPorOM}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="value" fill="#0A7373" />
+          </BarChart>
+        </ResponsiveContainer>
+      </Card>
 
       {/* Tabela */}
       <Card className="p-6">
@@ -230,31 +177,22 @@ const OficinaCom = () => {
                 <TableHead>Situação</TableHead>
                 <TableHead>OM Apoiada</TableHead>
                 <TableHead>Marca</TableHead>
-                <TableHead>Sistema</TableHead>
-                <TableHead>Data Início</TableHead>
+                <TableHead>Situação Atual</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {os.map((item) => (
-                <TableRow key={item.id} className={item.situacao === "Fechada" ? "bg-destructive/10" : ""}>
+                <TableRow key={item.id}>
                   <TableCell>{item.numero_os}</TableCell>
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
                   <TableCell>{item.marca}</TableCell>
-                  <TableCell>{item.sistema}</TableCell>
-                  <TableCell>
-                    {item.data_inicio ? format(new Date(item.data_inicio), "dd/MM/yyyy HH:mm") : "-"}
-                  </TableCell>
+                  <TableCell>{item.situacao_atual || "-"}</TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
-                        <i className="ri-edit-line"></i>
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDeleteClick(item)}>
-                        <i className="ri-delete-bin-line"></i>
-                      </Button>
-                    </div>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
+                      <i className="ri-edit-line"></i>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -262,26 +200,6 @@ const OficinaCom = () => {
           </Table>
         </div>
       </Card>
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir a OS {osToDelete?.numero_os}? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
