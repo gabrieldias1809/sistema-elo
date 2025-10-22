@@ -33,18 +33,10 @@ import {
   Cell,
 } from "recharts";
 
-const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
-
 const OficinaCom = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editingOS, setEditingOS] = useState<any>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [osToDelete, setOsToDelete] = useState<any>(null);
-  const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
-  const [marcaSuggestions, setMarcaSuggestions] = useState<string[]>([]);
-  const [memSuggestions, setMemSuggestions] = useState<string[]>([]);
-  const [sistemaSuggestions, setSistemaSuggestions] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     servico_realizado: "",
@@ -106,21 +98,6 @@ const OficinaCom = () => {
   const handleEdit = (item: any) => {
     setEditingOS(item);
     setOpen(true);
-  };
-  const handleDeleteConfirm = async () => {
-    if (!osToDelete) return;
-
-    const { error } = await supabase.from("ptec_com_os").delete().eq("id", osToDelete.id);
-
-    if (error) {
-      toast.error("Erro ao excluir OS");
-      return;
-    }
-
-    toast.success("OS excluída com sucesso!");
-    setDeleteDialogOpen(false);
-    setOsToDelete(null);
-    fetchOS();
   };
 
   // Dados para gráficos
