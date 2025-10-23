@@ -18,6 +18,7 @@ const OficinaOp = () => {
   
   const [formData, setFormData] = useState({
     servico_realizado: "",
+    situacao: "",
     situacao_atual: "",
     data_fim: "",
     numero_os: "",
@@ -32,6 +33,7 @@ const OficinaOp = () => {
       setFormData({
         numero_os: editingOS.numero_os,
         servico_realizado: editingOS.servico_realizado || "",
+        situacao: editingOS.situacao || "",
         situacao_atual: editingOS.situacao_atual || "",
         data_fim: editingOS.data_fim || "",
       });
@@ -59,6 +61,7 @@ const OficinaOp = () => {
 
     const dataToSubmit = {
       servico_realizado: formData.servico_realizado,
+      situacao: formData.situacao,
       situacao_atual: formData.situacao_atual,
       data_fim: formData.data_fim,
     };
@@ -116,6 +119,15 @@ const OficinaOp = () => {
                 value={formData.numero_os}
                 disabled
                 className="bg-muted"
+              />
+            </div>
+            <div>
+              <Label>Situação</Label>
+              <Input
+                value={formData.situacao}
+                onChange={(e) =>
+                  setFormData({ ...formData, situacao: e.target.value })
+                }
               />
             </div>
             <div>
