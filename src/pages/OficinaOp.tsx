@@ -20,7 +20,6 @@ const OficinaOp = () => {
     servico_realizado: "",
     situacao: "",
     situacao_atual: "",
-    data_fim: "",
     numero_os: "",
   });
 
@@ -35,7 +34,6 @@ const OficinaOp = () => {
         servico_realizado: editingOS.servico_realizado || "",
         situacao: editingOS.situacao || "",
         situacao_atual: editingOS.situacao_atual || "",
-        data_fim: editingOS.data_fim || "",
       });
     }
   }, [open, editingOS]);
@@ -63,7 +61,6 @@ const OficinaOp = () => {
       servico_realizado: formData.servico_realizado,
       situacao: formData.situacao,
       situacao_atual: formData.situacao_atual,
-      data_fim: formData.data_fim,
     };
 
     const { error } = await supabase
@@ -136,15 +133,6 @@ const OficinaOp = () => {
                 value={formData.situacao_atual}
                 onChange={(e) =>
                   setFormData({ ...formData, situacao_atual: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <Label>Data Fim</Label>
-              <DateTimePicker
-                value={formData.data_fim}
-                onChange={(value) =>
-                  setFormData({ ...formData, data_fim: value })
                 }
               />
             </div>
