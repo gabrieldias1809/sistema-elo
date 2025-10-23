@@ -152,19 +152,6 @@ const OficinaCom = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Gráfico */}
-      <Card className="p-6 mb-8">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Combustível utilizado por OM (Litros)</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={combustivelPorOM}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="value" fill="#0A7373" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
 
       {/* Tabela */}
       <Card className="p-6">
