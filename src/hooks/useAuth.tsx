@@ -1,9 +1,28 @@
+// src/hooks/useAuth.ts
+
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-type AppRole = "admin" | "col" | "ptec_com" | "ptec_mb" | "ptec_sau" | "ptec_rh" | "ptec_trp" | "ptec_auto" | "ptec_blind" | "ptec_op" | "ptec_armto" | "p_distr" | "oficina_com" | "oficina_auto" | "oficina_blind" | "oficina_op" | "oficina_armto";
+type AppRole =
+  | "admin"
+  | "col"
+  | "ptec_com"
+  | "ptec_mb"
+  | "ptec_sau"
+  | "ptec_rh"
+  | "ptec_trp"
+  | "ptec_auto"
+  | "ptec_blind"
+  | "ptec_op"
+  | "ptec_armto"
+  | "p_distr"
+  | "oficina_com"
+  | "oficina_auto"
+  | "oficina_blind"
+  | "oficina_op"
+  | "oficina_armto";
 
 interface AuthContextType {
   user: User | null;
@@ -33,6 +52,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  /**
+   * Busca as roles do usuário logado no Supabase
+   * e normaliza para lowercase para evitar erros de comparação
+   */
   const fetchUserRoles = async (userId: string) => {
     const { data, error } = await supabase
       .from("user_roles")
@@ -40,44 +63,56 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .eq("user_id", userId);
 
     if (!error && data) {
-      setRoles(data.map((r: any) => r.role as AppRole));
+      const normalizedRoles = data.map((r: any) =>
+        r.role?.toLowerCase().trim() as AppRole
+      );
+      setRoles(normalizedRoles);
+      console.log("📋 Roles carregadas:", normalizedRoles);
+    } else {
+      console.error("Erro ao buscar roles:", error);
+      setRoles([]);
     }
   };
 
+  /**
+   * Efeito de autenticação e persistência de sessão
+   * Agora garante que o loading só finalize após as roles carregarem
+   */
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserRoles(session.user.id);
-          }, 0);
-        } else {
-          setRoles([]);
-        }
-        setLoading(false);
+    const handleAuthChange = async (session: Session | null) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        setLoading(true); // aguarda carregamento real
+        await fetchUserRoles(session.user.id);
+      } else {
+        setRoles([]);
+      }
+
+      setLoading(false);
+    };
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        handleAuthChange(session);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserRoles(session.user.id);
-      }
-      setLoading(false);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      await handleAuthChange(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
+  /**
+   * Autenticação
+   */
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
   };
 
@@ -86,9 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       email,
       password,
       options: {
-        data: {
-          nome_guerra: nomeGuerra,
-        },
+        data: { nome_guerra: nomeGuerra },
         emailRedirectTo: `${window.location.origin}/`,
       },
     });
@@ -101,12 +134,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     navigate("/auth");
   };
 
+  /**
+   * Verificação de role
+   * Aceita tanto role específica quanto admin como super role
+   */
   const hasRole = (role: AppRole) => {
-    return roles.includes(role) || roles.includes("admin");
+    const normalizedRole = role.toLowerCase() as AppRole;
+    return roles.includes(normalizedRole) || roles.includes("admin");
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, roles, loading, signIn, signUp, signOut, hasRole }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        roles,
+        loading,
+        signIn,
+        signUp,
+        signOut,
+        hasRole,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
