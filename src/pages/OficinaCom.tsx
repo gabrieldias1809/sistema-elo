@@ -19,11 +19,12 @@ const OficinaCom = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editingOS, setEditingOS] = useState<any>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingOS, setViewingOS] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     servico_realizado: "",
     situacao: "",
-    situacao_atual: "",
     numero_os: "",
   });
 
@@ -53,7 +54,6 @@ const OficinaCom = () => {
         numero_os: editingOS.numero_os,
         servico_realizado: editingOS.servico_realizado || "",
         situacao: editingOS.situacao || "",
-        situacao_atual: editingOS.situacao_atual || "",
       });
     }
   }, [open, editingOS]);
@@ -77,7 +77,6 @@ const OficinaCom = () => {
     const dataToSubmit = {
       servico_realizado: formData.servico_realizado,
       situacao: formData.situacao,
-      situacao_atual: formData.situacao_atual,
     };
 
     const { error } = await supabase.from("ptec_com_os").update(dataToSubmit).eq("id", editingOS.id);
@@ -160,13 +159,6 @@ const OficinaCom = () => {
               </Select>
             </div>
             <div>
-              <Label>Situação Atual</Label>
-              <Input
-                value={formData.situacao_atual}
-                onChange={(e) => setFormData({ ...formData, situacao_atual: e.target.value })}
-              />
-            </div>
-            <div>
               <Label>Serviço Realizado</Label>
               <Textarea
                 value={formData.servico_realizado}
@@ -192,7 +184,7 @@ const OficinaCom = () => {
                 <TableHead>Situação</TableHead>
                 <TableHead>OM Apoiada</TableHead>
                 <TableHead>Marca</TableHead>
-                <TableHead>Situação Atual</TableHead>
+                <TableHead>Sistema</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -203,11 +195,23 @@ const OficinaCom = () => {
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
                   <TableCell>{item.marca}</TableCell>
-                  <TableCell>{item.situacao_atual || "-"}</TableCell>
+                  <TableCell>{item.sistema}</TableCell>
                   <TableCell className="text-right">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
-                      <i className="ri-edit-line"></i>
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setViewingOS(item);
+                          setViewDialogOpen(true);
+                        }}
+                      >
+                        <i className="ri-eye-line"></i>
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
+                        <i className="ri-edit-line"></i>
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -215,6 +219,73 @@ const OficinaCom = () => {
           </Table>
         </div>
       </Card>
+
+      {/* Dialog de Visualização */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Ordem de Serviço</DialogTitle>
+          </DialogHeader>
+          {viewingOS && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">Nº OS</Label>
+                  <p className="font-semibold">{viewingOS.numero_os}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Situação</Label>
+                  <p className="font-semibold">{viewingOS.situacao}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">OM Apoiada</Label>
+                  <p className="font-semibold">{viewingOS.om_apoiada}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Marca</Label>
+                  <p className="font-semibold">{viewingOS.marca || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">MEM</Label>
+                  <p className="font-semibold">{viewingOS.mem || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Sistema</Label>
+                  <p className="font-semibold">{viewingOS.sistema || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data Início</Label>
+                  <p className="font-semibold">
+                    {viewingOS.data_inicio
+                      ? new Date(viewingOS.data_inicio).toLocaleString('pt-BR')
+                      : "-"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data Fim</Label>
+                  <p className="font-semibold">
+                    {viewingOS.data_fim
+                      ? new Date(viewingOS.data_fim).toLocaleString('pt-BR')
+                      : "-"}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Serviço Solicitado</Label>
+                <p className="font-semibold whitespace-pre-wrap">{viewingOS.servico_solicitado || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Serviço Realizado</Label>
+                <p className="font-semibold whitespace-pre-wrap">{viewingOS.servico_realizado || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Observações</Label>
+                <p className="font-semibold whitespace-pre-wrap">{viewingOS.observacoes || "-"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
