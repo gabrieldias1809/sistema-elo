@@ -494,6 +494,7 @@ export type Database = {
           numero_pms: string
           observacoes: string | null
           om_responsavel: string
+          tipo_pm: string
           updated_at: string
         }
         Insert: {
@@ -510,6 +511,7 @@ export type Database = {
           numero_pms: string
           observacoes?: string | null
           om_responsavel: string
+          tipo_pm?: string
           updated_at?: string
         }
         Update: {
@@ -526,6 +528,7 @@ export type Database = {
           numero_pms?: string
           observacoes?: string | null
           om_responsavel?: string
+          tipo_pm?: string
           updated_at?: string
         }
         Relationships: []

@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { AutocompleteInput } from "@/components/AutocompleteInput";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import { toast } from "sonner";
 import {
   BarChart,
@@ -31,12 +32,10 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
   Legend,
 } from "recharts";
 import { format } from "date-fns";
-import { Clock, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2 } from "lucide-react";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25"];
 
@@ -45,6 +44,10 @@ const PtecSau = () => {
   const [prontuarios, setProntuarios] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [prontuarioOpen, setProntuarioOpen] = useState(false);
+  const [viewPmOpen, setViewPmOpen] = useState(false);
+  const [viewProntuarioOpen, setViewProntuarioOpen] = useState(false);
+  const [selectedPm, setSelectedPm] = useState<any>(null);
+  const [selectedProntuario, setSelectedProntuario] = useState<any>(null);
   const [editingProntuario, setEditingProntuario] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [prontuarioToDelete, setProntuarioToDelete] = useState<string | null>(null);
@@ -56,6 +59,7 @@ const PtecSau = () => {
   const [formData, setFormData] = useState({
     om_responsavel: "",
     numero_pms: "",
+    tipo_pm: "PMS",
     atividade: "",
     data: "",
     hora: "",
@@ -121,6 +125,30 @@ const PtecSau = () => {
     setFracaoSuggestions(uniqueFracoes);
   };
 
+  const getNextPmNumber = async () => {
+    const { data, error } = await supabase
+      .from("ptec_sau_pms")
+      .select("numero_pms")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (error || !data || data.length === 0) {
+      return "001";
+    }
+
+    const lastNumber = parseInt(data[0].numero_pms) || 0;
+    const nextNumber = lastNumber + 1;
+    return nextNumber.toString().padStart(3, "0");
+  };
+
+  useEffect(() => {
+    if (open) {
+      getNextPmNumber().then((nextNum) => {
+        setFormData((prev) => ({ ...prev, numero_pms: nextNum }));
+      });
+    }
+  }, [open]);
+
   const fetchProntuarios = async () => {
     const { data, error } = await supabase.from("ptec_sau_prontuarios").select("*").order("data", { ascending: false });
 
@@ -143,15 +171,16 @@ const PtecSau = () => {
     ]);
 
     if (error) {
-      toast.error("Erro ao criar PMS");
+      toast.error("Erro ao criar PM");
       return;
     }
 
-    toast.success("PMS criado com sucesso!");
+    toast.success("PM criado com sucesso!");
     setOpen(false);
     setFormData({
       om_responsavel: "",
       numero_pms: "",
+      tipo_pm: "PMS",
       atividade: "",
       data: "",
       hora: "",
@@ -258,14 +287,13 @@ const PtecSau = () => {
     return acc;
   }, []);
 
-  // Dados para gráficos de prontuários por dia
+  // Dados para gráficos de prontuários por dia - Stacked Bar Chart
   const situacoesPorDia = prontuarios.reduce((acc: any, item) => {
     const dataFormatada = item.data ? format(new Date(item.data), "dd/MM") : "N/A";
 
     if (!acc[dataFormatada]) {
       acc[dataFormatada] = {
         data: dataFormatada,
-        atendimentos: 0,
         evacuacao: 0,
         cirurgia: 0,
         obito: 0,
@@ -274,8 +302,6 @@ const PtecSau = () => {
         retorno: 0,
       };
     }
-
-    acc[dataFormatada].atendimentos++;
 
     switch (item.situacao_atual) {
       case "evacuação":
@@ -318,7 +344,7 @@ const PtecSau = () => {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Cia Sau</h1>
-          <p className="text-muted-foreground">Companhia de Saúde - PMS e Prontuários</p>
+          <p className="text-muted-foreground">Companhia de Saúde - PM e Prontuários</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -332,12 +358,12 @@ const PtecSau = () => {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="gradient-primary text-white">
-                <i className="ri-add-line mr-2"></i>Novo PMS
+                <i className="ri-add-line mr-2"></i>Novo PM
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Novo Problema Militar Simulado</DialogTitle>
+                <DialogTitle>Novo Problema Militar</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -352,13 +378,27 @@ const PtecSau = () => {
                     />
                   </div>
                   <div>
-                    <Label>Número do PMS</Label>
+                    <Label>N° PM</Label>
                     <Input
                       value={formData.numero_pms}
-                      onChange={(e) => setFormData({ ...formData, numero_pms: e.target.value })}
-                      required
-                      className="placeholder:text-transparent"
+                      disabled
+                      className="bg-muted"
                     />
+                  </div>
+                  <div>
+                    <Label>Tipo de PM</Label>
+                    <Select
+                      value={formData.tipo_pm}
+                      onValueChange={(value) => setFormData({ ...formData, tipo_pm: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PMS">PMS</SelectItem>
+                        <SelectItem value="PMR">PMR</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Atividade</Label>
@@ -369,26 +409,13 @@ const PtecSau = () => {
                       className="placeholder:text-transparent"
                     />
                   </div>
-                  <div>
-                    <Label>Data</Label>
-                    <Input
-                      type="date"
+                  <div className="col-span-2">
+                    <Label>Data e Hora</Label>
+                    <DateTimePicker
                       value={formData.data}
-                      onChange={(e) => setFormData({ ...formData, data: e.target.value })}
-                      required
+                      onChange={(value) => setFormData({ ...formData, data: value })}
+                      placeholder="Selecione data e hora"
                     />
-                  </div>
-                  <div>
-                    <Label>Hora</Label>
-                    <div className="relative">
-                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none z-10" />
-                      <Input
-                        type="time"
-                        value={formData.hora}
-                        onChange={(e) => setFormData({ ...formData, hora: e.target.value })}
-                        className="pl-10"
-                      />
-                    </div>
                   </div>
                   <div>
                     <Label>Local</Label>
@@ -399,7 +426,7 @@ const PtecSau = () => {
                       className="placeholder:text-transparent"
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div>
                     <Label>Fração</Label>
                     <AutocompleteInput
                       value={formData.fracao}
@@ -410,7 +437,7 @@ const PtecSau = () => {
                   </div>
                 </div>
                 <div>
-                  <Label>Descrição do PMS</Label>
+                  <Label>Descrição do PM</Label>
                   <Textarea
                     value={formData.descricao}
                     onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
@@ -434,7 +461,7 @@ const PtecSau = () => {
                   />
                 </div>
                 <Button type="submit" className="w-full gradient-primary text-white">
-                  Criar PMS
+                  Criar PM
                 </Button>
               </form>
             </DialogContent>
@@ -480,11 +507,10 @@ const PtecSau = () => {
                   </div>
                   <div>
                     <Label>Data do Atendimento</Label>
-                    <Input
-                      type="date"
+                    <DateTimePicker
                       value={prontuarioData.data}
-                      onChange={(e) => setProntuarioData({ ...prontuarioData, data: e.target.value })}
-                      required
+                      onChange={(value) => setProntuarioData({ ...prontuarioData, data: value })}
+                      placeholder="Selecione data e hora"
                     />
                   </div>
                   <div>
@@ -532,12 +558,12 @@ const PtecSau = () => {
         </div>
       </div>
 
-      {/* Gráficos PMS */}
+      {/* Gráficos PM */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-4">Estatísticas de PMS</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-4">Estatísticas de PM</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">PMS por Atividade</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4">PM por Atividade</h3>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={atividadesData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -550,7 +576,7 @@ const PtecSau = () => {
           </Card>
 
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">PMS por OM Responsável</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4">PM por OM Responsável</h3>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
@@ -581,26 +607,19 @@ const PtecSau = () => {
           <Card className="p-6 lg:col-span-2">
             <h3 className="text-lg font-semibold text-foreground mb-4">Situações de Militares por Dia</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={situacoesData}>
+              <BarChart data={situacoesData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="data" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="atendimentos"
-                  stroke="#010221"
-                  name="Total Atendimentos"
-                  strokeWidth={2}
-                />
-                <Line type="monotone" dataKey="evacuacao" stroke="#0A7373" name="Evacuações" strokeWidth={2} />
-                <Line type="monotone" dataKey="cirurgia" stroke="#B7BF99" name="Cirurgias" strokeWidth={2} />
-                <Line type="monotone" dataKey="obito" stroke="#DC2626" name="Óbitos" strokeWidth={2} />
-                <Line type="monotone" dataKey="cti" stroke="#EA580C" name="CTI" strokeWidth={2} />
-                <Line type="monotone" dataKey="enfermaria" stroke="#EDAA25" name="Enfermaria" strokeWidth={2} />
-                <Line type="monotone" dataKey="retorno" stroke="#16A34A" name="Retorno ao Combate" strokeWidth={2} />
-              </LineChart>
+                <Bar dataKey="evacuacao" stackId="a" fill="#0A7373" name="Evacuações" />
+                <Bar dataKey="cirurgia" stackId="a" fill="#B7BF99" name="Cirurgias" />
+                <Bar dataKey="obito" stackId="a" fill="#DC2626" name="Óbitos" />
+                <Bar dataKey="cti" stackId="a" fill="#EA580C" name="CTI" />
+                <Bar dataKey="enfermaria" stackId="a" fill="#EDAA25" name="Enfermaria" />
+                <Bar dataKey="retorno" stackId="a" fill="#16A34A" name="Retorno ao Combate" />
+              </BarChart>
             </ResponsiveContainer>
           </Card>
 
@@ -628,14 +647,20 @@ const PtecSau = () => {
           </Card>
 
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Total de Atendimentos por Dia</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4">Total de Militares por Situação</h3>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={situacoesData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="data" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="atendimentos" fill="#0A7373" name="Atendimentos" />
+                <Legend />
+                <Bar dataKey="evacuacao" fill="#0A7373" name="Evacuações" />
+                <Bar dataKey="cirurgia" fill="#B7BF99" name="Cirurgias" />
+                <Bar dataKey="obito" fill="#DC2626" name="Óbitos" />
+                <Bar dataKey="cti" fill="#EA580C" name="CTI" />
+                <Bar dataKey="enfermaria" fill="#EDAA25" name="Enfermaria" />
+                <Bar dataKey="retorno" fill="#16A34A" name="Retorno ao Combate" />
               </BarChart>
             </ResponsiveContainer>
           </Card>
@@ -645,28 +670,47 @@ const PtecSau = () => {
       {/* Tabelas */}
       <div className="space-y-6">
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Registros de PMS</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Registros de PM</h3>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nº PMS</TableHead>
+                  <TableHead>N° PM</TableHead>
+                  <TableHead>Tipo</TableHead>
                   <TableHead>OM Responsável</TableHead>
                   <TableHead>Atividade</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Hora</TableHead>
+                  <TableHead>Data/Hora</TableHead>
                   <TableHead>Local</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pms.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.numero_pms}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
+                        {item.tipo_pm || "PMS"}
+                      </span>
+                    </TableCell>
                     <TableCell>{item.om_responsavel}</TableCell>
                     <TableCell>{item.atividade || "-"}</TableCell>
-                    <TableCell>{item.data ? format(new Date(item.data), "dd/MM/yyyy") : "-"}</TableCell>
-                    <TableCell>{item.hora || "-"}</TableCell>
+                    <TableCell>
+                      {item.data ? format(new Date(item.data), "dd/MM/yyyy HH:mm") : "-"}
+                    </TableCell>
                     <TableCell>{item.local || "-"}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedPm(item);
+                          setViewPmOpen(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -721,9 +765,21 @@ const PtecSau = () => {
                         {item.situacao_atual}
                       </span>
                     </TableCell>
-                    <TableCell>{item.data ? format(new Date(item.data), "dd/MM/yyyy") : "-"}</TableCell>
+                    <TableCell>
+                      {item.data ? format(new Date(item.data), "dd/MM/yyyy HH:mm") : "-"}
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedProntuario(item);
+                            setViewProntuarioOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleEditProntuario(item)}>
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -739,6 +795,124 @@ const PtecSau = () => {
           </div>
         </Card>
       </div>
+
+      {/* Dialog de Visualização de PM */}
+      <Dialog open={viewPmOpen} onOpenChange={setViewPmOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes do PM N° {selectedPm?.numero_pms}</DialogTitle>
+          </DialogHeader>
+          {selectedPm && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">Tipo de PM</Label>
+                  <p className="font-medium">{selectedPm.tipo_pm || "PMS"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">OM Responsável</Label>
+                  <p className="font-medium">{selectedPm.om_responsavel}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Atividade</Label>
+                  <p className="font-medium">{selectedPm.atividade || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data e Hora</Label>
+                  <p className="font-medium">
+                    {selectedPm.data ? format(new Date(selectedPm.data), "dd/MM/yyyy HH:mm") : "-"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Local</Label>
+                  <p className="font-medium">{selectedPm.local || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Fração</Label>
+                  <p className="font-medium">{selectedPm.fracao || "-"}</p>
+                </div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Descrição</Label>
+                <p className="font-medium whitespace-pre-wrap">{selectedPm.descricao || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Conduta Esperada</Label>
+                <p className="font-medium whitespace-pre-wrap">{selectedPm.conduta_esperada || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Observações</Label>
+                <p className="font-medium whitespace-pre-wrap">{selectedPm.observacoes || "-"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Visualização de Prontuário */}
+      <Dialog open={viewProntuarioOpen} onOpenChange={setViewProntuarioOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Prontuário</DialogTitle>
+          </DialogHeader>
+          {selectedProntuario && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <Label className="text-muted-foreground">Nome do Militar</Label>
+                  <p className="font-medium text-lg">{selectedProntuario.nome}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Idade</Label>
+                  <p className="font-medium">{selectedProntuario.idade} anos</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data do Atendimento</Label>
+                  <p className="font-medium">
+                    {selectedProntuario.data
+                      ? format(new Date(selectedProntuario.data), "dd/MM/yyyy HH:mm")
+                      : "-"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Nível de Gravidade</Label>
+                  <p>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        selectedProntuario.nivel_gravidade === "grave"
+                          ? "bg-destructive/20 text-destructive"
+                          : selectedProntuario.nivel_gravidade === "moderado"
+                            ? "bg-yellow-500/20 text-yellow-700"
+                            : "bg-green-500/20 text-green-700"
+                      }`}
+                    >
+                      {selectedProntuario.nivel_gravidade}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Situação Atual</Label>
+                  <p>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        selectedProntuario.situacao_atual === "óbito"
+                          ? "bg-destructive/20 text-destructive"
+                          : selectedProntuario.situacao_atual === "CTI"
+                            ? "bg-orange-500/20 text-orange-700"
+                            : selectedProntuario.situacao_atual === "retorno ao combate"
+                              ? "bg-green-500/20 text-green-700"
+                              : "bg-blue-500/20 text-blue-700"
+                      }`}
+                    >
+                      {selectedProntuario.situacao_atual}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
