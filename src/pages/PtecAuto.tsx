@@ -121,7 +121,8 @@ const PtecAuto = () => {
     }
 
     const lastNumber = data && data.length > 0 ? parseInt(data[0].numero_os) : 0;
-    setFormData(prev => ({ ...prev, numero_os: (lastNumber + 1).toString() }));
+    const nextNumber = (lastNumber + 1).toString().padStart(3, '0');
+    setFormData(prev => ({ ...prev, numero_os: nextNumber }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,8 +136,6 @@ const PtecAuto = () => {
     if (!formData.mem) missingFields.push("MEM");
     if (!formData.sistema) missingFields.push("Sistema");
     if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
-    if (!formData.data_inicio) missingFields.push("Data Início");
-    if (!formData.quantidade_classe_iii) missingFields.push("Quantidade Classe III");
 
     if (missingFields.length > 0) {
       toast.error(`Preencha os seguintes campos: ${missingFields.join(", ")}`);
@@ -230,6 +229,48 @@ const PtecAuto = () => {
     setViewDialogOpen(true);
   };
 
+  const handlePrint = (item: any) => {
+    const printWindow = window.open('', '', 'width=800,height=600');
+    if (!printWindow) return;
+
+    const content = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>OS ${item.numero_os}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { text-align: center; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          td { padding: 8px; border: 1px solid #ddd; }
+          .label { font-weight: bold; width: 30%; background: #f5f5f5; }
+        </style>
+      </head>
+      <body>
+        <h1>Ordem de Serviço - ${item.numero_os}</h1>
+        <table>
+          <tr><td class="label">Nº OS</td><td>${item.numero_os}</td></tr>
+          <tr><td class="label">Situação</td><td>${item.situacao}</td></tr>
+          <tr><td class="label">OM Apoiada</td><td>${item.om_apoiada}</td></tr>
+          <tr><td class="label">Marca</td><td>${item.marca || '-'}</td></tr>
+          <tr><td class="label">MEM</td><td>${item.mem || '-'}</td></tr>
+          <tr><td class="label">Sistema</td><td>${item.sistema || '-'}</td></tr>
+          <tr><td class="label">Quantidade Classe III</td><td>${item.quantidade_classe_iii || '-'} L</td></tr>
+          <tr><td class="label">Data Início</td><td>${item.data_inicio ? format(new Date(item.data_inicio), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
+          <tr><td class="label">Data Fim</td><td>${item.data_fim ? format(new Date(item.data_fim), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
+          <tr><td class="label">Serviço Solicitado</td><td>${item.servico_solicitado || '-'}</td></tr>
+          <tr><td class="label">Serviço Realizado</td><td>${item.servico_realizado || '-'}</td></tr>
+          <tr><td class="label">Observações</td><td>${item.observacoes || '-'}</td></tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   // Dados para gráficos
   const combustivelPorOM = os.reduce((acc: any[], item) => {
     const existing = acc.find((x) => x.name === item.om_apoiada);
@@ -240,6 +281,46 @@ const PtecAuto = () => {
         name: item.om_apoiada,
         value: parseFloat(item.quantidade_classe_iii || 0),
       });
+    }
+    return acc;
+  }, []);
+
+  const marcasData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.marca);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.marca || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const memData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.mem);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.mem || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const sistemaData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.sistema);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.sistema || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const situacaoData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.situacao);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.situacao, value: 1 });
     }
     return acc;
   }, []);
@@ -411,21 +492,83 @@ const PtecAuto = () => {
         </div>
       </div>
 
-      {/* Gráfico */}
-      <Card className="p-6 mb-8">
-        <h3 className="text-lg font-semibold text-foreground mb-4">
-          Combustível utilizado por OM (Litros)
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={combustivelPorOM}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="value" fill="#0A7373" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Combustível utilizado por OM (Litros)
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={combustivelPorOM}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Marcas mais recorrentes
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={marcasData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            MEM mais recorrente
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={memData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Sistemas com mais falhas
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={sistemaData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Relação OS x Situação
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={situacaoData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+      </div>
 
       {/* Tabela */}
       <Card className="p-6">
@@ -461,13 +604,23 @@ const PtecAuto = () => {
                          size="sm"
                          variant="outline"
                          onClick={() => handleView(item)}
+                         title="Visualizar"
                        >
                          <i className="ri-eye-line"></i>
                        </Button>
                        <Button
                          size="sm"
                          variant="outline"
+                         onClick={() => handlePrint(item)}
+                         title="Imprimir"
+                       >
+                         <i className="ri-printer-line"></i>
+                       </Button>
+                       <Button
+                         size="sm"
+                         variant="outline"
                          onClick={() => handleEdit(item)}
+                         title="Editar"
                        >
                          <i className="ri-edit-line"></i>
                        </Button>
@@ -475,6 +628,7 @@ const PtecAuto = () => {
                          size="sm"
                          variant="destructive"
                          onClick={() => handleDeleteClick(item)}
+                         title="Excluir"
                        >
                          <i className="ri-delete-bin-line"></i>
                        </Button>

@@ -12,10 +12,13 @@ import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { format } from "date-fns";
 
 const OficinaAuto = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingOS, setViewingOS] = useState<any>(null);
   const [editingOS, setEditingOS] = useState<any>(null);
   
   const [formData, setFormData] = useState({
@@ -102,6 +105,53 @@ const OficinaAuto = () => {
     setOpen(true);
   };
 
+  const handleView = (item: any) => {
+    setViewingOS(item);
+    setViewDialogOpen(true);
+  };
+
+  const handlePrint = (item: any) => {
+    const printWindow = window.open('', '', 'width=800,height=600');
+    if (!printWindow) return;
+
+    const content = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>OS ${item.numero_os}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { text-align: center; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          td { padding: 8px; border: 1px solid #ddd; }
+          .label { font-weight: bold; width: 30%; background: #f5f5f5; }
+        </style>
+      </head>
+      <body>
+        <h1>Ordem de Serviço - ${item.numero_os}</h1>
+        <table>
+          <tr><td class="label">Nº OS</td><td>${item.numero_os}</td></tr>
+          <tr><td class="label">Situação</td><td>${item.situacao}</td></tr>
+          <tr><td class="label">OM Apoiada</td><td>${item.om_apoiada}</td></tr>
+          <tr><td class="label">Marca</td><td>${item.marca || '-'}</td></tr>
+          <tr><td class="label">MEM</td><td>${item.mem || '-'}</td></tr>
+          <tr><td class="label">Sistema</td><td>${item.sistema || '-'}</td></tr>
+          <tr><td class="label">Quantidade Classe III</td><td>${item.quantidade_classe_iii || '-'} L</td></tr>
+          <tr><td class="label">Data Início</td><td>${item.data_inicio ? format(new Date(item.data_inicio), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
+          <tr><td class="label">Data Fim</td><td>${item.data_fim ? format(new Date(item.data_fim), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
+          <tr><td class="label">Serviço Solicitado</td><td>${item.servico_solicitado || '-'}</td></tr>
+          <tr><td class="label">Serviço Realizado</td><td>${item.servico_realizado || '-'}</td></tr>
+          <tr><td class="label">Observações</td><td>${item.observacoes || '-'}</td></tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   // Dados para gráficos
   const combustivelPorOM = os.reduce((acc: any[], item) => {
     const existing = acc.find((x) => x.name === item.om_apoiada);
@@ -112,6 +162,46 @@ const OficinaAuto = () => {
         name: item.om_apoiada,
         value: parseFloat(item.quantidade_classe_iii || 0),
       });
+    }
+    return acc;
+  }, []);
+
+  const marcasData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.marca);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.marca || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const memData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.mem);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.mem || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const sistemaData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.sistema);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.sistema || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const situacaoData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.situacao);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.situacao, value: 1 });
     }
     return acc;
   }, []);
@@ -186,19 +276,83 @@ const OficinaAuto = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Gráfico */}
-      <Card className="p-6 mb-8">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Combustível utilizado por OM (Litros)</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={combustivelPorOM}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="value" fill="#0A7373" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Combustível utilizado por OM (Litros)
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={combustivelPorOM}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Marcas mais recorrentes
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={marcasData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            MEM mais recorrente
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={memData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Sistemas com mais falhas
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={sistemaData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Relação OS x Situação
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={situacaoData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+      </div>
 
       {/* Tabela */}
       <Card className="p-6">
@@ -224,9 +378,32 @@ const OficinaAuto = () => {
                   <TableCell>{item.marca}</TableCell>
                   <TableCell>{item.data_fim ? new Date(item.data_fim).toLocaleString('pt-BR') : "-"}</TableCell>
                   <TableCell className="text-right">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
-                      <i className="ri-edit-line"></i>
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleView(item)}
+                        title="Visualizar"
+                      >
+                        <i className="ri-eye-line"></i>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handlePrint(item)}
+                        title="Imprimir"
+                      >
+                        <i className="ri-printer-line"></i>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(item)}
+                        title="Editar"
+                      >
+                        <i className="ri-edit-line"></i>
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -234,6 +411,77 @@ const OficinaAuto = () => {
           </Table>
         </div>
       </Card>
+
+      {/* Dialog de Visualização */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Ordem de Serviço</DialogTitle>
+          </DialogHeader>
+          {viewingOS && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">Nº OS</Label>
+                  <p className="font-medium">{viewingOS.numero_os}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Situação</Label>
+                  <p className="font-medium">{viewingOS.situacao}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">OM Apoiada</Label>
+                  <p className="font-medium">{viewingOS.om_apoiada}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Marca</Label>
+                  <p className="font-medium">{viewingOS.marca || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">MEM</Label>
+                  <p className="font-medium">{viewingOS.mem || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Sistema</Label>
+                  <p className="font-medium">{viewingOS.sistema || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Quantidade Classe III (Litros)</Label>
+                  <p className="font-medium">{viewingOS.quantidade_classe_iii || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data Início</Label>
+                  <p className="font-medium">
+                    {viewingOS.data_inicio
+                      ? format(new Date(viewingOS.data_inicio), "dd/MM/yyyy HH:mm")
+                      : "-"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data Fim</Label>
+                  <p className="font-medium">
+                    {viewingOS.data_fim
+                      ? format(new Date(viewingOS.data_fim), "dd/MM/yyyy HH:mm")
+                      : "-"}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Serviço Solicitado</Label>
+                <p className="font-medium whitespace-pre-wrap">{viewingOS.servico_solicitado || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Serviço Realizado</Label>
+                <p className="font-medium whitespace-pre-wrap">{viewingOS.servico_realizado || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Observações</Label>
+                <p className="font-medium whitespace-pre-wrap">{viewingOS.observacoes || "-"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
