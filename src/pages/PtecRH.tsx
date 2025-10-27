@@ -130,7 +130,16 @@ const PtecRH = () => {
           <h1 className="text-3xl font-bold text-foreground mb-2">Cia RH</h1>
           <p className="text-muted-foreground">Companhia de Recursos Humanos</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchOcorrencias}
+            title="Atualizar dados"
+          >
+            <i className="ri-refresh-line"></i>
+          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="gradient-primary text-white">
               <i className="ri-add-line mr-2"></i>Nova Ocorrência
@@ -211,7 +220,8 @@ const PtecRH = () => {
               </Button>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Gráficos */}

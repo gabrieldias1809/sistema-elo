@@ -66,14 +66,24 @@ const PostoDistribuicao = () => {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
-            <Package className="h-6 w-6 text-white" />
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
+              <Package className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">Posto de Distribuição</h1>
+              <p className="text-muted-foreground">Gerenciamento de Pedidos de Material</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold">Posto de Distribuição</h1>
-            <p className="text-muted-foreground">Gerenciamento de Pedidos de Material</p>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchPedidos}
+            title="Atualizar dados"
+          >
+            <i className="ri-refresh-line"></i>
+          </Button>
         </div>
       </div>
 

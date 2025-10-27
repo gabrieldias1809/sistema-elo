@@ -384,7 +384,15 @@ const PtecCom = () => {
             Companhia de Manutenção de Comunicações
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchOS}
+            title="Atualizar dados"
+          >
+            <i className="ri-refresh-line"></i>
+          </Button>
           <PedidoMaterialForm
             osOptions={os.map(item => ({ id: item.id, numero_os: item.numero_os }))}
             ptecOrigem="com"

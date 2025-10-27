@@ -212,12 +212,22 @@ const OficinaAuto = () => {
           <h1 className="text-3xl font-bold text-foreground mb-2">Oficina Auto</h1>
           <p className="text-muted-foreground">Oficina de Manutenção Automotiva</p>
         </div>
-        <PedidoMaterialForm
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchOS}
+            title="Atualizar dados"
+          >
+            <i className="ri-refresh-line"></i>
+          </Button>
+          <PedidoMaterialForm
           osOptions={os.map((item) => ({ id: item.id, numero_os: item.numero_os }))}
           ptecOrigem="auto"
           oficinaDestino="auto"
           onSuccess={fetchOS}
-        />
+          />
+        </div>
       </div>
 
       <Dialog

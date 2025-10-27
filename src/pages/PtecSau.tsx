@@ -321,6 +321,14 @@ const PtecSau = () => {
           <p className="text-muted-foreground">Companhia de Saúde - PMS e Prontuários</p>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchPms}
+            title="Atualizar dados"
+          >
+            <i className="ri-refresh-line"></i>
+          </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="gradient-primary text-white">

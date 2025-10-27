@@ -195,12 +195,22 @@ const OficinaArmto = () => {
             Oficina de Armamento
           </p>
         </div>
-        <PedidoMaterialForm
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchOS}
+            title="Atualizar dados"
+          >
+            <i className="ri-refresh-line"></i>
+          </Button>
+          <PedidoMaterialForm
           osOptions={os.map(item => ({ id: item.id, numero_os: item.numero_os }))}
           ptecOrigem="armto"
           oficinaDestino="armto"
           onSuccess={fetchOS}
-        />
+          />
+        </div>
       </div>
 
       <Dialog open={open} onOpenChange={(isOpen) => {
