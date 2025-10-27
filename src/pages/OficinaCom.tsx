@@ -152,9 +152,9 @@ const OficinaCom = () => {
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Em andamento">Em andamento</SelectItem>
-                  <SelectItem value="Concluída">Concluída</SelectItem>
-                  <SelectItem value="Cancelada">Cancelada</SelectItem>
+                  <SelectItem value="Aberta">Aberta</SelectItem>
+                  <SelectItem value="Manutenido">Manutenido</SelectItem>
+                  <SelectItem value="Fechada">Fechada</SelectItem>
                 </SelectContent>
               </Select>
             </div>
