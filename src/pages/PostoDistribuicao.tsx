@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Package } from "lucide-react";
+import { RefreshButton } from "@/components/RefreshButton";
 
 const PostoDistribuicao = () => {
   const [pedidos, setPedidos] = useState<any[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchPedidos();
@@ -35,6 +37,7 @@ const PostoDistribuicao = () => {
   }, []);
 
   const fetchPedidos = async () => {
+    setIsRefreshing(true);
     const { data, error } = await supabase
       .from("ptec_pedidos_material")
       .select("*")
@@ -42,10 +45,12 @@ const PostoDistribuicao = () => {
 
     if (error) {
       toast.error("Erro ao carregar pedidos");
+      setIsRefreshing(false);
       return;
     }
 
     setPedidos(data || []);
+    setIsRefreshing(false);
   };
 
   const handleStatusUpdate = async (pedidoId: string, novoStatus: string) => {
@@ -66,26 +71,18 @@ const PostoDistribuicao = () => {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
-              <Package className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold">Posto de Distribuição</h1>
-              <p className="text-muted-foreground">Gerenciamento de Pedidos de Material</p>
-            </div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
+            <Package className="h-6 w-6 text-white" />
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchPedidos}
-            title="Atualizar dados"
-          >
-            <i className="ri-refresh-line"></i>
-          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Posto de Distribuição</h1>
+            <p className="text-muted-foreground">Gerenciamento de Pedidos de Material</p>
+          </div>
         </div>
       </div>
+
+      <RefreshButton onClick={fetchPedidos} isLoading={isRefreshing} />
 
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Pedidos de Material</h2>
