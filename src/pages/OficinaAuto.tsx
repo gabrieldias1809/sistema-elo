@@ -10,9 +10,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
+
+const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
 const OficinaAuto = () => {
   const [os, setOS] = useState<any[]>([]);
@@ -283,13 +285,14 @@ const OficinaAuto = () => {
             Combustível utilizado por OM (Litros)
           </h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={combustivelPorOM}>
+            <LineChart data={combustivelPorOM}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#0A7373" />
-            </BarChart>
+              <Legend />
+              <Line type="monotone" dataKey="value" stroke="#0A7373" strokeWidth={2} />
+            </LineChart>
           </ResponsiveContainer>
         </Card>
 
@@ -298,13 +301,23 @@ const OficinaAuto = () => {
             Marcas mais recorrentes
           </h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={marcasData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
+            <PieChart>
+              <Pie
+                data={marcasData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {marcasData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
               <Tooltip />
-              <Bar dataKey="value" fill="#0A7373" />
-            </BarChart>
+            </PieChart>
           </ResponsiveContainer>
         </Card>
 
@@ -318,7 +331,7 @@ const OficinaAuto = () => {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#0A7373" />
+              <Bar dataKey="value" fill="#C43302" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -333,7 +346,7 @@ const OficinaAuto = () => {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#0A7373" />
+              <Bar dataKey="value" fill="#EDAA25" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -343,13 +356,23 @@ const OficinaAuto = () => {
             Relação OS x Situação
           </h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={situacaoData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
+            <PieChart>
+              <Pie
+                data={situacaoData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {situacaoData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
               <Tooltip />
-              <Bar dataKey="value" fill="#0A7373" />
-            </BarChart>
+            </PieChart>
           </ResponsiveContainer>
         </Card>
       </div>
@@ -390,14 +413,6 @@ const OficinaAuto = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handlePrint(item)}
-                        title="Imprimir"
-                      >
-                        <i className="ri-printer-line"></i>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
                         onClick={() => handleEdit(item)}
                         title="Editar"
                       >
@@ -416,7 +431,20 @@ const OficinaAuto = () => {
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detalhes da Ordem de Serviço</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Detalhes da Ordem de Serviço</span>
+              {viewingOS && (
+                <Button
+                  onClick={() => handlePrint(viewingOS)}
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto"
+                >
+                  <i className="ri-printer-line mr-2"></i>
+                  Imprimir
+                </Button>
+              )}
+            </DialogTitle>
           </DialogHeader>
           {viewingOS && (
             <div className="space-y-4">
