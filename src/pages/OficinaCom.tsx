@@ -13,6 +13,8 @@ import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useQueryClient } from "@tanstack/react-query";
+import jsPDF from "jspdf";
+import { format } from "date-fns";
 
 const OficinaCom = () => {
   const queryClient = useQueryClient();
@@ -67,6 +69,110 @@ const OficinaCom = () => {
     }
 
     setOS(data || []);
+  };
+
+  const generatePDF = (os: any) => {
+    const doc = new jsPDF();
+    
+    // Título
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("ORDEM DE SERVIÇO - OFICINA COM", 105, 20, { align: "center" });
+    
+    // Linha separadora
+    doc.setLineWidth(0.5);
+    doc.line(20, 25, 190, 25);
+    
+    // Dados da OS
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    let y = 35;
+    
+    doc.text("Nº OS:", 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(os.numero_os || "-", 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("Situação:", 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(os.situacao || "-", 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("OM Apoiada:", 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(os.om_apoiada || "-", 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("Marca:", 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(os.marca || "-", 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("MEM:", 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(os.mem || "-", 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("Sistema:", 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(os.sistema || "-", 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("Data Início:", 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(os.data_inicio ? format(new Date(os.data_inicio), "dd/MM/yyyy HH:mm") : "-", 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("Data Fim:", 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(os.data_fim ? format(new Date(os.data_fim), "dd/MM/yyyy HH:mm") : "-", 60, y);
+    
+    // Serviço Solicitado
+    y += 15;
+    doc.setFont("helvetica", "bold");
+    doc.text("Serviço Solicitado:", 20, y);
+    y += 7;
+    doc.setFont("helvetica", "normal");
+    const servicoSolicitado = os.servico_solicitado || "-";
+    const splitServico = doc.splitTextToSize(servicoSolicitado, 170);
+    doc.text(splitServico, 20, y);
+    y += splitServico.length * 7;
+    
+    // Serviço Realizado
+    y += 8;
+    doc.setFont("helvetica", "bold");
+    doc.text("Serviço Realizado:", 20, y);
+    y += 7;
+    doc.setFont("helvetica", "normal");
+    const servicoRealizado = os.servico_realizado || "-";
+    const splitRealizado = doc.splitTextToSize(servicoRealizado, 170);
+    doc.text(splitRealizado, 20, y);
+    y += splitRealizado.length * 7;
+    
+    // Observações
+    y += 8;
+    if (y > 250) {
+      doc.addPage();
+      y = 20;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.text("Observações:", 20, y);
+    y += 7;
+    doc.setFont("helvetica", "normal");
+    const observacoes = os.observacoes || "-";
+    const splitObs = doc.splitTextToSize(observacoes, 170);
+    doc.text(splitObs, 20, y);
+    
+    // Salvar PDF
+    doc.save(`OS_${os.numero_os}.pdf`);
+    toast.success("PDF gerado com sucesso!");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -224,7 +330,20 @@ const OficinaCom = () => {
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detalhes da Ordem de Serviço</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Detalhes da Ordem de Serviço</span>
+              {viewingOS && (
+                <Button
+                  onClick={() => generatePDF(viewingOS)}
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto"
+                >
+                  <i className="ri-printer-line mr-2"></i>
+                  Gerar PDF
+                </Button>
+              )}
+            </DialogTitle>
           </DialogHeader>
           {viewingOS && (
             <div className="space-y-4">
