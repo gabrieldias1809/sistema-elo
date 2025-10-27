@@ -19,6 +19,8 @@ import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 const PtecAuto = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingOS, setViewingOS] = useState<any>(null);
   const [editingOS, setEditingOS] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [osToDelete, setOsToDelete] = useState<any>(null);
@@ -35,8 +37,6 @@ const PtecAuto = () => {
     mem: "",
     sistema: "",
     servico_solicitado: "",
-    servico_realizado: "",
-    situacao_atual: "",
     data_inicio: "",
     data_fim: "",
     quantidade_classe_iii: "",
@@ -45,6 +45,22 @@ const PtecAuto = () => {
 
   useEffect(() => {
     fetchOS();
+    
+    // Supabase Realtime - atualização em tempo real
+    const channel = supabase
+      .channel("ptec_auto_os_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ptec_auto_os" },
+        () => {
+          fetchOS();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -59,8 +75,6 @@ const PtecAuto = () => {
         mem: editingOS.mem || "",
         sistema: editingOS.sistema || "",
         servico_solicitado: editingOS.servico_solicitado || "",
-        servico_realizado: editingOS.servico_realizado || "",
-        situacao_atual: editingOS.situacao_atual || "",
         data_inicio: editingOS.data_inicio || "",
         data_fim: editingOS.data_fim || "",
         quantidade_classe_iii: editingOS.quantidade_classe_iii?.toString() || "",
@@ -121,6 +135,8 @@ const PtecAuto = () => {
     if (!formData.mem) missingFields.push("MEM");
     if (!formData.sistema) missingFields.push("Sistema");
     if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
+    if (!formData.data_inicio) missingFields.push("Data Início");
+    if (!formData.quantidade_classe_iii) missingFields.push("Quantidade Classe III");
 
     if (missingFields.length > 0) {
       toast.error(`Preencha os seguintes campos: ${missingFields.join(", ")}`);
@@ -172,8 +188,6 @@ const PtecAuto = () => {
       mem: "",
       sistema: "",
       servico_solicitado: "",
-      servico_realizado: "",
-      situacao_atual: "",
       data_inicio: "",
       data_fim: "",
       quantidade_classe_iii: "",
@@ -209,6 +223,11 @@ const PtecAuto = () => {
     setDeleteDialogOpen(false);
     setOsToDelete(null);
     fetchOS();
+  };
+
+  const handleView = (item: any) => {
+    setViewingOS(item);
+    setViewDialogOpen(true);
   };
 
   // Dados para gráficos
@@ -276,10 +295,9 @@ const PtecAuto = () => {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Aguardando">Aguardando</SelectItem>
-                      <SelectItem value="Em andamento">Em andamento</SelectItem>
-                      <SelectItem value="Concluída">Concluída</SelectItem>
-                      <SelectItem value="Cancelada">Cancelada</SelectItem>
+                      <SelectItem value="Aberta">Aberta</SelectItem>
+                      <SelectItem value="Manutenido">Manutenido</SelectItem>
+                      <SelectItem value="Fechada">Fechada</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -436,31 +454,109 @@ const PtecAuto = () => {
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
                   <TableCell>{item.marca}</TableCell>
-                  <TableCell>{item.quantidade_classe_iii || "-"}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEdit(item)}
-                      >
-                        <i className="ri-edit-line"></i>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDeleteClick(item)}
-                      >
-                        <i className="ri-delete-bin-line"></i>
-                      </Button>
-                    </div>
-                  </TableCell>
+                   <TableCell>{item.quantidade_classe_iii || "-"}</TableCell>
+                   <TableCell className="text-right">
+                     <div className="flex justify-end gap-2">
+                       <Button
+                         size="sm"
+                         variant="outline"
+                         onClick={() => handleView(item)}
+                       >
+                         <i className="ri-eye-line"></i>
+                       </Button>
+                       <Button
+                         size="sm"
+                         variant="outline"
+                         onClick={() => handleEdit(item)}
+                       >
+                         <i className="ri-edit-line"></i>
+                       </Button>
+                       <Button
+                         size="sm"
+                         variant="destructive"
+                         onClick={() => handleDeleteClick(item)}
+                       >
+                         <i className="ri-delete-bin-line"></i>
+                       </Button>
+                     </div>
+                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
       </Card>
+
+      {/* Dialog de Visualização */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Ordem de Serviço</DialogTitle>
+          </DialogHeader>
+          {viewingOS && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">Nº OS</Label>
+                  <p className="font-medium">{viewingOS.numero_os}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Situação</Label>
+                  <p className="font-medium">{viewingOS.situacao}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">OM Apoiada</Label>
+                  <p className="font-medium">{viewingOS.om_apoiada}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Marca</Label>
+                  <p className="font-medium">{viewingOS.marca || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">MEM</Label>
+                  <p className="font-medium">{viewingOS.mem || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Sistema</Label>
+                  <p className="font-medium">{viewingOS.sistema || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Quantidade Classe III (Litros)</Label>
+                  <p className="font-medium">{viewingOS.quantidade_classe_iii || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data Início</Label>
+                  <p className="font-medium">
+                    {viewingOS.data_inicio
+                      ? format(new Date(viewingOS.data_inicio), "dd/MM/yyyy HH:mm")
+                      : "-"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data Fim</Label>
+                  <p className="font-medium">
+                    {viewingOS.data_fim
+                      ? format(new Date(viewingOS.data_fim), "dd/MM/yyyy HH:mm")
+                      : "-"}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Serviço Solicitado</Label>
+                <p className="font-medium whitespace-pre-wrap">{viewingOS.servico_solicitado || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Serviço Realizado</Label>
+                <p className="font-medium whitespace-pre-wrap">{viewingOS.servico_realizado || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Observações</Label>
+                <p className="font-medium whitespace-pre-wrap">{viewingOS.observacoes || "-"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

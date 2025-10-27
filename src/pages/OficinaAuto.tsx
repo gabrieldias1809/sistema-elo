@@ -11,6 +11,7 @@ import { DateTimePicker } from "@/components/DateTimePicker";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const OficinaAuto = () => {
   const [os, setOS] = useState<any[]>([]);
@@ -20,12 +21,28 @@ const OficinaAuto = () => {
   const [formData, setFormData] = useState({
     servico_realizado: "",
     situacao: "",
-    situacao_atual: "",
+    data_fim: "",
     numero_os: "",
   });
 
   useEffect(() => {
     fetchOS();
+    
+    // Supabase Realtime - atualização em tempo real
+    const channel = supabase
+      .channel("ptec_auto_os_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ptec_auto_os" },
+        () => {
+          fetchOS();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -34,7 +51,7 @@ const OficinaAuto = () => {
         numero_os: editingOS.numero_os,
         servico_realizado: editingOS.servico_realizado || "",
         situacao: editingOS.situacao || "",
-        situacao_atual: editingOS.situacao_atual || "",
+        data_fim: editingOS.data_fim || "",
       });
     }
   }, [open, editingOS]);
@@ -61,7 +78,7 @@ const OficinaAuto = () => {
     const dataToSubmit = {
       servico_realizado: formData.servico_realizado,
       situacao: formData.situacao,
-      situacao_atual: formData.situacao_atual,
+      data_fim: formData.data_fim || null,
     };
 
     const { error } = await supabase
@@ -132,16 +149,27 @@ const OficinaAuto = () => {
             </div>
             <div>
               <Label>Situação</Label>
-              <Input
+              <Select
                 value={formData.situacao}
-                onChange={(e) => setFormData({ ...formData, situacao: e.target.value })}
-              />
+                onValueChange={(value) =>
+                  setFormData({ ...formData, situacao: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Aberta">Aberta</SelectItem>
+                  <SelectItem value="Manutenido">Manutenido</SelectItem>
+                  <SelectItem value="Fechada">Fechada</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <Label>Situação Atual</Label>
-              <Input
-                value={formData.situacao_atual}
-                onChange={(e) => setFormData({ ...formData, situacao_atual: e.target.value })}
+              <Label>Data Fim</Label>
+              <DateTimePicker
+                value={formData.data_fim}
+                onChange={(value) => setFormData({ ...formData, data_fim: value })}
               />
             </div>
             <div>
@@ -183,7 +211,7 @@ const OficinaAuto = () => {
                 <TableHead>Situação</TableHead>
                 <TableHead>OM Apoiada</TableHead>
                 <TableHead>Marca</TableHead>
-                <TableHead>Situação Atual</TableHead>
+                <TableHead>Data Fim</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -194,7 +222,7 @@ const OficinaAuto = () => {
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
                   <TableCell>{item.marca}</TableCell>
-                  <TableCell>{item.situacao_atual || "-"}</TableCell>
+                  <TableCell>{item.data_fim ? new Date(item.data_fim).toLocaleString('pt-BR') : "-"}</TableCell>
                   <TableCell className="text-right">
                     <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
                       <i className="ri-edit-line"></i>
