@@ -14,26 +14,17 @@ serve(async (req) => {
   try {
     const { ptecs, startDate, endDate, userPrompt } = await req.json();
     
-    // Debug: Log available environment variables
-    console.log('Environment check:', {
-      hasUrl: !!Deno.env.get('SUPABASE_URL'),
-      hasAnonKey: !!Deno.env.get('SUPABASE_ANON_KEY'),
-      hasServiceKey: !!Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
-    });
-    
     const authHeader = req.headers.get('authorization');
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('Missing environment variables:', { supabaseUrl: !!supabaseUrl, supabaseKey: !!supabaseKey });
-      throw new Error('Missing required environment variables');
-    }
-    
+    // Usar SUPABASE_ANON_KEY conforme documentação oficial do Supabase
     const supabaseClient = createClient(
-      supabaseUrl,
-      supabaseKey,
-      { global: { headers: { Authorization: authHeader! } } }
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { 
+        global: { 
+          headers: { Authorization: authHeader! } 
+        } 
+      }
     );
 
     // Verificar autenticação
