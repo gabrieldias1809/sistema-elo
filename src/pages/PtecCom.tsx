@@ -351,6 +351,30 @@ const PtecCom = () => {
     return acc;
   }, []);
 
+  const sistemaData = os.reduce((acc: any[], item) => {
+    if (item.sistema) {
+      const existing = acc.find((x) => x.name === item.sistema);
+      if (existing) {
+        existing.value++;
+      } else {
+        acc.push({ name: item.sistema, value: 1 });
+      }
+    }
+    return acc;
+  }, []);
+
+  const memData = os.reduce((acc: any[], item) => {
+    if (item.mem) {
+      const existing = acc.find((x) => x.name === item.mem);
+      if (existing) {
+        existing.value++;
+      } else {
+        acc.push({ name: item.mem, value: 1 });
+      }
+    }
+    return acc;
+  }, []);
+
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
@@ -540,6 +564,36 @@ const PtecCom = () => {
               </Pie>
               <Tooltip />
             </PieChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Sistemas com mais falhas
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={sistemaData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#EDAA25" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            MEM com mais recorrência
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={memData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#C43302" />
+            </BarChart>
           </ResponsiveContainer>
         </Card>
       </div>
