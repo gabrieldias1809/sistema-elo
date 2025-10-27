@@ -16,6 +16,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 
+const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
+
 const OficinaCom = () => {
   const queryClient = useQueryClient();
   const [os, setOS] = useState<any[]>([]);
@@ -204,7 +206,17 @@ const OficinaCom = () => {
   };
 
   // Dados para gráficos
-  const omApoiadaData = os.reduce((acc: any[], item) => {
+  const marcasData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.marca);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.marca || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const omData = os.reduce((acc: any[], item) => {
     const existing = acc.find((x) => x.name === item.om_apoiada);
     if (existing) {
       existing.value++;
@@ -303,22 +315,37 @@ const OficinaCom = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            OS por OM Apoiada
+            Marcas mais recorrentes
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={marcasData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0A7373" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            OM mais recorrentes
           </h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
-                data={omApoiadaData}
+                data={omData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
               >
-                {omApoiadaData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 60%)`} />
+                {omData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
