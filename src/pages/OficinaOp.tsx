@@ -7,24 +7,41 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
+import { format } from "date-fns";
+
+const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
 const OficinaOp = () => {
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editingOS, setEditingOS] = useState<any>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingOS, setViewingOS] = useState<any>(null);
   
   const [formData, setFormData] = useState({
     servico_realizado: "",
     situacao: "",
-    situacao_atual: "",
     numero_os: "",
   });
 
   useEffect(() => {
     fetchOS();
+
+    const channel = supabase
+      .channel("ptec_op_os_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "ptec_op_os" }, () => {
+        fetchOS();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -33,7 +50,6 @@ const OficinaOp = () => {
         numero_os: editingOS.numero_os,
         servico_realizado: editingOS.servico_realizado || "",
         situacao: editingOS.situacao || "",
-        situacao_atual: editingOS.situacao_atual || "",
       });
     }
   }, [open, editingOS]);
@@ -60,7 +76,6 @@ const OficinaOp = () => {
     const dataToSubmit = {
       servico_realizado: formData.servico_realizado,
       situacao: formData.situacao,
-      situacao_atual: formData.situacao_atual,
     };
 
     const { error } = await supabase
@@ -82,6 +97,30 @@ const OficinaOp = () => {
   const handleEdit = (item: any) => {
     setEditingOS(item);
     setOpen(true);
+  };
+
+  const handleView = (item: any) => {
+    setViewingOS(item);
+    setViewDialogOpen(true);
+  };
+
+  const handlePrint = (item: any) => {
+    const printWindow = window.open('', '', 'width=800,height=600');
+    if (!printWindow) return;
+    const content = `
+      <!DOCTYPE html>
+      <html><head><title>OS ${item.numero_os}</title>
+      <style>body{font-family:Arial;padding:20px}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:20px}td{padding:8px;border:1px solid #ddd}.label{font-weight:bold;width:30%;background:#f5f5f5}</style>
+      </head><body><h1>Ordem de Serviço - ${item.numero_os}</h1><table>
+      <tr><td class="label">Nº OS</td><td>${item.numero_os}</td></tr>
+      <tr><td class="label">Situação</td><td>${item.situacao}</td></tr>
+      <tr><td class="label">OM Apoiada</td><td>${item.om_apoiada}</td></tr>
+      <tr><td class="label">Marca</td><td>${item.marca || '-'}</td></tr>
+      <tr><td class="label">Serviço Realizado</td><td>${item.servico_realizado || '-'}</td></tr>
+      </table></body></html>`;
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.print();
   };
 
   return (
@@ -120,21 +159,17 @@ const OficinaOp = () => {
             </div>
             <div>
               <Label>Situação</Label>
-              <Input
+              <Select
                 value={formData.situacao}
-                onChange={(e) =>
-                  setFormData({ ...formData, situacao: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <Label>Situação Atual</Label>
-              <Input
-                value={formData.situacao_atual}
-                onChange={(e) =>
-                  setFormData({ ...formData, situacao_atual: e.target.value })
-                }
-              />
+                onValueChange={(value) => setFormData({ ...formData, situacao: value })}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Aberta">Aberta</SelectItem>
+                  <SelectItem value="Manutenido">Manutenido</SelectItem>
+                  <SelectItem value="Fechada">Fechada</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Serviço Realizado</Label>
@@ -165,7 +200,7 @@ const OficinaOp = () => {
                 <TableHead>Situação</TableHead>
                 <TableHead>OM Apoiada</TableHead>
                 <TableHead>Marca</TableHead>
-                <TableHead>Situação Atual</TableHead>
+                <TableHead>Data Fim</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -176,15 +211,16 @@ const OficinaOp = () => {
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
                   <TableCell>{item.marca}</TableCell>
-                  <TableCell>{item.situacao_atual || "-"}</TableCell>
+                  <TableCell>{item.data_fim ? new Date(item.data_fim).toLocaleString('pt-BR') : "-"}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEdit(item)}
-                    >
-                      <i className="ri-edit-line"></i>
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <Button size="sm" variant="outline" onClick={() => handleView(item)} title="Visualizar">
+                        <i className="ri-eye-line"></i>
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleEdit(item)} title="Editar">
+                        <i className="ri-edit-line"></i>
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -192,6 +228,32 @@ const OficinaOp = () => {
           </Table>
         </div>
       </Card>
+
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Detalhes da Ordem de Serviço</span>
+              {viewingOS && (
+                <Button onClick={() => handlePrint(viewingOS)} variant="outline" size="sm" className="ml-auto">
+                  <i className="ri-printer-line mr-2"></i>Imprimir
+                </Button>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          {viewingOS && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label className="text-muted-foreground">Nº OS</Label><p className="font-medium">{viewingOS.numero_os}</p></div>
+                <div><Label className="text-muted-foreground">Situação</Label><p className="font-medium">{viewingOS.situacao}</p></div>
+                <div><Label className="text-muted-foreground">OM Apoiada</Label><p className="font-medium">{viewingOS.om_apoiada}</p></div>
+                <div><Label className="text-muted-foreground">Marca</Label><p className="font-medium">{viewingOS.marca || "-"}</p></div>
+              </div>
+              <div><Label className="text-muted-foreground">Serviço Realizado</Label><p className="font-medium whitespace-pre-wrap">{viewingOS.servico_realizado || "-"}</p></div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
