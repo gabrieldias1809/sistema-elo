@@ -146,6 +146,8 @@ const PtecAuto = () => {
 
     const dataToSubmit = {
       ...formData,
+      data_inicio: formData.data_inicio || null,
+      data_fim: formData.data_fim || null,
       quantidade_classe_iii: formData.quantidade_classe_iii
         ? parseFloat(formData.quantidade_classe_iii)
         : null,
