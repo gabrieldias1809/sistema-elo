@@ -15,15 +15,19 @@ import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format } from "date-fns";
+import { useQueryClient } from "@tanstack/react-query";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
 const PtecCom = () => {
+  const queryClient = useQueryClient();
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editingOS, setEditingOS] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [osToDelete, setOsToDelete] = useState<any>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingOS, setViewingOS] = useState<any>(null);
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
   const [marcaSuggestions, setMarcaSuggestions] = useState<string[]>([]);
   const [memSuggestions, setMemSuggestions] = useState<string[]>([]);
@@ -37,8 +41,6 @@ const PtecCom = () => {
     mem: "",
     sistema: "",
     servico_solicitado: "",
-    servico_realizado: "",
-    situacao_atual: "",
     data_inicio: "",
     data_fim: "",
     observacoes: "",
@@ -46,6 +48,22 @@ const PtecCom = () => {
 
   useEffect(() => {
     fetchOS();
+    
+    // Setup Realtime subscription
+    const channel = supabase
+      .channel("ptec_com_os_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ptec_com_os" },
+        () => {
+          fetchOS();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -60,8 +78,6 @@ const PtecCom = () => {
         mem: editingOS.mem || "",
         sistema: editingOS.sistema || "",
         servico_solicitado: editingOS.servico_solicitado || "",
-        servico_realizado: editingOS.servico_realizado || "",
-        situacao_atual: editingOS.situacao_atual || "",
         data_inicio: editingOS.data_inicio || "",
         data_fim: editingOS.data_fim || "",
         observacoes: editingOS.observacoes || "",
@@ -166,8 +182,6 @@ const PtecCom = () => {
       mem: "",
       sistema: "",
       servico_solicitado: "",
-      servico_realizado: "",
-      situacao_atual: "",
       data_inicio: "",
       data_fim: "",
       observacoes: "",
@@ -276,7 +290,6 @@ const PtecCom = () => {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Aguardando">Aguardando</SelectItem>
                       <SelectItem value="Em andamento">Em andamento</SelectItem>
                       <SelectItem value="Concluída">Concluída</SelectItem>
                       <SelectItem value="Cancelada">Cancelada</SelectItem>
@@ -353,16 +366,6 @@ const PtecCom = () => {
                   value={formData.servico_solicitado}
                   onChange={(e) =>
                     setFormData({ ...formData, servico_solicitado: e.target.value })
-                  }
-                  className="placeholder:text-transparent"
-                />
-              </div>
-              <div>
-                <Label>Serviço Realizado</Label>
-                <Textarea
-                  value={formData.servico_realizado}
-                  onChange={(e) =>
-                    setFormData({ ...formData, servico_realizado: e.target.value })
                   }
                   className="placeholder:text-transparent"
                 />
@@ -468,6 +471,16 @@ const PtecCom = () => {
                       <Button
                         size="sm"
                         variant="outline"
+                        onClick={() => {
+                          setViewingOS(item);
+                          setViewDialogOpen(true);
+                        }}
+                      >
+                        <i className="ri-eye-line"></i>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={() => handleEdit(item)}
                       >
                         <i className="ri-edit-line"></i>
@@ -487,6 +500,73 @@ const PtecCom = () => {
           </Table>
         </div>
       </Card>
+
+      {/* Dialog de Visualização */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Ordem de Serviço</DialogTitle>
+          </DialogHeader>
+          {viewingOS && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">Nº OS</Label>
+                  <p className="font-semibold">{viewingOS.numero_os}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Situação</Label>
+                  <p className="font-semibold">{viewingOS.situacao}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">OM Apoiada</Label>
+                  <p className="font-semibold">{viewingOS.om_apoiada}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Marca</Label>
+                  <p className="font-semibold">{viewingOS.marca || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">MEM</Label>
+                  <p className="font-semibold">{viewingOS.mem || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Sistema</Label>
+                  <p className="font-semibold">{viewingOS.sistema || "-"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data Início</Label>
+                  <p className="font-semibold">
+                    {viewingOS.data_inicio
+                      ? format(new Date(viewingOS.data_inicio), "dd/MM/yyyy HH:mm")
+                      : "-"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data Fim</Label>
+                  <p className="font-semibold">
+                    {viewingOS.data_fim
+                      ? format(new Date(viewingOS.data_fim), "dd/MM/yyyy HH:mm")
+                      : "-"}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Serviço Solicitado</Label>
+                <p className="font-semibold whitespace-pre-wrap">{viewingOS.servico_solicitado || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Serviço Realizado</Label>
+                <p className="font-semibold whitespace-pre-wrap">{viewingOS.servico_realizado || "-"}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Observações</Label>
+                <p className="font-semibold whitespace-pre-wrap">{viewingOS.observacoes || "-"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

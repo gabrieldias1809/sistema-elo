@@ -5,14 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useQueryClient } from "@tanstack/react-query";
 
 const OficinaCom = () => {
+  const queryClient = useQueryClient();
   const [os, setOS] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editingOS, setEditingOS] = useState<any>(null);
@@ -26,6 +29,22 @@ const OficinaCom = () => {
 
   useEffect(() => {
     fetchOS();
+    
+    // Setup Realtime subscription
+    const channel = supabase
+      .channel("oficina_com_os_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ptec_com_os" },
+        () => {
+          fetchOS();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -126,10 +145,19 @@ const OficinaCom = () => {
             </div>
             <div>
               <Label>Situação</Label>
-              <Input
+              <Select
                 value={formData.situacao}
-                onChange={(e) => setFormData({ ...formData, situacao: e.target.value })}
-              />
+                onValueChange={(value) => setFormData({ ...formData, situacao: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Em andamento">Em andamento</SelectItem>
+                  <SelectItem value="Concluída">Concluída</SelectItem>
+                  <SelectItem value="Cancelada">Cancelada</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Situação Atual</Label>
