@@ -26,7 +26,6 @@ const OficinaAuto = () => {
   const [formData, setFormData] = useState({
     servico_realizado: "",
     situacao: "",
-    data_fim: "",
     numero_os: "",
   });
 
@@ -56,7 +55,6 @@ const OficinaAuto = () => {
         numero_os: editingOS.numero_os,
         servico_realizado: editingOS.servico_realizado || "",
         situacao: editingOS.situacao || "",
-        data_fim: editingOS.data_fim || "",
       });
     }
   }, [open, editingOS]);
@@ -83,7 +81,6 @@ const OficinaAuto = () => {
     const dataToSubmit = {
       servico_realizado: formData.servico_realizado,
       situacao: formData.situacao,
-      data_fim: formData.data_fim || null,
     };
 
     const { error } = await supabase
@@ -256,13 +253,6 @@ const OficinaAuto = () => {
                   <SelectItem value="Fechada">Fechada</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Label>Data Fim</Label>
-              <DateTimePicker
-                value={formData.data_fim}
-                onChange={(value) => setFormData({ ...formData, data_fim: value })}
-              />
             </div>
             <div>
               <Label>Serviço Realizado</Label>
