@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useQueryClient } from "@tanstack/react-query";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
@@ -204,6 +204,16 @@ const OficinaCom = () => {
   };
 
   // Dados para gráficos
+  const omApoiadaData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.om_apoiada);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.om_apoiada, value: 1 });
+    }
+    return acc;
+  }, []);
+
   const sistemaData = os.reduce((acc: any[], item) => {
     if (item.sistema) {
       const existing = acc.find((x) => x.name === item.sistema);
@@ -291,6 +301,31 @@ const OficinaCom = () => {
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            OS por OM Apoiada
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={omApoiadaData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {omApoiadaData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 60%)`} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </Card>
+
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Sistemas com mais falhas
