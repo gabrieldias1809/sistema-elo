@@ -23,6 +23,7 @@ import PtecSau from "./pages/PtecSau";
 import PtecRH from "./pages/PtecRH";
 import PtecTrp from "./pages/PtecTrp";
 import UserManagement from "./pages/UserManagement";
+import RelatoriosIA from "./pages/RelatoriosIA";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="ptec-sau" element={<PtecSau />} />
               <Route path="ptec-rh" element={<PtecRH />} />
               <Route path="ptec-trp" element={<PtecTrp />} />
+              <Route path="relatorios-ia" element={<RelatoriosIA />} />
               <Route path="usuarios" element={<UserManagement />} />
             </Route>
             <Route path="*" element={<NotFound />} />

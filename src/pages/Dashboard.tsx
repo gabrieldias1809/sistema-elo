@@ -5,11 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Brain, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
 const Dashboard = () => {
   const { user, roles } = useAuth();
+  const navigate = useNavigate();
   const [ptecComData, setPtecComData] = useState<any[]>([]);
   const [ptecMbData, setPtecMbData] = useState<any[]>([]);
   const [ptecSauData, setPtecSauData] = useState<any[]>([]);
@@ -197,6 +201,39 @@ const Dashboard = () => {
           </Card>
         ))}
       </div>
+
+      {/* AI Analysis Card */}
+      <Card className="bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 p-6 mb-8">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <Brain className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">Análise Inteligente com IA</h2>
+            </div>
+            <p className="text-muted-foreground mb-4">
+              Gere relatórios personalizados e insights acionáveis a partir dos dados operacionais dos Ptecs
+            </p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex items-center gap-1 text-xs bg-primary/10 text-primary px-3 py-1 rounded-full">
+                <Sparkles className="h-3 w-3" />
+                <span>Análise de tendências</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs bg-primary/10 text-primary px-3 py-1 rounded-full">
+                <Sparkles className="h-3 w-3" />
+                <span>Identificação de gargalos</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs bg-primary/10 text-primary px-3 py-1 rounded-full">
+                <Sparkles className="h-3 w-3" />
+                <span>Recomendações práticas</span>
+              </div>
+            </div>
+            <Button onClick={() => navigate('/relatorios-ia')} className="gradient-primary text-white">
+              <Brain className="h-4 w-4 mr-2" />
+              Gerar Relatório com IA
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       {/* Ptec Com Section */}
       {canViewPtecCom && ptecComData.length > 0 && (
