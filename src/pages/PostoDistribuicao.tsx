@@ -13,6 +13,27 @@ const PostoDistribuicao = () => {
     fetchPedidos();
   }, []);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel("ptec_pedidos_material_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "ptec_pedidos_material"
+        },
+        () => {
+          fetchPedidos();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const fetchPedidos = async () => {
     const { data, error } = await supabase
       .from("ptec_pedidos_material")
