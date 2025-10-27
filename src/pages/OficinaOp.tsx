@@ -124,16 +124,6 @@ const OficinaOp = () => {
   };
 
   // Dados para gráficos
-  const combustivelPorOM = os.reduce((acc: any[], item) => {
-    const existing = acc.find((x) => x.name === item.om_apoiada);
-    if (existing) {
-      existing.value += parseFloat(item.quantidade_classe_iii || 0);
-    } else {
-      acc.push({ name: item.om_apoiada, value: parseFloat(item.quantidade_classe_iii || 0) });
-    }
-    return acc;
-  }, []);
-
   const marcasData = os.reduce((acc: any[], item) => {
     const existing = acc.find((x) => x.name === item.marca);
     if (existing) {
@@ -240,22 +230,6 @@ const OficinaOp = () => {
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Combustível utilizado por OM (Litros)
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={combustivelPorOM}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="value" stroke="#0A7373" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </Card>
-
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Marcas mais recorrentes
