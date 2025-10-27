@@ -123,6 +123,57 @@ const OficinaOp = () => {
     printWindow.print();
   };
 
+  // Dados para gráficos
+  const combustivelPorOM = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.om_apoiada);
+    if (existing) {
+      existing.value += parseFloat(item.quantidade_classe_iii || 0);
+    } else {
+      acc.push({ name: item.om_apoiada, value: parseFloat(item.quantidade_classe_iii || 0) });
+    }
+    return acc;
+  }, []);
+
+  const marcasData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.marca);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.marca || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const memData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.mem);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.mem || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const sistemaData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.sistema);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.sistema || "N/A", value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const situacaoData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.situacao);
+    if (existing) {
+      existing.value++;
+    } else {
+      acc.push({ name: item.situacao, value: 1 });
+    }
+    return acc;
+  }, []);
+
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
@@ -186,6 +237,105 @@ const OficinaOp = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Combustível utilizado por OM (Litros)
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={combustivelPorOM}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="value" stroke="#0A7373" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Marcas mais recorrentes
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={marcasData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {marcasData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            MEM mais recorrente
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={memData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#C43302" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Sistemas com mais falhas
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={sistemaData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#EDAA25" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Relação OS x Situação
+          </h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={situacaoData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {situacaoData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </Card>
+      </div>
 
       {/* Tabela */}
       <Card className="p-6">
