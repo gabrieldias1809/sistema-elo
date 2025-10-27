@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
+import { RefreshButton } from "@/components/RefreshButton";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
 import { format } from "date-fns";
@@ -21,6 +22,7 @@ const OficinaBlind = () => {
   const [editingOS, setEditingOS] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingOS, setViewingOS] = useState<any>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   const [formData, setFormData] = useState({
     servico_realizado: "",
@@ -503,6 +505,8 @@ const OficinaBlind = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <RefreshButton onClick={fetchOS} isLoading={isRefreshing} />
     </div>
   );
 };

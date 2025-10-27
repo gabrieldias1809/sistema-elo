@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { AutocompleteInput } from "@/components/AutocompleteInput";
+import { RefreshButton } from "@/components/RefreshButton";
 import { toast } from "sonner";
 import {
   BarChart,
@@ -29,6 +30,7 @@ const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 const PtecRH = () => {
   const [ocorrencias, setOcorrencias] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [nomeGuerraSuggestions, setNomeGuerraSuggestions] = useState<string[]>([]);
   const [graduacaoSuggestions, setGraduacaoSuggestions] = useState<string[]>([]);
   const [localSuggestions, setLocalSuggestions] = useState<string[]>([]);
@@ -295,6 +297,8 @@ const PtecRH = () => {
           </Table>
         </div>
       </Card>
+
+      <RefreshButton onClick={fetchOcorrencias} isLoading={isRefreshing} />
     </div>
   );
 };

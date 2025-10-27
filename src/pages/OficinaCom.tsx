@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
+import { RefreshButton } from "@/components/RefreshButton";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,6 +26,7 @@ const OficinaCom = () => {
   const [editingOS, setEditingOS] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingOS, setViewingOS] = useState<any>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [formData, setFormData] = useState({
     servico_realizado: "",
@@ -520,6 +522,8 @@ const OficinaCom = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <RefreshButton onClick={fetchOS} isLoading={isRefreshing} />
     </div>
   );
 };

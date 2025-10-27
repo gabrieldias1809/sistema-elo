@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
+import { RefreshButton } from "@/components/RefreshButton";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
 import { format } from "date-fns";
@@ -22,6 +23,7 @@ const OficinaOp = () => {
   const [editingOS, setEditingOS] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingOS, setViewingOS] = useState<any>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   const [formData, setFormData] = useState({
     servico_realizado: "",
@@ -388,6 +390,8 @@ const OficinaOp = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <RefreshButton onClick={fetchOS} isLoading={isRefreshing} />
     </div>
   );
 };

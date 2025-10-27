@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { DateTimePicker } from "@/components/DateTimePicker";
+import { RefreshButton } from "@/components/RefreshButton";
 import { toast } from "sonner";
 import {
   BarChart,
@@ -51,6 +52,7 @@ const PtecSau = () => {
   const [editingProntuario, setEditingProntuario] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [prontuarioToDelete, setProntuarioToDelete] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
   const [atividadeSuggestions, setAtividadeSuggestions] = useState<string[]>([]);
   const [localSuggestions, setLocalSuggestions] = useState<string[]>([]);
@@ -104,10 +106,12 @@ const PtecSau = () => {
   }, [editingProntuario]);
 
   const fetchPms = async () => {
+    setIsRefreshing(true);
     const { data, error } = await supabase.from("ptec_sau_pms").select("*").order("data", { ascending: false });
 
     if (error) {
       toast.error("Erro ao carregar dados");
+      setIsRefreshing(false);
       return;
     }
 
@@ -123,6 +127,7 @@ const PtecSau = () => {
     setAtividadeSuggestions(uniqueAtividades);
     setLocalSuggestions(uniqueLocais);
     setFracaoSuggestions(uniqueFracoes);
+    setIsRefreshing(false);
   };
 
   const getNextPmNumber = async () => {
@@ -795,6 +800,8 @@ const PtecSau = () => {
           </div>
         </Card>
       </div>
+
+      <RefreshButton onClick={fetchPms} isLoading={isRefreshing} />
 
       {/* Dialog de Visualização de PM */}
       <Dialog open={viewPmOpen} onOpenChange={setViewPmOpen}>
