@@ -43,6 +43,10 @@ export const DateTimePicker = ({ value, onChange, placeholder = "Selecione data 
     }
   };
 
+  const handleClear = () => {
+    onChange("");
+  };
+
   return (
     <div className="flex gap-2">
       <Popover open={open} onOpenChange={setOpen}>
@@ -80,6 +84,16 @@ export const DateTimePicker = ({ value, onChange, placeholder = "Selecione data 
           className="pl-10"
         />
       </div>
+      {date && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleClear}
+          type="button"
+        >
+          <i className="ri-close-line"></i>
+        </Button>
+      )}
     </div>
   );
 };

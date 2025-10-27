@@ -144,10 +144,17 @@ const PtecCom = () => {
       return;
     }
 
+    // Preparar dados com data_fim como null se não preenchida
+    const dataToSubmit = {
+      ...formData,
+      data_fim: formData.data_fim || null,
+      data_inicio: formData.data_inicio || null,
+    };
+
     if (editingOS) {
       const { error } = await supabase
         .from("ptec_com_os")
-        .update(formData)
+        .update(dataToSubmit)
         .eq("id", editingOS.id);
 
       if (error) {
@@ -159,7 +166,7 @@ const PtecCom = () => {
     } else {
       const { error } = await supabase.from("ptec_com_os").insert([
         {
-          ...formData,
+          ...dataToSubmit,
           created_by: (await supabase.auth.getUser()).data.user?.id,
         },
       ]);
