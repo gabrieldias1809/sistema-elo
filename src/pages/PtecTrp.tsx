@@ -129,14 +129,40 @@ const PtecTrp = () => {
   };
 
   const updateSituacaoTransporte = async (id: string, situacao: string) => {
-    const { error } = await supabase
+    // Buscar o pedido de transporte para obter o pedido_material_id
+    const { data: pedidoTransporte, error: fetchError } = await supabase
+      .from("cia_sup_pedidos_transporte")
+      .select("pedido_material_id")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) {
+      toast.error("Erro ao buscar pedido");
+      return;
+    }
+
+    // Atualizar situação do pedido de transporte
+    const { error: updateTranspError } = await supabase
       .from("cia_sup_pedidos_transporte")
       .update({ situacao })
       .eq("id", id);
 
-    if (error) {
-      toast.error("Erro ao atualizar situação");
+    if (updateTranspError) {
+      toast.error("Erro ao atualizar situação do transporte");
       return;
+    }
+
+    // Se foi entregue, atualizar também o pedido de material
+    if (situacao === "Entregue" && pedidoTransporte?.pedido_material_id) {
+      const { error: updateMatError } = await supabase
+        .from("col_pedidos_sup")
+        .update({ situacao: "Entregue" })
+        .eq("id", pedidoTransporte.pedido_material_id);
+
+      if (updateMatError) {
+        toast.error("Erro ao atualizar pedido de material");
+        return;
+      }
     }
 
     toast.success(`Pedido ${situacao}!`);
