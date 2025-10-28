@@ -66,13 +66,18 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
           .slice(0, 6)
           .map(([name, value]) => ({ name, value }));
       } else if (module.id === 'cia_sau') {
-        // Distribuição por gravidade
-        const gravidadeCount: Record<string, number> = {};
-        module.data.forEach((item: any) => {
-          const key = item.nivel_gravidade || 'Não especificado';
-          gravidadeCount[key] = (gravidadeCount[key] || 0) + 1;
+        // Prontuários por dia
+        const prontuarios = module.data.filter((item: any) => item.nivel_gravidade);
+        const daysCount: Record<string, number> = {};
+        prontuarios.forEach((item: any) => {
+          const date = new Date(item.data || item.created_at);
+          const key = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+          daysCount[key] = (daysCount[key] || 0) + 1;
         });
-        return Object.entries(gravidadeCount).map(([name, value]) => ({ name, value }));
+        return Object.entries(daysCount)
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .slice(-7)
+          .map(([name, value]) => ({ name, value }));
       } else if (module.id === 'cia_trp') {
         // Recorrência de destinos
         const destinoCount: Record<string, number> = {};
@@ -122,13 +127,14 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
           .slice(0, 6)
           .map(([name, value]) => ({ name, value }));
       } else if (module.id === 'cia_sau') {
-        // Situação de militares
-        const situacaoCount: Record<string, number> = {};
-        module.data.forEach((item: any) => {
-          const key = item.situacao_atual || 'Não especificado';
-          situacaoCount[key] = (situacaoCount[key] || 0) + 1;
+        // Distribuição por gravidade
+        const prontuarios = module.data.filter((item: any) => item.nivel_gravidade);
+        const gravidadeCount: Record<string, number> = {};
+        prontuarios.forEach((item: any) => {
+          const key = item.nivel_gravidade || 'Não especificado';
+          gravidadeCount[key] = (gravidadeCount[key] || 0) + 1;
         });
-        return Object.entries(situacaoCount).map(([name, value]) => ({ name, value }));
+        return Object.entries(gravidadeCount).map(([name, value]) => ({ name, value }));
       } else if (module.id === 'cia_sup' || module.id === 'col') {
         // Destinos mais recorrentes
         const destinoCount: Record<string, number> = {};
@@ -166,13 +172,13 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
     } else if (chartType === 'bar') {
       if (module.id.includes('ptec_') || module.id.includes('oficina_')) return 'Marcas Mais Recorrentes';
       if (module.id === 'cia_rh') return 'Causas Mais Recorrentes';
-      if (module.id === 'cia_sau') return 'Distribuição por Gravidade';
+      if (module.id === 'cia_sau') return 'Situação de Militares por Dia';
       if (module.id === 'cia_trp') return 'Destinos Mais Recorrentes';
       if (module.id === 'cia_sup' || module.id === 'col') return 'Materiais Mais Pedidos';
       return 'Por Situação';
     } else {
       if (module.id.includes('ptec_') || module.id.includes('oficina_')) return 'OMs Mais Recorrentes';
-      if (module.id === 'cia_sau') return 'Situação de Militares';
+      if (module.id === 'cia_sau') return 'Distribuição por Gravidade';
       if (module.id === 'cia_sup' || module.id === 'col') return 'Destinos Mais Recorrentes';
       return 'Por Distribuição';
     }

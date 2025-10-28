@@ -144,6 +144,20 @@ export const useDashboardData = () => {
     enabled: visibleModules.includes('cia_sau') || visibleModules.includes('ptec_sau'),
   });
 
+  const { data: ciaSauPmsData } = useQuery({
+    queryKey: ['cia_sau_pms'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('ptec_sau_pms')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: visibleModules.includes('cia_sau') || visibleModules.includes('ptec_sau'),
+  });
+
   const { data: ciaTrpData } = useQuery({
     queryKey: ['cia_trp_transportes'],
     queryFn: async () => {
@@ -198,6 +212,7 @@ export const useDashboardData = () => {
         queryClient.invalidateQueries({ queryKey: ['ptec_armto_os'] });
         queryClient.invalidateQueries({ queryKey: ['cia_rh_ocorrencias'] });
         queryClient.invalidateQueries({ queryKey: ['cia_sau_prontuarios'] });
+        queryClient.invalidateQueries({ queryKey: ['cia_sau_pms'] });
         queryClient.invalidateQueries({ queryKey: ['cia_trp_transportes'] });
         queryClient.invalidateQueries({ queryKey: ['cia_sup_pedidos_transporte'] });
         queryClient.invalidateQueries({ queryKey: ['col_pedidos_sup'] });
@@ -262,7 +277,7 @@ export const useDashboardData = () => {
         break;
       case 'cia_sau':
       case 'ptec_sau':
-        data = ciaSauData || [];
+        data = [...(ciaSauData || []), ...(ciaSauPmsData || [])];
         name = 'Saúde';
         color = 'from-pink-500 to-pink-700';
         icon = '❤️';
