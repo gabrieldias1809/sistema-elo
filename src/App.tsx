@@ -23,7 +23,6 @@ import PtecSau from "./pages/PtecSau";
 import PtecRH from "./pages/PtecRH";
 import PtecTrp from "./pages/PtecTrp";
 import UserManagement from "./pages/UserManagement";
-import RelatoriosIA from "./pages/RelatoriosIA";
 import Col from "./pages/Col";
 import CiaSup from "./pages/CiaSup";
 import NotFound from "./pages/NotFound";
@@ -58,7 +57,6 @@ const App = () => (
               <Route path="ptec-trp" element={<PtecTrp />} />
               <Route path="col" element={<Col />} />
               <Route path="cia-sup" element={<CiaSup />} />
-              <Route path="relatorios-ia" element={<RelatoriosIA />} />
               <Route path="usuarios" element={<UserManagement />} />
             </Route>
             <Route path="*" element={<NotFound />} />

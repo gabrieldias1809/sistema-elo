@@ -18,7 +18,6 @@ const Layout = () => {
 
   const allNavItems = [
     { title: "Dashboard", url: "/", icon: "ri-dashboard-line", role: null },
-    { title: "Análise IA", url: "/relatorios-ia", icon: "ri-brain-line", role: null },
     { title: "Ptec Com", url: "/ptec-com", icon: "ri-computer-line", role: "ptec_com" as const },
     { title: "Ptec Auto", url: "/ptec-auto", icon: "ri-car-line", role: "ptec_auto" as const },
     { title: "Ptec Blind", url: "/ptec-blind", icon: "ri-shield-line", role: "ptec_blind" as const },
