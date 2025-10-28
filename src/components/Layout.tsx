@@ -33,6 +33,8 @@ const Layout = () => {
     { title: "Cia Sau", url: "/ptec-sau", icon: "ri-heart-pulse-line", role: "ptec_sau" as const },
     { title: "Cia RH", url: "/ptec-rh", icon: "ri-team-line", role: "ptec_rh" as const },
     { title: "Cia Trp", url: "/ptec-trp", icon: "ri-truck-line", role: "ptec_trp" as const },
+    { title: "COL", url: "/col", icon: "ri-government-line", role: "col" as const },
+    { title: "Cia Sup", url: "/cia-sup", icon: "ri-box-3-line", role: "cia_sup" as const },
     { title: "Gerenciar Usuários", url: "/usuarios", icon: "ri-user-settings-line", role: "admin" as const },
   ];
 

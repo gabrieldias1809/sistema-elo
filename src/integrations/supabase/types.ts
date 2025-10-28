@@ -14,6 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
+      cia_sup_pedidos_transporte: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          destino: string
+          id: string
+          numero_pedido: number
+          observacoes: string | null
+          pedido_material_id: string
+          situacao: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          destino: string
+          id?: string
+          numero_pedido?: number
+          observacoes?: string | null
+          pedido_material_id: string
+          situacao?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          destino?: string
+          id?: string
+          numero_pedido?: number
+          observacoes?: string | null
+          pedido_material_id?: string
+          situacao?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cia_sup_pedidos_transporte_pedido_material_id_fkey"
+            columns: ["pedido_material_id"]
+            isOneToOne: false
+            referencedRelation: "col_pedidos_sup"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      col_pedidos_sup: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_hora: string
+          destino: string
+          id: string
+          materiais: Json
+          numero_pedido: number
+          situacao: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_hora?: string
+          destino: string
+          id?: string
+          materiais: Json
+          numero_pedido?: number
+          situacao?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_hora?: string
+          destino?: string
+          id?: string
+          materiais?: Json
+          numero_pedido?: number
+          situacao?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -676,6 +756,8 @@ export type Database = {
         | "oficina_op"
         | "oficina_armto"
         | "col"
+        | "cia_sup"
+        | "cia_trp"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -821,6 +903,8 @@ export const Constants = {
         "oficina_op",
         "oficina_armto",
         "col",
+        "cia_sup",
+        "cia_trp",
       ],
     },
   },

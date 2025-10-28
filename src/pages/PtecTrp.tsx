@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { RefreshButton } from "@/components/RefreshButton";
 import { toast } from "sonner";
+import { Truck, Package } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -28,6 +30,8 @@ const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
 const PtecTrp = () => {
   const [transportes, setTransportes] = useState<any[]>([]);
+  const [pedidosTransporte, setPedidosTransporte] = useState<any[]>([]);
+  const [pedidosSup, setPedidosSup] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [placaSuggestions, setPlacaSuggestions] = useState<string[]>([]);
@@ -53,6 +57,19 @@ const PtecTrp = () => {
 
   useEffect(() => {
     fetchTransportes();
+    fetchPedidosTransporte();
+    fetchPedidosSup();
+    
+    const channel = supabase
+      .channel("cia_trp_realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "cia_sup_pedidos_transporte" }, () => {
+        fetchPedidosTransporte();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchTransportes = async () => {
@@ -82,6 +99,53 @@ const PtecTrp = () => {
     setDestinoSuggestions(uniqueDestinos);
     setUtilizacaoSuggestions(uniqueUtilizacoes);
     setClasseSuggestions(uniqueClasses);
+  };
+
+  const fetchPedidosTransporte = async () => {
+    const { data, error } = await supabase
+      .from("cia_sup_pedidos_transporte")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      toast.error("Erro ao carregar pedidos de transporte");
+      return;
+    }
+
+    setPedidosTransporte(data || []);
+  };
+
+  const fetchPedidosSup = async () => {
+    const { data, error } = await supabase
+      .from("col_pedidos_sup")
+      .select("*");
+
+    if (error) {
+      toast.error("Erro ao carregar pedidos de suprimento");
+      return;
+    }
+
+    setPedidosSup(data || []);
+  };
+
+  const updateSituacaoTransporte = async (id: string, situacao: string) => {
+    const { error } = await supabase
+      .from("cia_sup_pedidos_transporte")
+      .update({ situacao })
+      .eq("id", id);
+
+    if (error) {
+      toast.error("Erro ao atualizar situação");
+      return;
+    }
+
+    toast.success(`Pedido ${situacao}!`);
+    fetchPedidosTransporte();
+  };
+
+  const getPedidoSupInfo = (id: string) => {
+    const pedido = pedidosSup.find(p => p.id === id);
+    return pedido ? `#${pedido.numero_pedido} - ${pedido.destino}` : "N/A";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -287,7 +351,20 @@ const PtecTrp = () => {
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <Tabs defaultValue="transportes" className="mb-8">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="transportes">
+            <Truck className="h-4 w-4 mr-2" />
+            Transportes Internos
+          </TabsTrigger>
+          <TabsTrigger value="pedidos">
+            <Package className="h-4 w-4 mr-2" />
+            Pedidos Cia Sup
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="transportes">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">Recorrência dos destinos</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -325,8 +402,99 @@ const PtecTrp = () => {
         </Card>
       </div>
 
-      {/* Tabela */}
+      {/* Tabela Transportes */}
       <Card className="p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Registros de Transporte</h3>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Placa</TableHead>
+                <TableHead>Destino</TableHead>
+                <TableHead>Motorista</TableHead>
+                <TableHead>Classe Material</TableHead>
+                <TableHead>Quantidade</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {transportes.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.placa_vtr}</TableCell>
+                  <TableCell>{item.destino}</TableCell>
+                  <TableCell>{item.motorista}</TableCell>
+                  <TableCell>{item.classe_material}</TableCell>
+                  <TableCell>{item.quantidade_transportada}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
+        </TabsContent>
+
+        <TabsContent value="pedidos">
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Pedidos de Transporte da Cia Sup</h3>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nº Pedido</TableHead>
+                    <TableHead>Pedido Material</TableHead>
+                    <TableHead>Destino</TableHead>
+                    <TableHead>Observações</TableHead>
+                    <TableHead>Situação</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pedidosTransporte.map((pedido) => (
+                    <TableRow key={pedido.id}>
+                      <TableCell>{pedido.numero_pedido}</TableCell>
+                      <TableCell>{getPedidoSupInfo(pedido.pedido_material_id)}</TableCell>
+                      <TableCell>{pedido.destino}</TableCell>
+                      <TableCell>{pedido.observacoes || "-"}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          pedido.situacao === "Entregue" ? "bg-green-500/20 text-green-700" :
+                          pedido.situacao === "Em trânsito" ? "bg-blue-500/20 text-blue-700" :
+                          pedido.situacao === "Cancelado" ? "bg-red-500/20 text-red-700" :
+                          "bg-yellow-500/20 text-yellow-700"
+                        }`}>
+                          {pedido.situacao}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => updateSituacaoTransporte(pedido.id, "Entregue")}
+                            disabled={pedido.situacao === "Entregue" || pedido.situacao === "Cancelado"}
+                          >
+                            Entregar
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => updateSituacaoTransporte(pedido.id, "Cancelado")}
+                            disabled={pedido.situacao === "Cancelado" || pedido.situacao === "Entregue"}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Tabela */}
+      <Card className="p-6 hidden">
         <h3 className="text-lg font-semibold text-foreground mb-4">Registros de Transporte</h3>
         <div className="overflow-x-auto">
           <Table>
