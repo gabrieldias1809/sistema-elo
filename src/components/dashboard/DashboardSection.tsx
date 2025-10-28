@@ -28,7 +28,25 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
     return { totalPM: pms.length, foraDeCombate, retornoAoCombate };
   };
 
+  // Calcular estatísticas específicas para Cia Trp, Cia Sup e COL
+  const getLogisticStats = () => {
+    if (module.id !== 'cia_trp' && module.id !== 'cia_sup' && module.id !== 'col') {
+      return null;
+    }
+    
+    const total = module.data.length;
+    const entregues = module.data.filter(
+      (item: any) => item.situacao === 'Entregue' || item.situacao === 'Entregue'
+    ).length;
+    const pendentes = module.data.filter(
+      (item: any) => item.situacao !== 'Entregue' && item.situacao !== 'Cancelado'
+    ).length;
+    
+    return { total, entregues, pendentes };
+  };
+
   const ciaSauStats = getCiaSauStats();
+  const logisticStats = getLogisticStats();
 
   return (
     <div className="space-y-4">
@@ -54,6 +72,21 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
               <div className="text-center">
                 <div className="text-3xl font-bold">{ciaSauStats.retornoAoCombate}</div>
                 <div className="text-sm opacity-90">Retorno ao Combate</div>
+              </div>
+            </div>
+          ) : logisticStats ? (
+            <div className="grid grid-cols-3 gap-4 text-white">
+              <div className="text-center">
+                <div className="text-3xl font-bold">{logisticStats.total}</div>
+                <div className="text-sm opacity-90">Total de Pedidos</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{logisticStats.entregues}</div>
+                <div className="text-sm opacity-90">Entregues</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{logisticStats.pendentes}</div>
+                <div className="text-sm opacity-90">Pendentes</div>
               </div>
             </div>
           ) : (
