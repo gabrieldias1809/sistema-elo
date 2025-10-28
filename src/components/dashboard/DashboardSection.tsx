@@ -16,6 +16,8 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
     }
     
     const prontuarios = module.data.filter((item: any) => item.nivel_gravidade);
+    const pms = module.data.filter((item: any) => item.tipo_pm || item.numero_pms);
+    
     const foraDeCombate = prontuarios.filter(
       (item: any) => item.situacao_atual && item.situacao_atual !== 'Retorno ao combate'
     ).length;
@@ -23,7 +25,7 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
       (item: any) => item.situacao_atual === 'Retorno ao combate'
     ).length;
     
-    return { foraDeCombate, retornoAoCombate, total: prontuarios.length };
+    return { totalPM: pms.length, foraDeCombate, retornoAoCombate };
   };
 
   const ciaSauStats = getCiaSauStats();
@@ -42,8 +44,8 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
           {ciaSauStats ? (
             <div className="grid grid-cols-3 gap-4 text-white">
               <div className="text-center">
-                <div className="text-3xl font-bold">{ciaSauStats.total}</div>
-                <div className="text-sm opacity-90">Total de Militares</div>
+                <div className="text-3xl font-bold">{ciaSauStats.totalPM}</div>
+                <div className="text-sm opacity-90">Total de PM Aberto</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold">{ciaSauStats.foraDeCombate}</div>
