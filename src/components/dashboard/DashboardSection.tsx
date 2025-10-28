@@ -9,6 +9,25 @@ interface DashboardSectionProps {
 }
 
 export const DashboardSection = ({ module }: DashboardSectionProps) => {
+  // Calcular estatísticas específicas para Cia Sau
+  const getCiaSauStats = () => {
+    if (module.id !== 'cia_sau' && module.id !== 'ptec_sau') {
+      return null;
+    }
+    
+    const prontuarios = module.data.filter((item: any) => item.nivel_gravidade);
+    const foraDeCombate = prontuarios.filter(
+      (item: any) => item.situacao_atual && item.situacao_atual !== 'Retorno ao combate'
+    ).length;
+    const retornoAoCombate = prontuarios.filter(
+      (item: any) => item.situacao_atual === 'Retorno ao combate'
+    ).length;
+    
+    return { foraDeCombate, retornoAoCombate, total: prontuarios.length };
+  };
+
+  const ciaSauStats = getCiaSauStats();
+
   return (
     <div className="space-y-4">
       {/* Header com stats */}
@@ -20,20 +39,37 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 text-white">
-            <div className="text-center">
-              <div className="text-3xl font-bold">{module.stats.total}</div>
-              <div className="text-sm opacity-90">Total</div>
+          {ciaSauStats ? (
+            <div className="grid grid-cols-3 gap-4 text-white">
+              <div className="text-center">
+                <div className="text-3xl font-bold">{ciaSauStats.total}</div>
+                <div className="text-sm opacity-90">Total de Militares</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{ciaSauStats.foraDeCombate}</div>
+                <div className="text-sm opacity-90">Fora de Combate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{ciaSauStats.retornoAoCombate}</div>
+                <div className="text-sm opacity-90">Retorno ao Combate</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">{module.stats.concluidas}</div>
-              <div className="text-sm opacity-90">Concluídas</div>
+          ) : (
+            <div className="grid grid-cols-3 gap-4 text-white">
+              <div className="text-center">
+                <div className="text-3xl font-bold">{module.stats.total}</div>
+                <div className="text-sm opacity-90">Total</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{module.stats.concluidas}</div>
+                <div className="text-sm opacity-90">Concluídas</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{module.stats.pendentes}</div>
+                <div className="text-sm opacity-90">Pendentes</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">{module.stats.pendentes}</div>
-              <div className="text-sm opacity-90">Pendentes</div>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
