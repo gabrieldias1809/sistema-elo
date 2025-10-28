@@ -5,7 +5,7 @@ import { ModuleData } from "@/hooks/useDashboardData";
 
 interface ChartCardProps {
   module: ModuleData;
-  chartType: 'bar' | 'pie';
+  chartType: 'bar' | 'pie' | 'sistema' | 'mem';
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
@@ -13,7 +13,35 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 export const ChartCard = ({ module, chartType }: ChartCardProps) => {
   // Processar dados para gráficos
   const getChartData = () => {
-    if (chartType === 'bar') {
+    if (chartType === 'sistema') {
+      // Sistemas com mais falhas (PTECs e Oficinas)
+      if (module.id.includes('ptec_') || module.id.includes('oficina_')) {
+        const sistemaCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.sistema || 'Não especificado';
+          sistemaCount[key] = (sistemaCount[key] || 0) + 1;
+        });
+        return Object.entries(sistemaCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([name, value]) => ({ name, value }));
+      }
+      return [];
+    } else if (chartType === 'mem') {
+      // MEM com mais recorrência (PTECs e Oficinas)
+      if (module.id.includes('ptec_') || module.id.includes('oficina_')) {
+        const memCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.mem || 'Sem MEM';
+          memCount[key] = (memCount[key] || 0) + 1;
+        });
+        return Object.entries(memCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([name, value]) => ({ name, value }));
+      }
+      return [];
+    } else if (chartType === 'bar') {
       // Gráficos específicos por módulo
       if (module.id.includes('ptec_') || module.id.includes('oficina_')) {
         // Para PTECs e Oficinas: Marcas mais recorrentes
@@ -131,7 +159,11 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
   
   // Títulos específicos por módulo
   const getTitle = () => {
-    if (chartType === 'bar') {
+    if (chartType === 'sistema') {
+      return 'Sistemas com Mais Falhas';
+    } else if (chartType === 'mem') {
+      return 'MEM com Mais Recorrência';
+    } else if (chartType === 'bar') {
       if (module.id.includes('ptec_') || module.id.includes('oficina_')) return 'Marcas Mais Recorrentes';
       if (module.id === 'cia_rh') return 'Causas Mais Recorrentes';
       if (module.id === 'cia_sau') return 'Distribuição por Gravidade';
@@ -178,7 +210,7 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
           }}
           className="h-[200px]"
         >
-          {chartType === 'bar' ? (
+          {chartType === 'bar' || chartType === 'sistema' || chartType === 'mem' ? (
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />

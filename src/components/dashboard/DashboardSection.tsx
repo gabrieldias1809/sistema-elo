@@ -40,6 +40,12 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
       <div className="grid md:grid-cols-2 gap-4">
         <ChartCard module={module} chartType="bar" />
         <ChartCard module={module} chartType="pie" />
+        {(module.id.includes('ptec_') || module.id.includes('oficina_')) && (
+          <>
+            <ChartCard module={module} chartType="sistema" />
+            <ChartCard module={module} chartType="mem" />
+          </>
+        )}
       </div>
 
       {/* Tabela de dados recentes */}
