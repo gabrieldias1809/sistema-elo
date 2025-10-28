@@ -14,37 +14,139 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
   // Processar dados para gráficos
   const getChartData = () => {
     if (chartType === 'bar') {
-      // Gráfico de barras: situação ou status
-      const situacaoCount: Record<string, number> = {};
-      module.data.forEach((item: any) => {
-        const key = item.situacao || item.status || 'Sem Status';
-        situacaoCount[key] = (situacaoCount[key] || 0) + 1;
-      });
-      
-      return Object.entries(situacaoCount).map(([name, value]) => ({
-        name,
-        value
-      }));
+      // Gráficos específicos por módulo
+      if (module.id.includes('ptec_') || module.id.includes('oficina_')) {
+        // Para PTECs e Oficinas: Marcas mais recorrentes
+        const marcaCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.marca || 'Sem Marca';
+          marcaCount[key] = (marcaCount[key] || 0) + 1;
+        });
+        return Object.entries(marcaCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([name, value]) => ({ name, value }));
+      } else if (module.id === 'cia_rh') {
+        // Causas mais recorrentes
+        const causaCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.causa_provavel || 'Não especificado';
+          causaCount[key] = (causaCount[key] || 0) + 1;
+        });
+        return Object.entries(causaCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 6)
+          .map(([name, value]) => ({ name, value }));
+      } else if (module.id === 'cia_sau') {
+        // Distribuição por gravidade
+        const gravidadeCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.nivel_gravidade || 'Não especificado';
+          gravidadeCount[key] = (gravidadeCount[key] || 0) + 1;
+        });
+        return Object.entries(gravidadeCount).map(([name, value]) => ({ name, value }));
+      } else if (module.id === 'cia_trp') {
+        // Recorrência de destinos
+        const destinoCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.destino || 'Não especificado';
+          destinoCount[key] = (destinoCount[key] || 0) + 1;
+        });
+        return Object.entries(destinoCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 6)
+          .map(([name, value]) => ({ name, value }));
+      } else if (module.id === 'cia_sup' || module.id === 'col') {
+        // Materiais mais pedidos
+        const materialCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          if (item.materiais && Array.isArray(item.materiais)) {
+            item.materiais.forEach((m: any) => {
+              const key = m.material || 'Não especificado';
+              materialCount[key] = (materialCount[key] || 0) + (m.quantidade || 1);
+            });
+          }
+        });
+        return Object.entries(materialCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([name, value]) => ({ name, value }));
+      } else {
+        // Default: situação ou status
+        const situacaoCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.situacao || item.status || 'Sem Status';
+          situacaoCount[key] = (situacaoCount[key] || 0) + 1;
+        });
+        return Object.entries(situacaoCount).map(([name, value]) => ({ name, value }));
+      }
     } else {
-      // Gráfico de pizza: distribuição por OM ou destino
-      const distribution: Record<string, number> = {};
-      module.data.forEach((item: any) => {
-        const key = item.om_apoiada || item.destino || item.local || 'Outros';
-        distribution[key] = (distribution[key] || 0) + 1;
-      });
-      
-      return Object.entries(distribution)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 6)
-        .map(([name, value]) => ({
-          name,
-          value
-        }));
+      // Gráfico de pizza
+      if (module.id.includes('ptec_') || module.id.includes('oficina_')) {
+        // Para PTECs e Oficinas: OMs mais recorrentes
+        const omCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.om_apoiada || 'Não especificado';
+          omCount[key] = (omCount[key] || 0) + 1;
+        });
+        return Object.entries(omCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 6)
+          .map(([name, value]) => ({ name, value }));
+      } else if (module.id === 'cia_sau') {
+        // Situação de militares
+        const situacaoCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.situacao_atual || 'Não especificado';
+          situacaoCount[key] = (situacaoCount[key] || 0) + 1;
+        });
+        return Object.entries(situacaoCount).map(([name, value]) => ({ name, value }));
+      } else if (module.id === 'cia_sup' || module.id === 'col') {
+        // Destinos mais recorrentes
+        const destinoCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.destino || 'Não especificado';
+          destinoCount[key] = (destinoCount[key] || 0) + 1;
+        });
+        return Object.entries(destinoCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 6)
+          .map(([name, value]) => ({ name, value }));
+      } else {
+        // Default: distribuição por OM ou destino
+        const distribution: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.om_apoiada || item.destino || item.local || 'Outros';
+          distribution[key] = (distribution[key] || 0) + 1;
+        });
+        return Object.entries(distribution)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 6)
+          .map(([name, value]) => ({ name, value }));
+      }
     }
   };
 
   const chartData = getChartData();
-  const title = chartType === 'bar' ? 'Por Situação' : 'Por Distribuição';
+  
+  // Títulos específicos por módulo
+  const getTitle = () => {
+    if (chartType === 'bar') {
+      if (module.id.includes('ptec_') || module.id.includes('oficina_')) return 'Marcas Mais Recorrentes';
+      if (module.id === 'cia_rh') return 'Causas Mais Recorrentes';
+      if (module.id === 'cia_sau') return 'Distribuição por Gravidade';
+      if (module.id === 'cia_trp') return 'Destinos Mais Recorrentes';
+      if (module.id === 'cia_sup' || module.id === 'col') return 'Materiais Mais Pedidos';
+      return 'Por Situação';
+    } else {
+      if (module.id.includes('ptec_') || module.id.includes('oficina_')) return 'OMs Mais Recorrentes';
+      if (module.id === 'cia_sau') return 'Situação de Militares';
+      if (module.id === 'cia_sup' || module.id === 'col') return 'Destinos Mais Recorrentes';
+      return 'Por Distribuição';
+    }
+  };
+  
+  const title = getTitle();
 
   if (chartData.length === 0) {
     return (

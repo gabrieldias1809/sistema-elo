@@ -34,6 +34,7 @@ const Layout = () => {
     { title: "Cia Trp", url: "/ptec-trp", icon: "ri-truck-line", role: "ptec_trp" as const },
     { title: "COL", url: "/col", icon: "ri-government-line", role: "col" as const },
     { title: "Cia Sup", url: "/cia-sup", icon: "ri-box-3-line", role: "cia_sup" as const },
+    { title: "Cia Trp", url: "/cia-trp", icon: "ri-truck-line", role: "cia_trp" as const },
     { title: "Gerenciar Usuários", url: "/usuarios", icon: "ri-user-settings-line", role: "admin" as const },
   ];
 

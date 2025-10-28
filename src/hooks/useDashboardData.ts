@@ -148,7 +148,7 @@ export const useDashboardData = () => {
     queryKey: ['cia_trp_transportes'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('ptec_trp_transportes')
+        .from('cia_sup_pedidos_transporte')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
@@ -199,6 +199,7 @@ export const useDashboardData = () => {
         queryClient.invalidateQueries({ queryKey: ['cia_rh_ocorrencias'] });
         queryClient.invalidateQueries({ queryKey: ['cia_sau_prontuarios'] });
         queryClient.invalidateQueries({ queryKey: ['cia_trp_transportes'] });
+        queryClient.invalidateQueries({ queryKey: ['cia_sup_pedidos_transporte'] });
         queryClient.invalidateQueries({ queryKey: ['col_pedidos_sup'] });
         queryClient.invalidateQueries({ queryKey: ['ptec_pedidos_material'] });
       })

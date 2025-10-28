@@ -30,15 +30,23 @@ export const DataTable = ({ module }: DataTableProps) => {
     const firstItem = recentData[0];
     
     if ('numero_os' in firstItem) {
-      return ['numero_os', 'om_apoiada', 'situacao', 'created_at'];
-    } else if ('numero_pedido' in firstItem) {
+      return ['numero_os', 'om_apoiada', 'marca', 'situacao', 'created_at'];
+    } else if ('numero_pedido' in firstItem && 'materiais' in firstItem) {
+      // col_pedidos_sup
+      return ['numero_pedido', 'destino', 'situacao', 'created_at'];
+    } else if ('pedido_material_id' in firstItem) {
+      // cia_sup_pedidos_transporte
       return ['numero_pedido', 'destino', 'situacao', 'created_at'];
     } else if ('placa_vtr' in firstItem) {
       return ['placa_vtr', 'destino', 'motorista', 'created_at'];
-    } else if ('nome' in firstItem) {
-      return ['nome', 'idade', 'nivel_gravidade', 'created_at'];
+    } else if ('nome' in firstItem && 'idade' in firstItem) {
+      // ptec_sau_prontuarios
+      return ['nome', 'idade', 'nivel_gravidade', 'situacao_atual', 'created_at'];
+    } else if ('causa_provavel' in firstItem) {
+      // ptec_rh_ocorrencias
+      return ['data', 'local', 'causa_provavel', 'quantidade_corpos', 'created_at'];
     } else {
-      return Object.keys(firstItem).slice(0, 4);
+      return Object.keys(firstItem).slice(0, 5);
     }
   };
 
@@ -71,7 +79,13 @@ export const DataTable = ({ module }: DataTableProps) => {
       nome: 'Nome',
       idade: 'Idade',
       nivel_gravidade: 'Gravidade',
-      created_at: 'Data',
+      situacao_atual: 'Situação Atual',
+      data: 'Data',
+      local: 'Local',
+      causa_provavel: 'Causa Provável',
+      quantidade_corpos: 'Qtd. Corpos',
+      marca: 'Marca',
+      created_at: 'Criado em',
     };
     
     return names[key] || key.replace(/_/g, ' ').toUpperCase();

@@ -25,6 +25,7 @@ import PtecTrp from "./pages/PtecTrp";
 import UserManagement from "./pages/UserManagement";
 import Col from "./pages/Col";
 import CiaSup from "./pages/CiaSup";
+import CiaTrp from "./pages/CiaTrp";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="ptec-trp" element={<PtecTrp />} />
               <Route path="col" element={<Col />} />
               <Route path="cia-sup" element={<CiaSup />} />
+              <Route path="cia-trp" element={<CiaTrp />} />
               <Route path="usuarios" element={<UserManagement />} />
             </Route>
             <Route path="*" element={<NotFound />} />
