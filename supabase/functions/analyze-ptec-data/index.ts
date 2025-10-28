@@ -16,10 +16,21 @@ serve(async (req) => {
     
     const authHeader = req.headers.get('authorization');
     
-    // Usar SUPABASE_ANON_KEY conforme documentação oficial do Supabase
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
+
+    console.log('Environment check:', { 
+      hasUrl: !!supabaseUrl, 
+      hasKey: !!supabaseKey 
+    });
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing SUPABASE_URL or SUPABASE_PUBLISHABLE_KEY');
+    }
+
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      supabaseUrl,
+      supabaseKey,
       { 
         global: { 
           headers: { Authorization: authHeader! } 
