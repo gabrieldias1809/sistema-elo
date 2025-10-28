@@ -27,44 +27,39 @@ export const CiaSauCharts = ({ module }: CiaSauChartsProps) => {
   const situacaoData = getSituacaoData();
 
   return (
-    <div className="grid md:grid-cols-3 gap-4">
-      {/* Gráfico já existente: Situação de militares por dia */}
-      
-      {/* Gráfico novo: Total de militares por situação */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Total de Militares por Situação</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer
-            config={{
-              value: {
-                label: "Quantidade",
-                color: "hsl(var(--primary))",
-              },
-            }}
-            className="h-[200px]"
-          >
-            <PieChart>
-              <Pie
-                data={situacaoData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {situacaoData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <ChartTooltip content={<ChartTooltipContent />} />
-            </PieChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-sm">Total de Militares por Situação</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-hidden">
+        <ChartContainer
+          config={{
+            value: {
+              label: "Quantidade",
+              color: "hsl(var(--primary))",
+            },
+          }}
+          className="h-[200px] w-full"
+        >
+          <PieChart>
+            <Pie
+              data={situacaoData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {situacaoData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <ChartTooltip content={<ChartTooltipContent />} />
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 };

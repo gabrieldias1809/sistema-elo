@@ -188,7 +188,7 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
 
   if (chartData.length === 0) {
     return (
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-sm">{title}</CardTitle>
         </CardHeader>
@@ -202,11 +202,11 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
   }
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-sm">{title}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-hidden">
         <ChartContainer
           config={{
             value: {
@@ -214,7 +214,7 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
               color: "hsl(var(--primary))",
             },
           }}
-          className="h-[200px]"
+          className="h-[200px] w-full"
         >
           {chartType === 'bar' || chartType === 'sistema' || chartType === 'mem' ? (
             <BarChart data={chartData}>
