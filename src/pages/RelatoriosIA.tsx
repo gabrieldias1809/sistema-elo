@@ -1,136 +1,210 @@
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
-import { Brain, Download, Loader2, Sparkles } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+import { Loader2, Download, Brain } from "lucide-react";
 
-export default function RelatoriosIA() {
-  const { user, roles } = useAuth();
+const RelatoriosIA = () => {
+  const { hasRole } = useAuth();
   const [userPrompt, setUserPrompt] = useState("");
   const [selectedPtecs, setSelectedPtecs] = useState<string[]>([]);
-  const [period, setPeriod] = useState("30");
+  const [period, setPeriod] = useState("7");
   const [isLoading, setIsLoading] = useState(false);
-  const [analysis, setAnalysis] = useState<string>("");
-  const [metadata, setMetadata] = useState<any>(null);
+  const [analysis, setAnalysis] = useState("");
 
   const ptecOptions = [
-    { id: "com", label: "Ptec Com", role: "ptec_com" as const },
-    { id: "mb", label: "Ptec MB", role: "ptec_mb" as const },
-    { id: "auto", label: "Ptec Auto", role: "ptec_auto" as const },
-    { id: "blind", label: "Ptec Blind", role: "ptec_blind" as const },
-    { id: "op", label: "Ptec Op", role: "ptec_op" as const },
-    { id: "armto", label: "Ptec Armto", role: "ptec_armto" as const },
-    { id: "sau", label: "Ptec Sau", role: "ptec_sau" as const },
-    { id: "rh", label: "Ptec RH", role: "ptec_rh" as const },
-    { id: "trp", label: "Ptec Trp", role: "ptec_trp" as const },
+    { value: "com", label: "Ptec Com", role: "ptec_com", table: "ptec_com_os" },
+    { value: "mb", label: "Ptec MB", role: "ptec_mb", table: "ptec_mb_os" },
+    { value: "auto", label: "Ptec Auto", role: "ptec_auto", table: "ptec_auto_os" },
+    { value: "blind", label: "Ptec Blind", role: "ptec_blind", table: "ptec_blind_os" },
+    { value: "op", label: "Ptec Op", role: "ptec_op", table: "ptec_op_os" },
+    { value: "armto", label: "Ptec Armto", role: "ptec_armto", table: "ptec_armto_os" },
+    { value: "sau", label: "Cia Sau", role: "ptec_sau", table: "ptec_sau_pms" },
+    { value: "rh", label: "Cia RH", role: "ptec_rh", table: "ptec_rh_ocorrencias" },
+    { value: "trp", label: "Cia Trp", role: "ptec_trp", table: "ptec_trp_transportes" },
   ];
 
-  // Filtrar Ptecs disponíveis baseado nas permissões do usuário
-  const availablePtecs = ptecOptions.filter(ptec => 
-    roles.includes("admin") || roles.includes("col") || roles.includes(ptec.role)
+  const availablePtecs = ptecOptions.filter(
+    (ptec) => hasRole("admin") || hasRole("col") || hasRole(ptec.role as any)
   );
 
-  const handlePtecToggle = (ptecId: string) => {
-    setSelectedPtecs(prev => 
-      prev.includes(ptecId) 
-        ? prev.filter(id => id !== ptecId)
-        : [...prev, ptecId]
+  const handlePtecToggle = (ptecValue: string) => {
+    setSelectedPtecs((prev) =>
+      prev.includes(ptecValue)
+        ? prev.filter((p) => p !== ptecValue)
+        : [...prev, ptecValue]
     );
   };
 
-  const examplePrompts = [
-    "Analise as tendências de manutenção e identifique os principais gargalos operacionais",
-    "Quais OMs estão demandando mais recursos? Sugira otimizações",
-    "Gere um relatório executivo com insights e recomendações para tomada de decisão",
-    "Compare a eficiência entre os diferentes Ptecs e identifique best practices",
-    "Identifique padrões de falhas em equipamentos e sugira ações preventivas",
-  ];
+  const calculateDateRange = () => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - parseInt(period));
+    return {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    };
+  };
+
+  const fetchPtecData = async (ptecValue: string, table: string, startDate: string, endDate: string): Promise<any[] | null> => {
+    const { data, error } = await supabase
+      .from(table as any)
+      .select("*")
+      .gte("created_at", startDate)
+      .lte("created_at", endDate);
+
+    if (error) {
+      console.error(`Erro ao buscar dados de ${ptecValue}:`, error);
+      return null;
+    }
+
+    return data || [];
+  };
+
+  const calculateStatistics = (ptecValue: string, data: any[]) => {
+    if (!data || data.length === 0) return null;
+
+    if (ptecValue === "sau") {
+      return {
+        total_registros: data.length,
+        tipo: "saúde",
+      };
+    }
+
+    if (ptecValue === "rh") {
+      const totalCorpos = data.reduce((sum, item) => sum + (item.quantidade_corpos || 0), 0);
+      return {
+        total_ocorrencias: data.length,
+        total_corpos: totalCorpos,
+        tipo: "recursos_humanos",
+      };
+    }
+
+    if (ptecValue === "trp") {
+      const totalKm = data.reduce((sum, item) => {
+        const kmSaida = item.odometro_saida || 0;
+        const kmRetorno = item.odometro_retorno || 0;
+        return sum + (kmRetorno - kmSaida);
+      }, 0);
+      return {
+        total_transportes: data.length,
+        total_km: totalKm,
+        tipo: "transporte",
+      };
+    }
+
+    // Para Ptecs com OS
+    const concluidas = data.filter((os) => os.situacao === "Concluída").length;
+    const total = data.length;
+    const omsApoiadas = [...new Set(data.map((os) => os.om_apoiada))].length;
+
+    return {
+      total_os: total,
+      os_concluidas: concluidas,
+      taxa_conclusao: total > 0 ? ((concluidas / total) * 100).toFixed(1) + "%" : "0%",
+      oms_apoiadas: omsApoiadas,
+      tipo: "manutenção",
+    };
+  };
 
   const handleGenerateReport = async () => {
     if (selectedPtecs.length === 0) {
       toast.error("Selecione pelo menos um Ptec para análise");
       return;
     }
+
     if (!userPrompt.trim()) {
-      toast.error("Descreva o tipo de análise desejada");
+      toast.error("Digite uma pergunta ou solicitação");
       return;
     }
 
     setIsLoading(true);
     setAnalysis("");
-    setMetadata(null);
 
     try {
-      const endDate = new Date().toISOString();
-      const startDate = new Date(Date.now() - parseInt(period) * 24 * 60 * 60 * 1000).toISOString();
+      const { startDate, endDate } = calculateDateRange();
+      const statistics: any = {};
 
-      const { data, error } = await supabase.functions.invoke('analyze-ptec-data', {
-        body: {
-          ptecs: selectedPtecs,
-          startDate,
-          endDate,
-          userPrompt,
+      // Buscar dados de cada Ptec selecionado
+      for (const ptecValue of selectedPtecs) {
+        const ptecOption = ptecOptions.find((p) => p.value === ptecValue);
+        if (!ptecOption) continue;
+
+        const data = await fetchPtecData(ptecValue, ptecOption.table, startDate, endDate);
+        if (data) {
+          const stats = calculateStatistics(ptecValue, data);
+          if (stats) {
+            statistics[ptecValue] = {
+              ...stats,
+              periodo: {
+                inicio: startDate,
+                fim: endDate,
+                dias: parseInt(period),
+              },
+            };
+          }
         }
+      }
+
+      // Chamar edge function para gerar análise
+      const { data, error } = await supabase.functions.invoke("generate-report", {
+        body: { statistics, userPrompt },
       });
 
       if (error) throw error;
 
-      if (data.error) {
-        toast.error(data.error);
-        return;
-      }
-
       setAnalysis(data.analysis);
-      setMetadata(data.metadata);
       toast.success("Relatório gerado com sucesso!");
     } catch (error: any) {
-      console.error("Error generating report:", error);
+      console.error("Erro ao gerar relatório:", error);
       toast.error(error.message || "Erro ao gerar relatório");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDownloadPDF = () => {
-    // Implementação simplificada - converter para PDF seria necessário adicionar biblioteca
-    const blob = new Blob([analysis], { type: 'text/plain' });
+  const handleDownloadReport = () => {
+    const blob = new Blob([analysis], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `relatorio-ia-${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `relatorio-ia-${new Date().toISOString().split("T")[0]}.md`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Relatório baixado");
+    toast.success("Relatório baixado!");
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <Brain className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold">Análise com IA</h1>
-          <p className="text-muted-foreground">Gere relatórios inteligentes baseados nos dados dos Ptecs</p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Relatórios com IA</h1>
+        <p className="text-muted-foreground">
+          Gere análises inteligentes dos dados operacionais usando inteligência artificial
+        </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Painel de Configuração */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Configuração */}
         <Card>
           <CardHeader>
-            <CardTitle>Configurar Análise</CardTitle>
-            <CardDescription>Selecione os Ptecs e o período para análise</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5" />
+              Configurar Análise
+            </CardTitle>
+            <CardDescription>
+              Selecione os dados e descreva o que você quer analisar
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             {/* Período */}
             <div className="space-y-2">
-              <Label>Período</Label>
+              <label className="text-sm font-medium text-foreground">Período</label>
               <Select value={period} onValueChange={setPeriod}>
                 <SelectTrigger>
                   <SelectValue />
@@ -147,17 +221,17 @@ export default function RelatoriosIA() {
 
             {/* Seleção de Ptecs */}
             <div className="space-y-2">
-              <Label>Ptecs para Análise</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {availablePtecs.map(ptec => (
-                  <div key={ptec.id} className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-foreground">Módulos para Análise</label>
+              <div className="grid grid-cols-2 gap-2">
+                {availablePtecs.map((ptec) => (
+                  <div key={ptec.value} className="flex items-center space-x-2">
                     <Checkbox
-                      id={ptec.id}
-                      checked={selectedPtecs.includes(ptec.id)}
-                      onCheckedChange={() => handlePtecToggle(ptec.id)}
+                      id={ptec.value}
+                      checked={selectedPtecs.includes(ptec.value)}
+                      onCheckedChange={() => handlePtecToggle(ptec.value)}
                     />
                     <label
-                      htmlFor={ptec.id}
+                      htmlFor={ptec.value}
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                     >
                       {ptec.label}
@@ -165,62 +239,32 @@ export default function RelatoriosIA() {
                   </div>
                 ))}
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedPtecs(availablePtecs.map(p => p.id))}
-                className="mt-2"
-              >
-                Selecionar Todos
-              </Button>
             </div>
 
-            {/* Prompt do Usuário */}
+            {/* Prompt do usuário */}
             <div className="space-y-2">
-              <Label htmlFor="prompt">Tipo de Análise</Label>
+              <label className="text-sm font-medium text-foreground">Sua Pergunta</label>
               <Textarea
-                id="prompt"
-                placeholder="Ex: Analise as tendências de manutenção dos últimos 30 dias e identifique os principais gargalos..."
+                placeholder="Ex: Faça uma análise comparativa do desempenho dos Ptecs selecionados..."
                 value={userPrompt}
                 onChange={(e) => setUserPrompt(e.target.value)}
                 rows={4}
               />
             </div>
 
-            {/* Exemplos de Prompts */}
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Sugestões de análise:</Label>
-              <div className="space-y-1">
-                {examplePrompts.map((example, idx) => (
-                  <Button
-                    key={idx}
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start text-xs h-auto py-2 px-3 text-left"
-                    onClick={() => setUserPrompt(example)}
-                  >
-                    <Sparkles className="h-3 w-3 mr-2 shrink-0" />
-                    <span className="line-clamp-2">{example}</span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Botão Gerar */}
             <Button
               onClick={handleGenerateReport}
-              disabled={isLoading}
+              disabled={isLoading || selectedPtecs.length === 0 || !userPrompt.trim()}
               className="w-full"
-              size="lg"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Analisando...
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Gerando Análise...
                 </>
               ) : (
                 <>
-                  <Brain className="h-4 w-4 mr-2" />
+                  <Brain className="w-4 h-4 mr-2" />
                   Gerar Relatório
                 </>
               )}
@@ -228,46 +272,36 @@ export default function RelatoriosIA() {
           </CardContent>
         </Card>
 
-        {/* Painel de Resultado */}
-        <Card className="md:col-span-1">
+        {/* Resultado */}
+        <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Relatório Gerado</CardTitle>
-                <CardDescription>Análise inteligente dos dados selecionados</CardDescription>
-              </div>
-              {analysis && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownloadPDF}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Baixar
-                </Button>
-              )}
-            </div>
+            <CardTitle>Relatório Gerado</CardTitle>
+            <CardDescription>
+              Análise inteligente dos dados operacionais
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            {!analysis && !isLoading && (
-              <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-                <Brain className="h-16 w-16 mb-4 opacity-20" />
-                <p>Configure os parâmetros e clique em "Gerar Relatório"</p>
-                <p className="text-sm mt-2">A IA analisará os dados e gerará insights acionáveis</p>
-              </div>
-            )}
-
-            {isLoading && (
-              <div className="flex flex-col items-center justify-center py-12">
-                <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <Loader2 className="w-12 h-12 animate-spin text-primary" />
                 <p className="text-muted-foreground">Analisando dados...</p>
-                <p className="text-sm text-muted-foreground mt-2">Isso pode levar alguns segundos</p>
               </div>
-            )}
-
-            {analysis && (
-              <div className="prose prose-sm max-w-none dark:prose-invert">
-                <ReactMarkdown>{analysis}</ReactMarkdown>
+            ) : analysis ? (
+              <div className="space-y-4">
+                <div className="prose prose-sm dark:prose-invert max-w-none max-h-[600px] overflow-y-auto p-4 bg-muted/50 rounded-lg">
+                  <ReactMarkdown>{analysis}</ReactMarkdown>
+                </div>
+                <Button onClick={handleDownloadReport} variant="outline" className="w-full">
+                  <Download className="w-4 h-4 mr-2" />
+                  Baixar Relatório
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center space-y-2">
+                <Brain className="w-12 h-12 text-muted-foreground/50" />
+                <p className="text-muted-foreground">
+                  Configure a análise e clique em "Gerar Relatório"
+                </p>
               </div>
             )}
           </CardContent>
@@ -275,4 +309,6 @@ export default function RelatoriosIA() {
       </div>
     </div>
   );
-}
+};
+
+export default RelatoriosIA;

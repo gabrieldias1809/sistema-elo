@@ -1,4 +1,4 @@
 project_id = "ucddjqsueyjdeochlomd"
 
-[functions.analyze-ptec-data]
-verify_jwt = true
+[functions.generate-report]
+verify_jwt = false
