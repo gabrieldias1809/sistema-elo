@@ -236,6 +236,50 @@ export default function CiaSup() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
+                          <Dialog open={isViewDialogOpen && selectedPedidoSup?.id === pedido.id} onOpenChange={(open) => {
+                            setIsViewDialogOpen(open);
+                            if (!open) setSelectedPedidoSup(null);
+                          }}>
+                            <DialogTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="icon" 
+                                onClick={() => {
+                                  setSelectedPedidoSup(pedido);
+                                  setIsViewDialogOpen(true);
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Pedido de Suprimento #{selectedPedidoSup?.numero_pedido}</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>Materiais</Label>
+                                  <ul className="list-disc list-inside mt-2 space-y-1">
+                                    {selectedPedidoSup?.materiais.map((m, i) => (
+                                      <li key={i}>{m.material} - Qtd: {m.quantidade}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                <div>
+                                  <Label>Destino</Label>
+                                  <p className="mt-1">{selectedPedidoSup?.destino}</p>
+                                </div>
+                                <div>
+                                  <Label>Situação Atual</Label>
+                                  <p className="mt-1">{selectedPedidoSup?.situacao}</p>
+                                </div>
+                                <div>
+                                  <Label>Data e Hora</Label>
+                                  <p className="mt-1">{selectedPedidoSup && new Date(selectedPedidoSup.data_hora).toLocaleString("pt-BR")}</p>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                           <Button
                             variant="outline"
                             size="sm"
