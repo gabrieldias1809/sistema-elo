@@ -85,22 +85,24 @@ const Auth = () => {
   if (showLoading) {
     return (
       <div 
-        className="min-h-screen flex items-center justify-center relative animate-fade-in"
+        className="min-h-screen flex items-center justify-center relative"
         style={{
           backgroundImage: `url(${sistemaEloBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
+          filter: 'blur(8px)',
         }}
       >
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative z-10 animate-scale-in">
-          <div className="animate-pulse">
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="flex flex-col items-center gap-6">
             <img 
-              src={sistemaEloBg} 
+              src={sistemaEloIcon} 
               alt="Sistema ELO" 
-              className="w-auto h-auto max-w-2xl"
+              className="w-24 h-24 animate-fade-in"
             />
+            <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
           </div>
         </div>
       </div>
