@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,8 +17,17 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [nomeGuerra, setNomeGuerra] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(true);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLoading(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +82,28 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  if (showLoading) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center relative"
+        style={{
+          backgroundImage: `url(${sistemaEloBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Overlay with blur for loading screen */}
+        <div className="absolute inset-0 backdrop-blur-lg bg-background/70" />
+        
+        {/* Loading spinner */}
+        <div className="relative z-10 flex flex-col items-center">
+          <Loader2 className="w-16 h-16 text-primary animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
