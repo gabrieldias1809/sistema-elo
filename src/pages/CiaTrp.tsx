@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Truck, CheckCircle, XCircle } from "lucide-react";
+import { RefreshButton } from "@/components/RefreshButton";
 
 interface PedidoTransporte {
   id: string;
@@ -18,6 +19,7 @@ interface PedidoTransporte {
 
 export default function CiaTrp() {
   const [pedidosTransporte, setPedidosTransporte] = useState<PedidoTransporte[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchPedidosTransporte();
@@ -35,6 +37,7 @@ export default function CiaTrp() {
   }, []);
 
   const fetchPedidosTransporte = async () => {
+    setIsRefreshing(true);
     const { data, error } = await supabase
       .from("cia_sup_pedidos_transporte")
       .select("*")
@@ -42,13 +45,28 @@ export default function CiaTrp() {
 
     if (error) {
       toast.error("Erro ao carregar pedidos de transporte");
+      setIsRefreshing(false);
       return;
     }
 
     setPedidosTransporte(data || []);
+    setIsRefreshing(false);
   };
 
   const updateSituacao = async (id: string, situacao: string) => {
+    // Buscar o pedido de transporte para obter o pedido_material_id
+    const { data: pedidoTransporte, error: fetchError } = await supabase
+      .from("cia_sup_pedidos_transporte")
+      .select("pedido_material_id")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) {
+      toast.error("Erro ao buscar pedido");
+      return;
+    }
+
+    // Atualizar situação do pedido de transporte
     const { error } = await supabase
       .from("cia_sup_pedidos_transporte")
       .update({ situacao })
@@ -57,6 +75,19 @@ export default function CiaTrp() {
     if (error) {
       toast.error("Erro ao atualizar situação");
       return;
+    }
+
+    // Se foi entregue, atualizar também o pedido de suprimento
+    if (situacao === "Entregue" && pedidoTransporte?.pedido_material_id) {
+      const { error: updateSupError } = await supabase
+        .from("col_pedidos_sup")
+        .update({ situacao: "Entregue" })
+        .eq("id", pedidoTransporte.pedido_material_id);
+
+      if (updateSupError) {
+        toast.error("Erro ao atualizar pedido de suprimento");
+        return;
+      }
     }
 
     toast.success(`Pedido ${situacao}!`);
@@ -148,6 +179,8 @@ export default function CiaTrp() {
           </Table>
         </CardContent>
       </Card>
+
+      <RefreshButton onClick={fetchPedidosTransporte} isLoading={isRefreshing} />
     </div>
   );
 }

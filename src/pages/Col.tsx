@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { Plus, Trash2, Eye, Edit, X } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { RefreshButton } from "@/components/RefreshButton";
 
 interface Material {
   material: string;
@@ -35,6 +36,7 @@ export default function Col() {
   const [loading, setLoading] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState<PedidoSup | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -53,6 +55,7 @@ export default function Col() {
   }, []);
 
   const fetchPedidos = async () => {
+    setIsRefreshing(true);
     const { data, error } = await supabase
       .from("col_pedidos_sup")
       .select("*")
@@ -60,10 +63,12 @@ export default function Col() {
 
     if (error) {
       toast.error("Erro ao carregar pedidos");
+      setIsRefreshing(false);
       return;
     }
 
     setPedidos((data || []) as unknown as PedidoSup[]);
+    setIsRefreshing(false);
   };
 
   const addMaterial = () => {
@@ -353,6 +358,8 @@ export default function Col() {
           </Table>
         </CardContent>
       </Card>
+
+      <RefreshButton onClick={fetchPedidos} isLoading={isRefreshing} />
     </div>
   );
 }

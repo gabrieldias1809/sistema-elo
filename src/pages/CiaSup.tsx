@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { Trash2, Plus, Package, Truck } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RefreshButton } from "@/components/RefreshButton";
 
 interface Material {
   material: string;
@@ -44,6 +45,7 @@ export default function CiaSup() {
   const [observacoes, setObservacoes] = useState("");
   const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchPedidosSup();
@@ -70,6 +72,7 @@ export default function CiaSup() {
   }, []);
 
   const fetchPedidosSup = async () => {
+    setIsRefreshing(true);
     const { data, error } = await supabase
       .from("col_pedidos_sup")
       .select("*")
@@ -77,10 +80,12 @@ export default function CiaSup() {
 
     if (error) {
       toast.error("Erro ao carregar pedidos");
+      setIsRefreshing(false);
       return;
     }
 
     setPedidosSup((data || []) as unknown as PedidoSup[]);
+    setIsRefreshing(false);
   };
 
   const fetchPedidosTransporte = async () => {
@@ -355,6 +360,8 @@ export default function CiaSup() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <RefreshButton onClick={fetchPedidosSup} isLoading={isRefreshing} />
     </div>
   );
 }
