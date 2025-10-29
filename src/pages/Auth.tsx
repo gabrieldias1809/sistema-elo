@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import sistemaEloIcon from "@/assets/sistema-elo-icon.png";
-import sistemaEloBg from "@/assets/sistema-elo-bg.png";
+import sistemaEloLogo from "@/assets/sistema-elo-logo.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,17 +15,8 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [nomeGuerra, setNomeGuerra] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showLoading, setShowLoading] = useState(true);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowLoading(false);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,67 +72,24 @@ const Auth = () => {
     }
   };
 
-  if (showLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Background desfocado */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url(${sistemaEloBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            filter: 'blur(8px)',
-            transform: 'scale(1.1)',
-          }}
-        ></div>
-        <div className="absolute inset-0 bg-black/50"></div>
-        
-        {/* Conteúdo nítido */}
-        <div className="relative z-10 flex flex-col items-center gap-6">
-          <img 
-            src={sistemaEloIcon} 
-            alt="Sistema ELO" 
-            className="w-24 h-24 animate-fade-in"
-          />
-          <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-6 relative animate-fade-in"
-      style={{
-        backgroundImage: `url(${sistemaEloBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      {/* Overlay escuro para melhor contraste */}
-      <div className="absolute inset-0 bg-black/40"></div>
-      
-      <Card className="w-full max-w-md bg-card/10 backdrop-blur-2xl border-white/20 p-8 relative z-10 shadow-2xl animate-scale-in">
-        <div className="flex flex-col items-center mb-8 gap-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="w-full max-w-md bg-card border-border p-8">
+        <div className="flex items-center mb-8 justify-center">
           <img 
-            src={sistemaEloIcon} 
-            alt="Sistema ELO" 
-            className="w-20 h-20"
+            src={sistemaEloLogo} 
+            alt="Sistema ELO - Gestão Militar Integrada" 
+            className="w-full max-w-[350px] h-auto"
           />
-          <h1 className="text-2xl font-bold text-white font-montserrat">Sistema ELO</h1>
-          <p className="text-sm text-white/80">Gestão Militar Integrada</p>
         </div>
 
-        <h2 className="text-xl font-semibold text-white mb-6 text-center">
+        <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
           {isLogin ? "Login" : "Criar Conta"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email" className="text-white">
+            <Label htmlFor="email" className="text-foreground">
               Email
             </Label>
             <Input
@@ -150,14 +97,14 @@ const Auth = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60"
+              className="bg-muted border-border text-foreground"
               placeholder="seu@email.com"
             />
           </div>
 
           {!isLogin && (
             <div>
-              <Label htmlFor="nomeGuerra" className="text-white">
+              <Label htmlFor="nomeGuerra" className="text-foreground">
                 Nome de Guerra
               </Label>
               <Input
@@ -165,14 +112,14 @@ const Auth = () => {
                 type="text"
                 value={nomeGuerra}
                 onChange={(e) => setNomeGuerra(e.target.value)}
-                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60"
+                className="bg-muted border-border text-foreground"
                 placeholder="Seu nome de guerra"
               />
             </div>
           )}
 
           <div>
-            <Label htmlFor="password" className="text-white">
+            <Label htmlFor="password" className="text-foreground">
               Senha
             </Label>
             <Input
@@ -180,14 +127,14 @@ const Auth = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60"
+              className="bg-muted border-border text-foreground"
               placeholder="••••••••"
             />
           </div>
 
           {!isLogin && (
             <div>
-              <Label htmlFor="confirmPassword" className="text-white">
+              <Label htmlFor="confirmPassword" className="text-foreground">
                 Confirmar Senha
               </Label>
               <Input
@@ -195,7 +142,7 @@ const Auth = () => {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60"
+                className="bg-muted border-border text-foreground"
                 placeholder="••••••••"
               />
             </div>
@@ -218,14 +165,14 @@ const Auth = () => {
               setConfirmPassword("");
               setNomeGuerra("");
             }}
-            className="text-sm text-white/80 hover:text-white hover:underline"
+            className="text-sm text-primary hover:underline"
           >
             {isLogin ? "Não tem uma conta? Criar conta" : "Já tem uma conta? Fazer login"}
           </button>
         </div>
 
         {isLogin && (
-          <p className="text-sm text-white/70 mt-4 text-center">
+          <p className="text-sm text-muted-foreground mt-4 text-center">
             Usuários existentes: admin, ptec_com, ptec_mb, ptec_sau, ptec_rh, ptec_trp
           </p>
         )}
