@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import sistemaEloLogo from "@/assets/sistema-elo-logo.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -74,13 +75,12 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <Card className="w-full max-w-md bg-card border-border p-8">
-        <div className="flex items-center gap-3 mb-8 justify-center">
-          <div className="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center">
-            <i className="ri-coins-line text-white text-2xl"></i>
-          </div>
-          <h1 className="text-2xl font-bold text-foreground font-pacifico">
-            Sistema ELO
-          </h1>
+        <div className="flex items-center mb-8 justify-center">
+          <img 
+            src={sistemaEloLogo} 
+            alt="Sistema ELO - Gestão Militar Integrada" 
+            className="w-full max-w-[350px] h-auto"
+          />
         </div>
 
         <h2 className="text-xl font-semibold text-foreground mb-6 text-center">

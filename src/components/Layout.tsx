@@ -1,5 +1,6 @@
 import { Outlet, Navigate, NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import sistemaEloIcon from "@/assets/sistema-elo-icon.png";
 
 const Layout = () => {
   const { user, loading, hasRole, signOut } = useAuth();
@@ -46,9 +47,11 @@ const Layout = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-              <i className="ri-coins-line text-white text-lg"></i>
-            </div>
+            <img 
+              src={sistemaEloIcon} 
+              alt="Sistema ELO" 
+              className="w-8 h-8"
+            />
             <h1 className="text-xl font-bold text-foreground font-montserrat">Sistema ELO</h1>
           </div>
           <div className="flex items-center gap-4">

@@ -8,49 +8,49 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 237 94% 7%;
-    --foreground: 72 23% 88%;
+    --background: 220 15% 10%;
+    --foreground: 0 0% 98%;
 
-    --card: 237 80% 10%;
-    --card-foreground: 72 23% 88%;
+    --card: 220 15% 13%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 237 80% 10%;
-    --popover-foreground: 72 23% 88%;
+    --popover: 220 15% 13%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 180 83% 25%;
+    --primary: 206 76% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 84% 54%;
-    --secondary-foreground: 237 94% 7%;
+    --secondary: 206 60% 45%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 237 60% 15%;
-    --muted-foreground: 72 23% 65%;
+    --muted: 220 15% 20%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 40 84% 54%;
-    --accent-foreground: 237 94% 7%;
+    --accent: 206 76% 58%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 15 97% 39%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 180 40% 30%;
-    --input: 237 70% 12%;
-    --ring: 40 84% 54%;
+    --border: 220 15% 25%;
+    --input: 220 15% 18%;
+    --ring: 206 76% 58%;
 
     --radius: 0.75rem;
 
     /* Gradient colors */
-    --gradient-from: 180 83% 25%;
-    --gradient-to: 40 84% 54%;
+    --gradient-from: 206 76% 58%;
+    --gradient-to: 206 60% 45%;
     
     /* Sidebar */
-    --sidebar-background: 237 94% 7%;
-    --sidebar-foreground: 72 23% 75%;
-    --sidebar-primary: 180 83% 25%;
+    --sidebar-background: 220 15% 10%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 206 76% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 237 70% 12%;
-    --sidebar-accent-foreground: 72 23% 88%;
-    --sidebar-border: 180 40% 30%;
-    --sidebar-ring: 40 84% 54%;
+    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 220 15% 25%;
+    --sidebar-ring: 206 76% 58%;
   }
 }
 
@@ -60,7 +60,7 @@ All colors MUST be HSL.
   }
   
   .gradient-primary-hover {
-    background: linear-gradient(to right, hsl(180 83% 20%), hsl(40 84% 48%));
+    background: linear-gradient(to right, hsl(206 76% 50%), hsl(206 60% 38%));
   }
 
   .gradient-com {
