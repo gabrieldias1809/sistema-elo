@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Trash2, Plus, Package, Truck } from "lucide-react";
+import { Trash2, Plus, Package, Truck, Eye } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RefreshButton } from "@/components/RefreshButton";
 
@@ -46,6 +46,8 @@ export default function CiaSup() {
   const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedPedidoSup, setSelectedPedidoSup] = useState<PedidoSup | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchPedidosSup();
@@ -169,6 +171,10 @@ export default function CiaSup() {
   const getPedidoMaterialInfo = (id: string) => {
     const pedido = pedidosSup.find(p => p.id === id);
     return pedido ? `#${pedido.numero_pedido} - ${pedido.destino}` : "N/A";
+  };
+
+  const getPedidoSupDetails = (id: string) => {
+    return pedidosSup.find(p => p.id === id);
   };
 
   return (
@@ -344,13 +350,64 @@ export default function CiaSup() {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => handleDeleteTransporte(pedido.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Dialog open={isViewDialogOpen && selectedPedidoSup?.id === pedido.pedido_material_id} onOpenChange={(open) => {
+                            setIsViewDialogOpen(open);
+                            if (!open) setSelectedPedidoSup(null);
+                          }}>
+                            <DialogTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="icon" 
+                                onClick={() => {
+                                  const pedidoSup = getPedidoSupDetails(pedido.pedido_material_id);
+                                  if (pedidoSup) {
+                                    setSelectedPedidoSup(pedidoSup);
+                                    setIsViewDialogOpen(true);
+                                  } else {
+                                    toast.error("Pedido não encontrado");
+                                  }
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Pedido de Suprimento #{selectedPedidoSup?.numero_pedido}</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>Materiais</Label>
+                                  <ul className="list-disc list-inside mt-2 space-y-1">
+                                    {selectedPedidoSup?.materiais.map((m, i) => (
+                                      <li key={i}>{m.material} - Qtd: {m.quantidade}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                <div>
+                                  <Label>Destino</Label>
+                                  <p className="mt-1">{selectedPedidoSup?.destino}</p>
+                                </div>
+                                <div>
+                                  <Label>Situação Atual</Label>
+                                  <p className="mt-1">{selectedPedidoSup?.situacao}</p>
+                                </div>
+                                <div>
+                                  <Label>Data e Hora</Label>
+                                  <p className="mt-1">{selectedPedidoSup && new Date(selectedPedidoSup.data_hora).toLocaleString("pt-BR")}</p>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleDeleteTransporte(pedido.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

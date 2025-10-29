@@ -4,8 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Truck, CheckCircle, XCircle } from "lucide-react";
+import { Truck, CheckCircle, XCircle, Eye } from "lucide-react";
 import { RefreshButton } from "@/components/RefreshButton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 interface PedidoTransporte {
   id: string;
@@ -17,12 +19,30 @@ interface PedidoTransporte {
   created_at: string;
 }
 
+interface Material {
+  material: string;
+  quantidade: number;
+}
+
+interface PedidoSup {
+  id: string;
+  numero_pedido: number;
+  materiais: Material[];
+  destino: string;
+  data_hora: string;
+  situacao: string;
+}
+
 export default function CiaTrp() {
   const [pedidosTransporte, setPedidosTransporte] = useState<PedidoTransporte[]>([]);
+  const [pedidosSup, setPedidosSup] = useState<PedidoSup[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedPedidoSup, setSelectedPedidoSup] = useState<PedidoSup | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchPedidosTransporte();
+    fetchPedidosSup();
     
     const channel = supabase
       .channel("cia_trp_realtime")
@@ -51,6 +71,23 @@ export default function CiaTrp() {
 
     setPedidosTransporte(data || []);
     setIsRefreshing(false);
+  };
+
+  const fetchPedidosSup = async () => {
+    const { data, error } = await supabase
+      .from("col_pedidos_sup")
+      .select("*");
+
+    if (error) {
+      toast.error("Erro ao carregar pedidos de suprimento");
+      return;
+    }
+
+    setPedidosSup((data || []) as unknown as PedidoSup[]);
+  };
+
+  const getPedidoSupDetails = (id: string) => {
+    return pedidosSup.find(p => p.id === id);
   };
 
   const updateSituacao = async (id: string, situacao: string) => {
@@ -151,6 +188,56 @@ export default function CiaTrp() {
                     <TableCell>{new Date(pedido.created_at).toLocaleString("pt-BR")}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
+                        <Dialog open={isDialogOpen && selectedPedidoSup?.id === pedido.pedido_material_id} onOpenChange={(open) => {
+                          setIsDialogOpen(open);
+                          if (!open) setSelectedPedidoSup(null);
+                        }}>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => {
+                                const pedidoSup = getPedidoSupDetails(pedido.pedido_material_id);
+                                if (pedidoSup) {
+                                  setSelectedPedidoSup(pedidoSup);
+                                  setIsDialogOpen(true);
+                                } else {
+                                  toast.error("Pedido não encontrado");
+                                }
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Ver
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Pedido de Suprimento #{selectedPedidoSup?.numero_pedido}</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <Label>Materiais</Label>
+                                <ul className="list-disc list-inside mt-2 space-y-1">
+                                  {selectedPedidoSup?.materiais.map((m, i) => (
+                                    <li key={i}>{m.material} - Qtd: {m.quantidade}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div>
+                                <Label>Destino</Label>
+                                <p className="mt-1">{selectedPedidoSup?.destino}</p>
+                              </div>
+                              <div>
+                                <Label>Situação Atual</Label>
+                                <p className="mt-1">{selectedPedidoSup?.situacao}</p>
+                              </div>
+                              <div>
+                                <Label>Data e Hora</Label>
+                                <p className="mt-1">{selectedPedidoSup && new Date(selectedPedidoSup.data_hora).toLocaleString("pt-BR")}</p>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                         <Button
                           variant="default"
                           size="sm"
