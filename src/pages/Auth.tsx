@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import sistemaEloLogo from "@/assets/sistema-elo-logo.png";
+import { Loader2 } from "lucide-react";
+import sistemaEloIcon from "@/assets/sistema-elo-icon.png";
+import sistemaEloBackground from "@/assets/sistema-elo-background.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -73,14 +75,31 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <Card className="w-full max-w-md bg-card border-border p-8">
-        <div className="flex items-center mb-8 justify-center">
+    <div 
+      className="min-h-screen flex items-center justify-center p-6 relative"
+      style={{
+        backgroundImage: `url(${sistemaEloBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay with blur */}
+      <div className="absolute inset-0 backdrop-blur-md bg-background/60" />
+      
+      <Card className="w-full max-w-md bg-card/30 backdrop-blur-xl border-border/50 p-8 relative z-10 shadow-2xl">
+        <div className="flex flex-col items-center mb-6">
           <img 
-            src={sistemaEloLogo} 
-            alt="Sistema ELO - Gestão Militar Integrada" 
-            className="w-full max-w-[350px] h-auto"
+            src={sistemaEloIcon} 
+            alt="Sistema ELO Icon" 
+            className="w-24 h-24 mb-4"
           />
+          <h1 className="text-3xl font-bold text-foreground tracking-wider">
+            SISTEMA ELO
+          </h1>
+          <p className="text-sm text-muted-foreground uppercase tracking-widest mt-1">
+            Gestão Militar Integrada
+          </p>
         </div>
 
         <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
@@ -96,9 +115,9 @@ const Auth = () => {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-muted border-border text-foreground"
-              placeholder="seu@email.com"
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-muted/50 border-border/50 text-foreground backdrop-blur-sm"
+            placeholder="seu@email.com"
             />
           </div>
 
@@ -112,7 +131,7 @@ const Auth = () => {
                 type="text"
                 value={nomeGuerra}
                 onChange={(e) => setNomeGuerra(e.target.value)}
-                className="bg-muted border-border text-foreground"
+                className="bg-muted/50 border-border/50 text-foreground backdrop-blur-sm"
                 placeholder="Seu nome de guerra"
               />
             </div>
@@ -127,7 +146,7 @@ const Auth = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-muted border-border text-foreground"
+              className="bg-muted/50 border-border/50 text-foreground backdrop-blur-sm"
               placeholder="••••••••"
             />
           </div>
@@ -142,7 +161,7 @@ const Auth = () => {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="bg-muted border-border text-foreground"
+                className="bg-muted/50 border-border/50 text-foreground backdrop-blur-sm"
                 placeholder="••••••••"
               />
             </div>
@@ -150,10 +169,17 @@ const Auth = () => {
 
           <Button
             type="submit"
-            className="w-full gradient-primary text-white"
+            className="w-full gradient-primary text-white hover:gradient-primary-hover transition-all"
             disabled={loading}
           >
-            {loading ? (isLogin ? "Entrando..." : "Criando conta...") : (isLogin ? "Entrar" : "Criar Conta")}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {isLogin ? "Entrando..." : "Criando conta..."}
+              </div>
+            ) : (
+              isLogin ? "Entrar" : "Criar Conta"
+            )}
           </Button>
         </form>
 
