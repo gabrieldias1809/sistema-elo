@@ -84,26 +84,29 @@ const Auth = () => {
 
   if (showLoading) {
     return (
-      <div 
-        className="min-h-screen flex items-center justify-center relative"
-        style={{
-          backgroundImage: `url(${sistemaEloBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          filter: 'blur(8px)',
-        }}
-      >
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        {/* Background desfocado */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url(${sistemaEloBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            filter: 'blur(8px)',
+            transform: 'scale(1.1)',
+          }}
+        ></div>
         <div className="absolute inset-0 bg-black/50"></div>
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="flex flex-col items-center gap-6">
-            <img 
-              src={sistemaEloIcon} 
-              alt="Sistema ELO" 
-              className="w-24 h-24 animate-fade-in"
-            />
-            <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-          </div>
+        
+        {/* Conteúdo nítido */}
+        <div className="relative z-10 flex flex-col items-center gap-6">
+          <img 
+            src={sistemaEloIcon} 
+            alt="Sistema ELO" 
+            className="w-24 h-24 animate-fade-in"
+          />
+          <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
         </div>
       </div>
     );
