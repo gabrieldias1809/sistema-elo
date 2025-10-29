@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import sistemaEloLogo from "@/assets/sistema-elo-logo.png";
-import sistemaEloBg from "@/assets/sistema-elo-bg.png";
+import sistemaEloIcon from "@/assets/sistema-elo-icon.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -74,34 +73,25 @@ const Auth = () => {
   };
 
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-6 relative"
-      style={{
-        backgroundImage: `url(${sistemaEloBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      {/* Overlay escuro para melhor contraste */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-      
-      <Card className="w-full max-w-md bg-card/20 backdrop-blur-xl border-white/20 p-8 relative z-10 shadow-2xl">
-        <div className="flex items-center mb-8 justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="w-full max-w-md bg-card/90 backdrop-blur-sm border-border p-8 shadow-2xl">
+        <div className="flex flex-col items-center mb-8 gap-4">
           <img 
-            src={sistemaEloLogo} 
-            alt="Sistema ELO - Gestão Militar Integrada" 
-            className="w-full max-w-[350px] h-auto"
+            src={sistemaEloIcon} 
+            alt="Sistema ELO" 
+            className="w-20 h-20"
           />
+          <h1 className="text-2xl font-bold text-foreground font-montserrat">Sistema ELO</h1>
+          <p className="text-sm text-muted-foreground">Gestão Militar Integrada</p>
         </div>
 
-        <h2 className="text-xl font-semibold text-white mb-6 text-center">
+        <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
           {isLogin ? "Login" : "Criar Conta"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email" className="text-white">
+            <Label htmlFor="email" className="text-foreground">
               Email
             </Label>
             <Input
@@ -109,14 +99,14 @@ const Auth = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60"
+              className="bg-input border-border text-foreground"
               placeholder="seu@email.com"
             />
           </div>
 
           {!isLogin && (
             <div>
-              <Label htmlFor="nomeGuerra" className="text-white">
+              <Label htmlFor="nomeGuerra" className="text-foreground">
                 Nome de Guerra
               </Label>
               <Input
@@ -124,14 +114,14 @@ const Auth = () => {
                 type="text"
                 value={nomeGuerra}
                 onChange={(e) => setNomeGuerra(e.target.value)}
-                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60"
+                className="bg-input border-border text-foreground"
                 placeholder="Seu nome de guerra"
               />
             </div>
           )}
 
           <div>
-            <Label htmlFor="password" className="text-white">
+            <Label htmlFor="password" className="text-foreground">
               Senha
             </Label>
             <Input
@@ -139,14 +129,14 @@ const Auth = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60"
+              className="bg-input border-border text-foreground"
               placeholder="••••••••"
             />
           </div>
 
           {!isLogin && (
             <div>
-              <Label htmlFor="confirmPassword" className="text-white">
+              <Label htmlFor="confirmPassword" className="text-foreground">
                 Confirmar Senha
               </Label>
               <Input
@@ -154,7 +144,7 @@ const Auth = () => {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60"
+                className="bg-input border-border text-foreground"
                 placeholder="••••••••"
               />
             </div>
@@ -177,14 +167,14 @@ const Auth = () => {
               setConfirmPassword("");
               setNomeGuerra("");
             }}
-            className="text-sm text-white/80 hover:text-white hover:underline"
+            className="text-sm text-primary hover:underline"
           >
             {isLogin ? "Não tem uma conta? Criar conta" : "Já tem uma conta? Fazer login"}
           </button>
         </div>
 
         {isLogin && (
-          <p className="text-sm text-white/70 mt-4 text-center">
+          <p className="text-sm text-muted-foreground mt-4 text-center">
             Usuários existentes: admin, ptec_com, ptec_mb, ptec_sau, ptec_rh, ptec_trp
           </p>
         )}
