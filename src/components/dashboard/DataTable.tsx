@@ -107,7 +107,18 @@ export const DataTable = ({ module }: DataTableProps) => {
           </TableHeader>
           <TableBody>
             {recentData.map((row: any, idx: number) => (
-              <TableRow key={row.id || idx}>
+              <TableRow 
+                key={row.id || idx}
+                className={
+                  row.situacao === "Aberta" 
+                    ? "bg-red-500/20 hover:bg-red-500/30" 
+                    : row.situacao === "Manutenido" 
+                    ? "bg-yellow-500/20 hover:bg-yellow-500/30"
+                    : row.situacao === "Fechada"
+                    ? "bg-green-500/20 hover:bg-green-500/30"
+                    : ""
+                }
+              >
                 {columns.map((col) => (
                   <TableCell key={col}>{formatValue(col, row[col])}</TableCell>
                 ))}
