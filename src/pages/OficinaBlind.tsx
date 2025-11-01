@@ -388,9 +388,20 @@ const OficinaBlind = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {os.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.numero_os}</TableCell>
+                  {os.map((item) => (
+                    <TableRow 
+                      key={item.id}
+                      className={
+                        item.situacao === "Aberta" 
+                          ? "bg-red-500/20 hover:bg-red-500/30" 
+                          : item.situacao === "Manutenido" 
+                          ? "bg-yellow-500/20 hover:bg-yellow-500/30"
+                          : item.situacao === "Fechada"
+                          ? "bg-green-500/20 hover:bg-green-500/30"
+                          : ""
+                      }
+                    >
+                      <TableCell>{item.numero_os}</TableCell>
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
                   <TableCell>{item.marca}</TableCell>
