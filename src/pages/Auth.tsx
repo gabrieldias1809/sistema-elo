@@ -31,7 +31,7 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isLogin) {
       if (!email || !password) {
         toast.error("Preencha todos os campos");
@@ -85,18 +85,18 @@ const Auth = () => {
 
   if (showLoading) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center relative"
         style={{
           backgroundImage: `url(${sistemaEloBackground})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
       >
         {/* Overlay with blur for loading screen */}
         <div className="absolute inset-0 backdrop-blur-lg bg-background/70" />
-        
+
         {/* Loading spinner */}
         <div className="relative z-10 flex flex-col items-center">
           <Loader2 className="w-16 h-16 text-primary animate-spin" />
@@ -106,36 +106,26 @@ const Auth = () => {
   }
 
   return (
-    <div 
+    <div
       className="min-h-screen flex items-center justify-center p-6 relative"
       style={{
         backgroundImage: `url(${sistemaEloBackground})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
       {/* Overlay with blur */}
       <div className="absolute inset-0 backdrop-blur-md bg-background/60" />
-      
+
       <Card className="w-full max-w-md bg-card/30 backdrop-blur-xl border-border/50 p-8 relative z-10 shadow-2xl">
         <div className="flex flex-col items-center mb-6">
-          <img 
-            src={sistemaEloIcon} 
-            alt="Sistema ELO Icon" 
-            className="w-24 h-24 mb-4"
-          />
-          <h1 className="text-3xl font-bold text-foreground tracking-wider">
-            SISTEMA ELO
-          </h1>
-          <p className="text-sm text-muted-foreground uppercase tracking-widest mt-1">
-            Gestão Militar Integrada
-          </p>
+          <img src={sistemaEloIcon} alt="Sistema ELO Icon" className="w-24 h-24 mb-4" />
+          <h1 className="text-3xl font-bold text-foreground tracking-wider">SISTEMA ELO</h1>
+          <p className="text-sm text-muted-foreground uppercase tracking-widest mt-1">Gestão Militar Integrada</p>
         </div>
 
-        <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
-          {isLogin ? "Login" : "Criar Conta"}
-        </h2>
+        <h2 className="text-xl font-semibold text-foreground mb-6 text-center">{isLogin ? "Login" : "Criar Conta"}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -146,9 +136,9 @@ const Auth = () => {
               id="email"
               type="email"
               value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="bg-muted/50 border-border/50 text-foreground backdrop-blur-sm"
-            placeholder="seu@email.com"
+              onChange={(e) => setEmail(e.target.value)}
+              className="bg-muted/50 border-border/50 text-foreground backdrop-blur-sm"
+              placeholder="seu@email.com"
             />
           </div>
 
@@ -208,31 +198,13 @@ const Auth = () => {
                 <Loader2 className="w-4 h-4 animate-spin" />
                 {isLogin ? "Entrando..." : "Criando conta..."}
               </div>
+            ) : isLogin ? (
+              "Entrar"
             ) : (
-              isLogin ? "Entrar" : "Criar Conta"
+              "Criar Conta"
             )}
           </Button>
         </form>
-
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setPassword("");
-              setConfirmPassword("");
-              setNomeGuerra("");
-            }}
-            className="text-sm text-primary hover:underline"
-          >
-            {isLogin ? "Não tem uma conta? Criar conta" : "Já tem uma conta? Fazer login"}
-          </button>
-        </div>
-
-        {isLogin && (
-          <p className="text-sm text-muted-foreground mt-4 text-center">
-            Usuários existentes: admin, ptec_com, ptec_mb, ptec_sau, ptec_rh, ptec_trp
-          </p>
-        )}
       </Card>
     </div>
   );
