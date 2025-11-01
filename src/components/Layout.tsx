@@ -32,7 +32,6 @@ const Layout = () => {
     { title: "Posto Distribuição", url: "/posto-distribuicao", icon: "ri-store-2-line", role: "p_distr" as const },
     { title: "Cia Sau", url: "/ptec-sau", icon: "ri-heart-pulse-line", role: "ptec_sau" as const },
     { title: "Cia RH", url: "/ptec-rh", icon: "ri-team-line", role: "ptec_rh" as const },
-    { title: "Cia Trp", url: "/ptec-trp", icon: "ri-truck-line", role: "ptec_trp" as const },
     { title: "COL", url: "/col", icon: "ri-government-line", role: "col" as const },
     { title: "Cia Sup", url: "/cia-sup", icon: "ri-box-3-line", role: "cia_sup" as const },
     { title: "Cia Trp", url: "/cia-trp", icon: "ri-truck-line", role: "cia_trp" as const },
@@ -47,11 +46,7 @@ const Layout = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <img 
-              src={sistemaEloIcon} 
-              alt="Sistema ELO" 
-              className="w-8 h-8"
-            />
+            <img src={sistemaEloIcon} alt="Sistema ELO" className="w-8 h-8" />
             <h1 className="text-xl font-bold text-foreground font-montserrat">Sistema ELO</h1>
           </div>
           <div className="flex items-center gap-4">
