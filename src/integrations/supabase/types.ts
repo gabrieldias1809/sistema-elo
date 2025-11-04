@@ -514,6 +514,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ptec_rh_aciso: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_hora: string
+          id: string
+          interacao_publico: string
+          local: string
+          material_utilizado: string | null
+          observacoes: string | null
+          publico_alvo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_hora: string
+          id?: string
+          interacao_publico: string
+          local: string
+          material_utilizado?: string | null
+          observacoes?: string | null
+          publico_alvo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_hora?: string
+          id?: string
+          interacao_publico?: string
+          local?: string
+          material_utilizado?: string | null
+          observacoes?: string | null
+          publico_alvo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ptec_rh_ocorrencias: {
         Row: {
           causa_provavel: string | null
