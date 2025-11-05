@@ -199,10 +199,11 @@ export default function Col() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ destino, percent }) => `${destino} (${(percent * 100).toFixed(0)}%)`}
+                  label={(entry) => `${entry.destino} (${(entry.percent * 100).toFixed(0)}%)`}
                   outerRadius={80}
                   fill="hsl(var(--primary))"
                   dataKey="value"
+                  nameKey="destino"
                 >
                   {getDestinosChart().map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
