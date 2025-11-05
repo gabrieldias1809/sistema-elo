@@ -27,7 +27,18 @@ interface PedidoSup {
   created_by: string;
 }
 
-const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+const COLORS = [
+  "hsl(var(--chart-1))", 
+  "hsl(var(--chart-2))", 
+  "hsl(var(--chart-3))", 
+  "hsl(var(--chart-4))", 
+  "hsl(var(--chart-5))",
+  "hsl(220, 70%, 50%)",  // Azul
+  "hsl(340, 75%, 55%)",  // Rosa
+  "hsl(160, 60%, 45%)",  // Verde água
+  "hsl(30, 80%, 55%)",   // Laranja
+  "hsl(280, 65%, 60%)"   // Roxo
+];
 
 export default function Col() {
   const [pedidos, setPedidos] = useState<PedidoSup[]>([]);
