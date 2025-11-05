@@ -55,7 +55,6 @@ const PtecSau = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
   const [atividadeSuggestions, setAtividadeSuggestions] = useState<string[]>([]);
-  const [localSuggestions, setLocalSuggestions] = useState<string[]>([]);
   const [fracaoSuggestions, setFracaoSuggestions] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
@@ -65,7 +64,6 @@ const PtecSau = () => {
     atividade: "",
     data: "",
     hora: "",
-    local: "",
     fracao: "",
     descricao: "",
     conduta_esperada: "",
@@ -120,12 +118,10 @@ const PtecSau = () => {
     // Extract unique suggestions
     const uniqueOms = [...new Set(data?.map((d) => d.om_responsavel).filter(Boolean))];
     const uniqueAtividades = [...new Set(data?.map((d) => d.atividade).filter(Boolean))];
-    const uniqueLocais = [...new Set(data?.map((d) => d.local).filter(Boolean))];
     const uniqueFracoes = [...new Set(data?.map((d) => d.fracao).filter(Boolean))];
 
     setOmSuggestions(uniqueOms);
     setAtividadeSuggestions(uniqueAtividades);
-    setLocalSuggestions(uniqueLocais);
     setFracaoSuggestions(uniqueFracoes);
     setIsRefreshing(false);
   };
@@ -189,7 +185,6 @@ const PtecSau = () => {
       atividade: "",
       data: "",
       hora: "",
-      local: "",
       fracao: "",
       descricao: "",
       conduta_esperada: "",
@@ -414,21 +409,12 @@ const PtecSau = () => {
                       className="placeholder:text-transparent"
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div>
                     <Label>Data e Hora</Label>
                     <DateTimePicker
                       value={formData.data}
                       onChange={(value) => setFormData({ ...formData, data: value })}
                       placeholder="Selecione data e hora"
-                    />
-                  </div>
-                  <div>
-                    <Label>Local</Label>
-                    <AutocompleteInput
-                      value={formData.local}
-                      onChange={(value) => setFormData({ ...formData, local: value })}
-                      suggestions={localSuggestions}
-                      className="placeholder:text-transparent"
                     />
                   </div>
                   <div>
