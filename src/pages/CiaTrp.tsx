@@ -624,7 +624,7 @@ export default function CiaTrp() {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o modelo" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[300px] overflow-y-auto">
                         <SelectItem value="Ambulância Hilux">Ambulância Hilux</SelectItem>
                         <SelectItem value="VW Worker 15.210">VW Worker 15.210</SelectItem>
                         <SelectItem value="Micro-ônibus">Micro-ônibus</SelectItem>
