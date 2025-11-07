@@ -128,12 +128,16 @@ export default function CiaTrp() {
     };
   }, []);
 
-  const fetchAll = () => {
-    fetchPedidosTransporte();
-    fetchPedidosSup();
-    fetchViaturas();
-    fetchMotoristas();
-    fetchFichasSaida();
+  const fetchAll = async () => {
+    setIsRefreshing(true);
+    await Promise.all([
+      fetchPedidosTransporte(),
+      fetchPedidosSup(),
+      fetchViaturas(),
+      fetchMotoristas(),
+      fetchFichasSaida()
+    ]);
+    setIsRefreshing(false);
   };
 
   const fetchPedidosTransporte = async () => {
