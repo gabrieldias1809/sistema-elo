@@ -194,7 +194,7 @@ export default function Col() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">COL - Comando Logístico</h1>
+        <h1 className="text-3xl font-bold">Sistema ELO - COL</h1>
       </div>
 
       {/* Gráficos */}
@@ -205,13 +205,23 @@ export default function Col() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={getMateriaisChart()}>
+              <BarChart data={getMateriaisChart()} margin={{ bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="material" />
+                <XAxis 
+                  dataKey="material" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={80}
+                  interval={0}
+                />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="quantidade" fill="hsl(var(--primary))" />
+                <Bar dataKey="quantidade">
+                  {getMateriaisChart().map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -228,9 +238,9 @@ export default function Col() {
                   data={getDestinosChart()}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={(entry) => `${entry.destino} (${(entry.percent * 100).toFixed(0)}%)`}
-                  outerRadius={80}
+                  labelLine={true}
+                  label={(entry) => `${entry.destino} (${entry.value})`}
+                  outerRadius={90}
                   fill="hsl(var(--primary))"
                   dataKey="value"
                   nameKey="destino"
@@ -240,6 +250,7 @@ export default function Col() {
                   ))}
                 </Pie>
                 <Tooltip />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
