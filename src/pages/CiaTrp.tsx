@@ -760,7 +760,7 @@ export default function CiaTrp() {
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione uma viatura disponível" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
                     {viaturas.filter(v => v.status === "Disponível").length === 0 ? (
                       <SelectItem value="none" disabled>Nenhuma viatura disponível</SelectItem>
                     ) : (
@@ -784,7 +784,7 @@ export default function CiaTrp() {
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um motorista disponível" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
                     {motoristas.filter(m => m.status === "Disponível").length === 0 ? (
                       <SelectItem value="none" disabled>Nenhum motorista disponível</SelectItem>
                     ) : (
