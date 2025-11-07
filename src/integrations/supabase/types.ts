@@ -61,6 +61,129 @@ export type Database = {
           },
         ]
       }
+      cia_trp_fichas_saida: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          destino: string
+          horario_chegada: string | null
+          horario_saida: string | null
+          id: string
+          motorista_id: string
+          numero_ficha: string
+          situacao: string
+          updated_at: string
+          viatura_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          destino: string
+          horario_chegada?: string | null
+          horario_saida?: string | null
+          id?: string
+          motorista_id: string
+          numero_ficha: string
+          situacao?: string
+          updated_at?: string
+          viatura_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          destino?: string
+          horario_chegada?: string | null
+          horario_saida?: string | null
+          id?: string
+          motorista_id?: string
+          numero_ficha?: string
+          situacao?: string
+          updated_at?: string
+          viatura_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cia_trp_fichas_saida_motorista_id_fkey"
+            columns: ["motorista_id"]
+            isOneToOne: false
+            referencedRelation: "cia_trp_motoristas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cia_trp_fichas_saida_viatura_id_fkey"
+            columns: ["viatura_id"]
+            isOneToOne: false
+            referencedRelation: "cia_trp_viaturas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cia_trp_motoristas: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          habilitacao: string
+          id: string
+          nome: string
+          obs: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          habilitacao: string
+          id?: string
+          nome: string
+          obs?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          habilitacao?: string
+          id?: string
+          nome?: string
+          obs?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cia_trp_viaturas: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          eb: string
+          id: string
+          modelo: string
+          obs: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          eb: string
+          id?: string
+          modelo: string
+          obs?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          eb?: string
+          id?: string
+          modelo?: string
+          obs?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       col_pedidos_sup: {
         Row: {
           coordenada: string | null
