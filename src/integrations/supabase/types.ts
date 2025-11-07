@@ -196,7 +196,9 @@ export type Database = {
           id: string
           materiais: Json
           numero_pedido: number
+          observacoes: string | null
           situacao: string
+          unidade_medida: string | null
           updated_at: string
         }
         Insert: {
@@ -210,7 +212,9 @@ export type Database = {
           id?: string
           materiais: Json
           numero_pedido?: number
+          observacoes?: string | null
           situacao?: string
+          unidade_medida?: string | null
           updated_at?: string
         }
         Update: {
@@ -224,7 +228,9 @@ export type Database = {
           id?: string
           materiais?: Json
           numero_pedido?: number
+          observacoes?: string | null
           situacao?: string
+          unidade_medida?: string | null
           updated_at?: string
         }
         Relationships: []

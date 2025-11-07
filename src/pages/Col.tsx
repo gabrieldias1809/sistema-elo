@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -41,6 +43,8 @@ interface PedidoSup {
   data_hora_necessidade: string;
   situacao: string;
   created_by: string;
+  unidade_medida?: string;
+  observacoes?: string;
 }
 
 const COLORS = [
@@ -63,6 +67,8 @@ export default function Col() {
   const [coordenada, setCoordenada] = useState("");
   const [distancia, setDistancia] = useState("");
   const [dataHoraNecessidade, setDataHoraNecessidade] = useState("");
+  const [unidadeMedida, setUnidadeMedida] = useState("");
+  const [observacoes, setObservacoes] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState<PedidoSup | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -147,6 +153,8 @@ export default function Col() {
       coordenada: coordenada || null,
       distancia: distancia ? parseFloat(distancia) : null,
       data_hora_necessidade: dataHoraNecessidade,
+      unidade_medida: unidadeMedida || null,
+      observacoes: observacoes || null,
       created_by: userData?.user?.id,
     });
 
@@ -162,6 +170,8 @@ export default function Col() {
     setCoordenada("");
     setDistancia("");
     setDataHoraNecessidade("");
+    setUnidadeMedida("");
+    setObservacoes("");
     setLoading(false);
     fetchPedidos();
   };
@@ -375,6 +385,32 @@ export default function Col() {
               />
             </div>
 
+            <div>
+              <Label htmlFor="unidadeMedida">Unidade de Medida</Label>
+              <Select value={unidadeMedida} onValueChange={setUnidadeMedida}>
+                <SelectTrigger id="unidadeMedida">
+                  <SelectValue placeholder="Selecione a unidade" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unidade">Unidade</SelectItem>
+                  <SelectItem value="kg">kg</SelectItem>
+                  <SelectItem value="L">L</SelectItem>
+                  <SelectItem value="m">m</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="observacoes">Observações</Label>
+              <Textarea
+                id="observacoes"
+                value={observacoes}
+                onChange={(e) => setObservacoes(e.target.value)}
+                placeholder="Digite observações adicionais sobre o pedido"
+                rows={3}
+              />
+            </div>
+
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? "Criando..." : "Criar Pedido"}
             </Button>
@@ -484,6 +520,14 @@ export default function Col() {
                                   ? new Date(selectedPedido.data_hora_necessidade).toLocaleString("pt-BR")
                                   : "-"}
                               </p>
+                            </div>
+                            <div>
+                              <Label>Unidade de Medida</Label>
+                              <p className="mt-1">{selectedPedido?.unidade_medida || "-"}</p>
+                            </div>
+                            <div>
+                              <Label>Observações</Label>
+                              <p className="mt-1">{selectedPedido?.observacoes || "-"}</p>
                             </div>
                             <div>
                               <Label>Situação Atual</Label>
