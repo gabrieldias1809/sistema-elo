@@ -209,7 +209,16 @@ export default function Col() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="material" hide />
                 <YAxis />
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(0, 0%, 100%)', 
+                    border: '1px solid hsl(220, 15%, 25%)',
+                    borderRadius: '8px',
+                    color: 'hsl(0, 0%, 0%)'
+                  }}
+                  labelStyle={{ color: 'hsl(0, 0%, 0%)' }}
+                  itemStyle={{ color: 'hsl(0, 0%, 0%)' }}
+                />
                 <Bar dataKey="quantidade" radius={[8, 8, 0, 0]}>
                   {getMateriaisChart().map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -240,7 +249,16 @@ export default function Col() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(0, 0%, 100%)', 
+                    border: '1px solid hsl(220, 15%, 25%)',
+                    borderRadius: '8px',
+                    color: 'hsl(0, 0%, 0%)'
+                  }}
+                  labelStyle={{ color: 'hsl(0, 0%, 0%)' }}
+                  itemStyle={{ color: 'hsl(0, 0%, 0%)' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
