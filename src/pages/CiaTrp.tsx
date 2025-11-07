@@ -1119,113 +1119,12 @@ export default function CiaTrp() {
 
         {/* TAB: Registro de Saídas */}
         <TabsContent value="fichas">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <ClipboardList className="h-5 w-5" />
-                  <CardTitle>{editingFicha ? "Editar Ficha" : "Registrar Saída"}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleFichaSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="numero_ficha">Nº da Ficha</Label>
-                    <Input
-                      id="numero_ficha"
-                      value={fichaForm.numero_ficha}
-                      onChange={(e) => setFichaForm({ ...fichaForm, numero_ficha: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="motorista_id">Motorista</Label>
-                    <Select value={fichaForm.motorista_id} onValueChange={(value) => setFichaForm({ ...fichaForm, motorista_id: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um motorista" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {motoristas.filter(m => m.status === "Disponível" || m.id === fichaForm.motorista_id).map((motorista) => (
-                          <SelectItem key={motorista.id} value={motorista.id}>{motorista.nome}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="viatura_id">Viatura</Label>
-                    <Select value={fichaForm.viatura_id} onValueChange={(value) => setFichaForm({ ...fichaForm, viatura_id: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma viatura" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {viaturas.filter(v => v.status === "Disponível" || v.id === fichaForm.viatura_id).map((viatura) => (
-                          <SelectItem key={viatura.id} value={viatura.id}>{viatura.modelo} - {viatura.eb}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="destino">Destino</Label>
-                    <Input
-                      id="destino"
-                      value={fichaForm.destino}
-                      onChange={(e) => setFichaForm({ ...fichaForm, destino: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="horario_saida">Horário de Saída</Label>
-                    <Input
-                      id="horario_saida"
-                      type="datetime-local"
-                      value={fichaForm.horario_saida}
-                      onChange={(e) => setFichaForm({ ...fichaForm, horario_saida: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="horario_chegada">Horário de Chegada</Label>
-                    <Input
-                      id="horario_chegada"
-                      type="datetime-local"
-                      value={fichaForm.horario_chegada}
-                      onChange={(e) => setFichaForm({ ...fichaForm, horario_chegada: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="situacao">Situação</Label>
-                    <Select value={fichaForm.situacao} onValueChange={(value) => setFichaForm({ ...fichaForm, situacao: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Em andamento">Em andamento</SelectItem>
-                        <SelectItem value="Finalizada">Finalizada</SelectItem>
-                        <SelectItem value="Cancelada">Cancelada</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button type="submit" className="flex-1">
-                      {editingFicha ? "Atualizar" : "Registrar"}
-                    </Button>
-                    {editingFicha && (
-                      <Button type="button" variant="outline" onClick={() => {
-                        setEditingFicha(null);
-                        setFichaForm({ numero_ficha: "", motorista_id: "", viatura_id: "", horario_saida: "", horario_chegada: "", destino: "", situacao: "Em andamento" });
-                      }}>
-                        Cancelar
-                      </Button>
-                    )}
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Fichas de Saída</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>Registros de Saída</CardTitle>
+              <CardDescription>Registros gerados a partir dos pedidos de transporte designados</CardDescription>
+            </CardHeader>
+            <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -1265,7 +1164,7 @@ export default function CiaTrp() {
                             </TableCell>
                             <TableCell>
                               <div className="flex gap-2">
-                                <Button
+                                 <Button
                                   variant="outline"
                                   size="sm"
                                   onClick={() => {
@@ -1274,8 +1173,8 @@ export default function CiaTrp() {
                                       numero_ficha: ficha.numero_ficha,
                                       motorista_id: ficha.motorista_id,
                                       viatura_id: ficha.viatura_id,
-                                      horario_saida: ficha.horario_saida || "",
-                                      horario_chegada: ficha.horario_chegada || "",
+                                      horario_saida: ficha.horario_saida ? new Date(ficha.horario_saida).toISOString().slice(0, 16) : "",
+                                      horario_chegada: ficha.horario_chegada ? new Date(ficha.horario_chegada).toISOString().slice(0, 16) : "",
                                       destino: ficha.destino,
                                       situacao: ficha.situacao
                                     });
@@ -1301,7 +1200,6 @@ export default function CiaTrp() {
                 </Table>
               </CardContent>
             </Card>
-          </div>
         </TabsContent>
       </Tabs>
 
@@ -1377,6 +1275,108 @@ export default function CiaTrp() {
                 Atualizar
               </Button>
               <Button type="button" variant="outline" onClick={() => setIsViaturaDialogOpen(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Edição de Ficha */}
+      <Dialog open={isFichaDialogOpen} onOpenChange={(open) => {
+        setIsFichaDialogOpen(open);
+        if (!open) {
+          setEditingFicha(null);
+          setFichaForm({ numero_ficha: "", motorista_id: "", viatura_id: "", horario_saida: "", horario_chegada: "", destino: "", situacao: "Em andamento" });
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Registro de Saída</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleFichaSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="edit-numero_ficha">Nº da Ficha</Label>
+              <Input
+                id="edit-numero_ficha"
+                value={fichaForm.numero_ficha}
+                onChange={(e) => setFichaForm({ ...fichaForm, numero_ficha: e.target.value })}
+                required
+                disabled
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-motorista_id">Motorista</Label>
+              <Select value={fichaForm.motorista_id} onValueChange={(value) => setFichaForm({ ...fichaForm, motorista_id: value })} disabled>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um motorista" />
+                </SelectTrigger>
+                <SelectContent>
+                  {motoristas.map((motorista) => (
+                    <SelectItem key={motorista.id} value={motorista.id}>{motorista.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-viatura_id">Viatura</Label>
+              <Select value={fichaForm.viatura_id} onValueChange={(value) => setFichaForm({ ...fichaForm, viatura_id: value })} disabled>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma viatura" />
+                </SelectTrigger>
+                <SelectContent>
+                  {viaturas.map((viatura) => (
+                    <SelectItem key={viatura.id} value={viatura.id}>{viatura.modelo} - {viatura.eb}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-destino">Destino</Label>
+              <Input
+                id="edit-destino"
+                value={fichaForm.destino}
+                onChange={(e) => setFichaForm({ ...fichaForm, destino: e.target.value })}
+                required
+                disabled
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-horario_saida">Horário de Saída</Label>
+              <Input
+                id="edit-horario_saida"
+                type="datetime-local"
+                value={fichaForm.horario_saida}
+                onChange={(e) => setFichaForm({ ...fichaForm, horario_saida: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-horario_chegada">Horário de Chegada</Label>
+              <Input
+                id="edit-horario_chegada"
+                type="datetime-local"
+                value={fichaForm.horario_chegada}
+                onChange={(e) => setFichaForm({ ...fichaForm, horario_chegada: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-situacao">Situação</Label>
+              <Select value={fichaForm.situacao} onValueChange={(value) => setFichaForm({ ...fichaForm, situacao: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Em andamento">Em andamento</SelectItem>
+                  <SelectItem value="Finalizada">Finalizada</SelectItem>
+                  <SelectItem value="Cancelada">Cancelada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" className="flex-1">
+                Atualizar
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setIsFichaDialogOpen(false)}>
                 Cancelar
               </Button>
             </div>
