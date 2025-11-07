@@ -325,7 +325,7 @@ export default function Col() {
                     className="w-24 px-2 border border-input bg-background rounded-md text-sm"
                   >
                     <option value="">Unidade</option>
-                    <option value="unidade">Unidade</option>
+                    <option value="U">U</option>
                     <option value="kg">kg</option>
                     <option value="L">L</option>
                     <option value="m">m</option>
