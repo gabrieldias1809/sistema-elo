@@ -70,6 +70,8 @@ interface FichaSaida {
   destino: string;
   situacao: string;
   created_at: string;
+  pedido_transporte_id?: string;
+  chefe_viatura?: string;
 }
 
 export default function CiaTrp() {
@@ -84,9 +86,11 @@ export default function CiaTrp() {
   const [isViaturaDialogOpen, setIsViaturaDialogOpen] = useState(false);
   const [isMotoristaDialogOpen, setIsMotoristaDialogOpen] = useState(false);
   const [isFichaDialogOpen, setIsFichaDialogOpen] = useState(false);
+  const [isDesignarDialogOpen, setIsDesignarDialogOpen] = useState(false);
   const [editingViatura, setEditingViatura] = useState<Viatura | null>(null);
   const [editingMotorista, setEditingMotorista] = useState<Motorista | null>(null);
   const [editingFicha, setEditingFicha] = useState<FichaSaida | null>(null);
+  const [pedidoToDesignar, setPedidoToDesignar] = useState<PedidoTransporte | null>(null);
 
   // Form states para Viatura
   const [viaturaForm, setViaturaForm] = useState({
@@ -113,6 +117,13 @@ export default function CiaTrp() {
     horario_chegada: "",
     destino: "",
     situacao: "Em andamento"
+  });
+
+  // Form states para Designação
+  const [designarForm, setDesignarForm] = useState({
+    viatura_id: "",
+    motorista_id: "",
+    horario_saida: new Date().toISOString().slice(0, 16)
   });
 
   useEffect(() => {
@@ -386,10 +397,37 @@ export default function CiaTrp() {
     }
 
     if (editingFicha) {
-      // Se está marcando como "Finalizada", liberar motorista e viatura
+      // Se está marcando como "Finalizada", liberar motorista e viatura e atualizar pedido
       if (fichaForm.situacao === "Finalizada" && editingFicha.situacao !== "Finalizada") {
         await supabase.from("cia_trp_motoristas").update({ status: "Disponível" }).eq("id", fichaForm.motorista_id);
         await supabase.from("cia_trp_viaturas").update({ status: "Disponível" }).eq("id", fichaForm.viatura_id);
+        
+        // Atualizar pedido de transporte vinculado
+        if (editingFicha.pedido_transporte_id) {
+          await supabase.from("cia_sup_pedidos_transporte").update({ situacao: "Entregue" }).eq("id", editingFicha.pedido_transporte_id);
+          
+          // Buscar e atualizar pedido de suprimento
+          const { data: pedidoTransporte } = await supabase
+            .from("cia_sup_pedidos_transporte")
+            .select("pedido_material_id")
+            .eq("id", editingFicha.pedido_transporte_id)
+            .single();
+          
+          if (pedidoTransporte?.pedido_material_id) {
+            await supabase.from("col_pedidos_sup").update({ situacao: "Entregue" }).eq("id", pedidoTransporte.pedido_material_id);
+          }
+        }
+      }
+
+      // Se está cancelando, liberar motorista e viatura e atualizar pedido
+      if (fichaForm.situacao === "Cancelada" && editingFicha.situacao !== "Cancelada") {
+        await supabase.from("cia_trp_motoristas").update({ status: "Disponível" }).eq("id", fichaForm.motorista_id);
+        await supabase.from("cia_trp_viaturas").update({ status: "Disponível" }).eq("id", fichaForm.viatura_id);
+        
+        // Atualizar pedido de transporte vinculado
+        if (editingFicha.pedido_transporte_id) {
+          await supabase.from("cia_sup_pedidos_transporte").update({ situacao: "Cancelado" }).eq("id", editingFicha.pedido_transporte_id);
+        }
       }
 
       const { error } = await supabase
@@ -426,6 +464,7 @@ export default function CiaTrp() {
     fetchFichasSaida();
     fetchMotoristas();
     fetchViaturas();
+    fetchPedidosTransporte();
   };
 
   const handleDeleteFicha = async (id: string) => {
@@ -452,6 +491,69 @@ export default function CiaTrp() {
     fetchFichasSaida();
     fetchMotoristas();
     fetchViaturas();
+  };
+
+  // Designação de Transporte
+  const handleDesignarTransporte = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!designarForm.viatura_id || !designarForm.motorista_id) {
+      toast.error("Selecione viatura e motorista");
+      return;
+    }
+
+    if (!pedidoToDesignar) {
+      toast.error("Pedido não encontrado");
+      return;
+    }
+
+    // Verificar disponibilidade
+    const viatura = viaturas.find(v => v.id === designarForm.viatura_id);
+    const motorista = motoristas.find(m => m.id === designarForm.motorista_id);
+
+    if (viatura?.status !== "Disponível" || motorista?.status !== "Disponível") {
+      toast.error("Recursos não estão disponíveis");
+      return;
+    }
+
+    try {
+      // Criar registro de saída
+      const { error: fichaError } = await supabase
+        .from("cia_trp_fichas_saida")
+        .insert([{
+          pedido_transporte_id: pedidoToDesignar.id,
+          destino: pedidoToDesignar.destino,
+          chefe_viatura: pedidoToDesignar.chefe_viatura,
+          viatura_id: designarForm.viatura_id,
+          motorista_id: designarForm.motorista_id,
+          horario_saida: designarForm.horario_saida,
+          situacao: "Em andamento",
+          numero_ficha: `FI-${Date.now()}`,
+          created_by: (await supabase.auth.getUser()).data.user?.id
+        }]);
+
+      if (fichaError) {
+        toast.error("Erro ao criar registro de saída");
+        return;
+      }
+
+      // Atualizar status dos recursos
+      await Promise.all([
+        supabase.from("cia_trp_viaturas").update({ status: "Ocupado" }).eq("id", designarForm.viatura_id),
+        supabase.from("cia_trp_motoristas").update({ status: "Ocupado" }).eq("id", designarForm.motorista_id),
+        supabase.from("cia_sup_pedidos_transporte").update({ situacao: "Em andamento" }).eq("id", pedidoToDesignar.id)
+      ]);
+
+      toast.success("Transporte designado. Registro de saída criado.");
+      setIsDesignarDialogOpen(false);
+      setPedidoToDesignar(null);
+      setDesignarForm({ viatura_id: "", motorista_id: "", horario_saida: new Date().toISOString().slice(0, 16) });
+      
+      // Refetch data
+      await Promise.all([fetchFichasSaida(), fetchViaturas(), fetchMotoristas(), fetchPedidosTransporte()]);
+    } catch (error) {
+      toast.error("Erro ao designar transporte");
+    }
   };
 
   return (
@@ -585,16 +687,30 @@ export default function CiaTrp() {
                                   </div>
                                 </DialogContent>
                               </Dialog>
-                              <Button
-                                variant="default"
-                                size="sm"
-                                onClick={() => updateSituacao(pedido.id, "Entregue")}
-                                disabled={pedido.situacao === "Entregue" || pedido.situacao === "Cancelado"}
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                <CheckCircle className="h-4 w-4 mr-1" />
-                                Entregar
-                              </Button>
+                              {pedido.situacao === "Pendente" ? (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => {
+                                    setPedidoToDesignar(pedido);
+                                    setIsDesignarDialogOpen(true);
+                                  }}
+                                  className="bg-blue-600 hover:bg-blue-700"
+                                >
+                                  <Truck className="h-4 w-4 mr-1" />
+                                  Designar
+                                </Button>
+                              ) : pedido.situacao === "Em andamento" ? (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => updateSituacao(pedido.id, "Entregue")}
+                                  className="bg-green-600 hover:bg-green-700"
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-1" />
+                                  Entregar
+                                </Button>
+                              ) : null}
                               <Button
                                 variant="destructive"
                                 size="sm"
@@ -615,6 +731,107 @@ export default function CiaTrp() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Modal de Designação */}
+        <Dialog open={isDesignarDialogOpen} onOpenChange={setIsDesignarDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Designar Transporte - Pedido #{pedidoToDesignar?.numero_pedido}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleDesignarTransporte} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Destino</Label>
+                  <Input value={pedidoToDesignar?.destino || ""} disabled className="bg-muted" />
+                </div>
+                <div>
+                  <Label>Chefe de Viatura</Label>
+                  <Input value={pedidoToDesignar?.chefe_viatura || ""} disabled className="bg-muted" />
+                </div>
+              </div>
+
+              <div>
+                <Label>Viatura *</Label>
+                <Select 
+                  value={designarForm.viatura_id} 
+                  onValueChange={(value) => setDesignarForm({ ...designarForm, viatura_id: value })}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma viatura disponível" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {viaturas.filter(v => v.status === "Disponível").length === 0 ? (
+                      <SelectItem value="none" disabled>Nenhuma viatura disponível</SelectItem>
+                    ) : (
+                      viaturas.filter(v => v.status === "Disponível").map(v => (
+                        <SelectItem key={v.id} value={v.id}>
+                          {v.modelo} - {v.eb}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Motorista *</Label>
+                <Select 
+                  value={designarForm.motorista_id} 
+                  onValueChange={(value) => setDesignarForm({ ...designarForm, motorista_id: value })}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um motorista disponível" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {motoristas.filter(m => m.status === "Disponível").length === 0 ? (
+                      <SelectItem value="none" disabled>Nenhum motorista disponível</SelectItem>
+                    ) : (
+                      motoristas.filter(m => m.status === "Disponível").map(m => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.nome} - CNH: {m.habilitacao}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Hora de Saída *</Label>
+                <Input 
+                  type="datetime-local" 
+                  value={designarForm.horario_saida}
+                  onChange={(e) => setDesignarForm({ ...designarForm, horario_saida: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Situação</Label>
+                <Input value="Em andamento" disabled className="bg-muted" />
+              </div>
+
+              <div className="flex gap-2 justify-end pt-4">
+                <Button type="button" variant="outline" onClick={() => {
+                  setIsDesignarDialogOpen(false);
+                  setPedidoToDesignar(null);
+                  setDesignarForm({ viatura_id: "", motorista_id: "", horario_saida: new Date().toISOString().slice(0, 16) });
+                }}>
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-blue-600 hover:bg-blue-700"
+                  disabled={viaturas.filter(v => v.status === "Disponível").length === 0 || motoristas.filter(m => m.status === "Disponível").length === 0}
+                >
+                  Designar Transporte
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         {/* TAB: Controle de Viaturas */}
         <TabsContent value="viaturas">
@@ -983,6 +1200,7 @@ export default function CiaTrp() {
                       <SelectContent>
                         <SelectItem value="Em andamento">Em andamento</SelectItem>
                         <SelectItem value="Finalizada">Finalizada</SelectItem>
+                        <SelectItem value="Cancelada">Cancelada</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1038,7 +1256,9 @@ export default function CiaTrp() {
                             <TableCell>{ficha.destino}</TableCell>
                             <TableCell>
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                ficha.situacao === "Finalizada" ? "bg-green-500/20 text-green-700" : "bg-blue-500/20 text-blue-700"
+                                ficha.situacao === "Finalizada" ? "bg-green-500/20 text-green-700" : 
+                                ficha.situacao === "Cancelada" ? "bg-red-500/20 text-red-700" :
+                                "bg-blue-500/20 text-blue-700"
                               }`}>
                                 {ficha.situacao}
                               </span>

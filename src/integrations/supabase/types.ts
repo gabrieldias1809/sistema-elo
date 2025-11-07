@@ -63,6 +63,7 @@ export type Database = {
       }
       cia_trp_fichas_saida: {
         Row: {
+          chefe_viatura: string | null
           created_at: string
           created_by: string | null
           destino: string
@@ -71,11 +72,13 @@ export type Database = {
           id: string
           motorista_id: string
           numero_ficha: string
+          pedido_transporte_id: string | null
           situacao: string
           updated_at: string
           viatura_id: string
         }
         Insert: {
+          chefe_viatura?: string | null
           created_at?: string
           created_by?: string | null
           destino: string
@@ -84,11 +87,13 @@ export type Database = {
           id?: string
           motorista_id: string
           numero_ficha: string
+          pedido_transporte_id?: string | null
           situacao?: string
           updated_at?: string
           viatura_id: string
         }
         Update: {
+          chefe_viatura?: string | null
           created_at?: string
           created_by?: string | null
           destino?: string
@@ -97,6 +102,7 @@ export type Database = {
           id?: string
           motorista_id?: string
           numero_ficha?: string
+          pedido_transporte_id?: string | null
           situacao?: string
           updated_at?: string
           viatura_id?: string
@@ -107,6 +113,13 @@ export type Database = {
             columns: ["motorista_id"]
             isOneToOne: false
             referencedRelation: "cia_trp_motoristas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cia_trp_fichas_saida_pedido_transporte_id_fkey"
+            columns: ["pedido_transporte_id"]
+            isOneToOne: false
+            referencedRelation: "cia_sup_pedidos_transporte"
             referencedColumns: ["id"]
           },
           {
