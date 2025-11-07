@@ -62,7 +62,9 @@ const COLORS = [
 
 export default function Col() {
   const [pedidos, setPedidos] = useState<PedidoSup[]>([]);
-  const [materiais, setMateriais] = useState<Material[]>([{ material: "", quantidade: 1, classe: "", unidade_medida: "" }]);
+  const [materiais, setMateriais] = useState<Material[]>([
+    { material: "", quantidade: 1, classe: "", unidade_medida: "" },
+  ]);
   const [destino, setDestino] = useState("");
   const [coordenada, setCoordenada] = useState("");
   const [distancia, setDistancia] = useState("");
@@ -319,6 +321,14 @@ export default function Col() {
                     <option value="IX">IX</option>
                     <option value="X">X</option>
                   </select>
+                  <Input
+                    type="number"
+                    placeholder="Qtd"
+                    value={m.quantidade}
+                    onChange={(e) => updateMaterial(index, "quantidade", parseInt(e.target.value) || 0)}
+                    className="w-24"
+                    min="1"
+                  />
                   <select
                     value={m.unidade_medida}
                     onChange={(e) => updateMaterial(index, "unidade_medida", e.target.value)}
@@ -330,14 +340,6 @@ export default function Col() {
                     <option value="L">L</option>
                     <option value="m">m</option>
                   </select>
-                  <Input
-                    type="number"
-                    placeholder="Qtd"
-                    value={m.quantidade}
-                    onChange={(e) => updateMaterial(index, "quantidade", parseInt(e.target.value) || 0)}
-                    className="w-24"
-                    min="1"
-                  />
                   {materiais.length > 1 && (
                     <Button type="button" variant="destructive" size="icon" onClick={() => removeMaterial(index)}>
                       <X className="h-4 w-4" />
