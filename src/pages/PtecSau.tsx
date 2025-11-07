@@ -50,8 +50,11 @@ const PtecSau = () => {
   const [viewProntuarioOpen, setViewProntuarioOpen] = useState(false);
   const [selectedPm, setSelectedPm] = useState<any>(null);
   const [selectedProntuario, setSelectedProntuario] = useState<any>(null);
+  const [editingPm, setEditingPm] = useState<any>(null);
   const [editingProntuario, setEditingProntuario] = useState<any>(null);
+  const [deletePmDialogOpen, setDeletePmDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [pmToDelete, setPmToDelete] = useState<string | null>(null);
   const [prontuarioToDelete, setProntuarioToDelete] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
@@ -83,6 +86,36 @@ const PtecSau = () => {
     fetchPms();
     fetchProntuarios();
   }, []);
+
+  useEffect(() => {
+    if (editingPm) {
+      setFormData({
+        om_responsavel: editingPm.om_responsavel || "",
+        numero_pms: editingPm.numero_pms || "",
+        tipo_pm: editingPm.tipo_pm || "PMS",
+        atividade: editingPm.atividade || "",
+        data: editingPm.data || "",
+        hora: editingPm.hora || "",
+        fracao: editingPm.fracao || "",
+        descricao: editingPm.descricao || "",
+        conduta_esperada: editingPm.conduta_esperada || "",
+        observacoes: editingPm.observacoes || "",
+      });
+    } else {
+      setFormData({
+        om_responsavel: "",
+        numero_pms: "",
+        tipo_pm: "PMS",
+        atividade: "",
+        data: "",
+        hora: "",
+        fracao: "",
+        descricao: "",
+        conduta_esperada: "",
+        observacoes: "",
+      });
+    }
+  }, [editingPm]);
 
   useEffect(() => {
     if (editingProntuario) {
@@ -144,12 +177,12 @@ const PtecSau = () => {
   };
 
   useEffect(() => {
-    if (open) {
+    if (open && !editingPm) {
       getNextPmNumber().then((nextNum) => {
         setFormData((prev) => ({ ...prev, numero_pms: nextNum }));
       });
     }
-  }, [open]);
+  }, [open, editingPm]);
 
   const fetchProntuarios = async () => {
     const { data, error } = await supabase.from("ptec_sau_prontuarios").select("*").order("data", { ascending: false });
@@ -175,30 +208,47 @@ const PtecSau = () => {
       horaFormatted = dt.toTimeString().split(' ')[0]; // Extrai apenas a hora (HH:MM:SS)
     }
 
-    const { error } = await supabase.from("ptec_sau_pms").insert([
-      {
-        om_responsavel: formData.om_responsavel,
-        numero_pms: formData.numero_pms,
-        tipo_pm: formData.tipo_pm,
-        atividade: formData.atividade,
-        data: dataFormatted,
-        hora: horaFormatted,
-        fracao: formData.fracao,
-        descricao: formData.descricao,
-        conduta_esperada: formData.conduta_esperada,
-        observacoes: formData.observacoes,
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      },
-    ]);
+    const pmPayload = {
+      om_responsavel: formData.om_responsavel,
+      numero_pms: formData.numero_pms,
+      tipo_pm: formData.tipo_pm,
+      atividade: formData.atividade,
+      data: dataFormatted,
+      hora: horaFormatted,
+      fracao: formData.fracao,
+      descricao: formData.descricao,
+      conduta_esperada: formData.conduta_esperada,
+      observacoes: formData.observacoes,
+      created_by: (await supabase.auth.getUser()).data.user?.id,
+    };
 
-    if (error) {
-      toast.error("Erro ao criar PM");
-      console.error("Erro ao criar PM:", error);
-      return;
+    if (editingPm) {
+      const { error } = await supabase
+        .from("ptec_sau_pms")
+        .update(pmPayload)
+        .eq("id", editingPm.id);
+
+      if (error) {
+        toast.error("Erro ao atualizar PM");
+        console.error("Erro ao atualizar PM:", error);
+        return;
+      }
+
+      toast.success("PM atualizado com sucesso!");
+    } else {
+      const { error } = await supabase.from("ptec_sau_pms").insert([pmPayload]);
+
+      if (error) {
+        toast.error("Erro ao criar PM");
+        console.error("Erro ao criar PM:", error);
+        return;
+      }
+
+      toast.success("PM criado com sucesso!");
     }
 
-    toast.success("PM criado com sucesso!");
     setOpen(false);
+    setEditingPm(null);
     setFormData({
       om_responsavel: "",
       numero_pms: "",
@@ -261,14 +311,40 @@ const PtecSau = () => {
     fetchProntuarios();
   };
 
+  const handleEditPm = (pm: any) => {
+    setEditingPm(pm);
+    setOpen(true);
+  };
+
   const handleEditProntuario = (prontuario: any) => {
     setEditingProntuario(prontuario);
     setProntuarioOpen(true);
   };
 
+  const handleDeletePmClick = (id: string) => {
+    setPmToDelete(id);
+    setDeletePmDialogOpen(true);
+  };
+
   const handleDeleteClick = (id: string) => {
     setProntuarioToDelete(id);
     setDeleteDialogOpen(true);
+  };
+
+  const handleDeletePmConfirm = async () => {
+    if (!pmToDelete) return;
+
+    const { error } = await supabase.from("ptec_sau_pms").delete().eq("id", pmToDelete);
+
+    if (error) {
+      toast.error("Erro ao excluir PM");
+      return;
+    }
+
+    toast.success("PM excluído com sucesso!");
+    setDeletePmDialogOpen(false);
+    setPmToDelete(null);
+    fetchPms();
   };
 
   const handleDeleteConfirm = async () => {
@@ -444,7 +520,15 @@ const PtecSau = () => {
           >
             <i className="ri-refresh-line"></i>
           </Button>
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog
+            open={open}
+            onOpenChange={(open) => {
+              setOpen(open);
+              if (!open) {
+                setEditingPm(null);
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button className="gradient-primary text-white">
                 <i className="ri-add-line mr-2"></i>Novo PM
@@ -452,7 +536,7 @@ const PtecSau = () => {
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Novo Problema Militar</DialogTitle>
+                <DialogTitle>{editingPm ? "Editar" : "Novo"} Problema Militar</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -541,7 +625,7 @@ const PtecSau = () => {
                   />
                 </div>
                 <Button type="submit" className="w-full gradient-primary text-white">
-                  Criar PM
+                  {editingPm ? "Atualizar" : "Criar"} PM
                 </Button>
               </form>
             </DialogContent>
@@ -780,16 +864,24 @@ const PtecSau = () => {
                     </TableCell>
                     <TableCell>{item.local || "-"}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setSelectedPm(item);
-                          setViewPmOpen(true);
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedPm(item);
+                            setViewPmOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditPm(item)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeletePmClick(item.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -1021,6 +1113,26 @@ const PtecSau = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deletePmDialogOpen} onOpenChange={setDeletePmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este PM? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeletePmConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
