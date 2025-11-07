@@ -123,7 +123,7 @@ export default function CiaTrp() {
   const [designarForm, setDesignarForm] = useState({
     viatura_id: "",
     motorista_id: "",
-    horario_saida: new Date().toISOString().slice(0, 16)
+    horario_saida: ""
   });
 
   useEffect(() => {
@@ -547,7 +547,7 @@ export default function CiaTrp() {
       toast.success("Transporte designado. Registro de saída criado.");
       setIsDesignarDialogOpen(false);
       setPedidoToDesignar(null);
-      setDesignarForm({ viatura_id: "", motorista_id: "", horario_saida: new Date().toISOString().slice(0, 16) });
+      setDesignarForm({ viatura_id: "", motorista_id: "", horario_saida: "" });
       
       // Refetch data
       await Promise.all([fetchFichasSaida(), fetchViaturas(), fetchMotoristas(), fetchPedidosTransporte()]);
@@ -817,7 +817,7 @@ export default function CiaTrp() {
                 <Button type="button" variant="outline" onClick={() => {
                   setIsDesignarDialogOpen(false);
                   setPedidoToDesignar(null);
-                  setDesignarForm({ viatura_id: "", motorista_id: "", horario_saida: new Date().toISOString().slice(0, 16) });
+                  setDesignarForm({ viatura_id: "", motorista_id: "", horario_saida: "" });
                 }}>
                   Cancelar
                 </Button>
