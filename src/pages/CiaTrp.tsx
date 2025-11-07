@@ -619,7 +619,7 @@ export default function CiaTrp() {
               <CardContent>
                 <form onSubmit={handleViaturaSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="modelo">Modelo*</Label>
+                    <Label htmlFor="modelo">Modelo</Label>
                     <Select value={viaturaForm.modelo} onValueChange={(value) => setViaturaForm({ ...viaturaForm, modelo: value })} required>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o modelo" />
@@ -642,7 +642,7 @@ export default function CiaTrp() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="eb">EB*</Label>
+                    <Label htmlFor="eb">EB</Label>
                     <Input
                       id="eb"
                       value={viaturaForm.eb}
@@ -651,7 +651,7 @@ export default function CiaTrp() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="status">Status*</Label>
+                    <Label htmlFor="status">Status</Label>
                     <Select value={viaturaForm.status} onValueChange={(value) => setViaturaForm({ ...viaturaForm, status: value })}>
                       <SelectTrigger>
                         <SelectValue />
@@ -767,7 +767,7 @@ export default function CiaTrp() {
               <CardContent>
                 <form onSubmit={handleMotoristaSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="nome">Motorista*</Label>
+                    <Label htmlFor="nome">Motorista</Label>
                     <Input
                       id="nome"
                       value={motoristaForm.nome}
@@ -776,7 +776,7 @@ export default function CiaTrp() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="habilitacao">Habilitação*</Label>
+                    <Label htmlFor="habilitacao">Habilitação</Label>
                     <Input
                       id="habilitacao"
                       value={motoristaForm.habilitacao}
@@ -785,7 +785,7 @@ export default function CiaTrp() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="status-motorista">Status*</Label>
+                    <Label htmlFor="status-motorista">Status</Label>
                     <Select value={motoristaForm.status} onValueChange={(value) => setMotoristaForm({ ...motoristaForm, status: value })}>
                       <SelectTrigger>
                         <SelectValue />
@@ -901,7 +901,7 @@ export default function CiaTrp() {
               <CardContent>
                 <form onSubmit={handleFichaSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="numero_ficha">Nº da Ficha*</Label>
+                    <Label htmlFor="numero_ficha">Nº da Ficha</Label>
                     <Input
                       id="numero_ficha"
                       value={fichaForm.numero_ficha}
@@ -910,7 +910,7 @@ export default function CiaTrp() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="motorista_id">Motorista*</Label>
+                    <Label htmlFor="motorista_id">Motorista</Label>
                     <Select value={fichaForm.motorista_id} onValueChange={(value) => setFichaForm({ ...fichaForm, motorista_id: value })}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um motorista" />
@@ -923,7 +923,7 @@ export default function CiaTrp() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="viatura_id">Viatura*</Label>
+                    <Label htmlFor="viatura_id">Viatura</Label>
                     <Select value={fichaForm.viatura_id} onValueChange={(value) => setFichaForm({ ...fichaForm, viatura_id: value })}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione uma viatura" />
@@ -936,7 +936,7 @@ export default function CiaTrp() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="destino">Destino*</Label>
+                    <Label htmlFor="destino">Destino</Label>
                     <Input
                       id="destino"
                       value={fichaForm.destino}
@@ -963,7 +963,7 @@ export default function CiaTrp() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="situacao">Situação*</Label>
+                    <Label htmlFor="situacao">Situação</Label>
                     <Select value={fichaForm.situacao} onValueChange={(value) => setFichaForm({ ...fichaForm, situacao: value })}>
                       <SelectTrigger>
                         <SelectValue />
