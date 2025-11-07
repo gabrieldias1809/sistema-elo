@@ -36,7 +36,8 @@ import {
   Legend,
 } from "recharts";
 import { format } from "date-fns";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, FileDown } from "lucide-react";
+import jsPDF from "jspdf";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25"];
 
@@ -358,6 +359,74 @@ const PtecSau = () => {
     }
     return acc;
   }, []);
+
+  const generatePmPdf = (pm: any) => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text("REGISTRO DE PROBLEMA MILITAR", 105, 20, { align: "center" });
+    
+    doc.setFontSize(12);
+    let y = 40;
+    
+    doc.text(`N° PM: ${pm.numero_pms}`, 20, y);
+    y += 10;
+    doc.text(`Tipo: ${pm.tipo_pm || "PMS"}`, 20, y);
+    y += 10;
+    doc.text(`OM Responsável: ${pm.om_responsavel}`, 20, y);
+    y += 10;
+    doc.text(`Atividade: ${pm.atividade || "-"}`, 20, y);
+    y += 10;
+    doc.text(`Data/Hora: ${pm.data ? format(new Date(pm.data), "dd/MM/yyyy HH:mm") : "-"}`, 20, y);
+    y += 10;
+    doc.text(`Local: ${pm.local || "-"}`, 20, y);
+    y += 10;
+    doc.text(`Fração: ${pm.fracao || "-"}`, 20, y);
+    y += 15;
+    
+    doc.text("Descrição:", 20, y);
+    y += 8;
+    const descricaoLines = doc.splitTextToSize(pm.descricao || "-", 170);
+    doc.text(descricaoLines, 20, y);
+    y += descricaoLines.length * 7 + 10;
+    
+    doc.text("Conduta Esperada:", 20, y);
+    y += 8;
+    const condutaLines = doc.splitTextToSize(pm.conduta_esperada || "-", 170);
+    doc.text(condutaLines, 20, y);
+    y += condutaLines.length * 7 + 10;
+    
+    doc.text("Observações:", 20, y);
+    y += 8;
+    const obsLines = doc.splitTextToSize(pm.observacoes || "-", 170);
+    doc.text(obsLines, 20, y);
+    
+    doc.save(`PM_${pm.numero_pms}.pdf`);
+    toast.success("PDF gerado com sucesso!");
+  };
+
+  const generateProntuarioPdf = (prontuario: any) => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text("PRONTUÁRIO MILITAR", 105, 20, { align: "center" });
+    
+    doc.setFontSize(12);
+    let y = 40;
+    
+    doc.text(`Nome do Militar: ${prontuario.nome}`, 20, y);
+    y += 10;
+    doc.text(`Idade: ${prontuario.idade} anos`, 20, y);
+    y += 10;
+    doc.text(`Data do Atendimento: ${prontuario.data ? format(new Date(prontuario.data), "dd/MM/yyyy HH:mm") : "-"}`, 20, y);
+    y += 10;
+    doc.text(`Nível de Gravidade: ${prontuario.nivel_gravidade}`, 20, y);
+    y += 10;
+    doc.text(`Situação Atual: ${prontuario.situacao_atual}`, 20, y);
+    
+    doc.save(`Prontuario_${prontuario.nome.replace(/\s+/g, "_")}.pdf`);
+    toast.success("PDF gerado com sucesso!");
+  };
 
   return (
     <div>
@@ -813,7 +882,20 @@ const PtecSau = () => {
       <Dialog open={viewPmOpen} onOpenChange={setViewPmOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detalhes do PM N° {selectedPm?.numero_pms}</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Detalhes do PM N° {selectedPm?.numero_pms}</span>
+              {selectedPm && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => generatePmPdf(selectedPm)}
+                  className="ml-4"
+                >
+                  <FileDown className="h-4 w-4 mr-2" />
+                  Gerar PDF
+                </Button>
+              )}
+            </DialogTitle>
           </DialogHeader>
           {selectedPm && (
             <div className="space-y-4">
@@ -866,7 +948,20 @@ const PtecSau = () => {
       <Dialog open={viewProntuarioOpen} onOpenChange={setViewProntuarioOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Detalhes do Prontuário</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Detalhes do Prontuário</span>
+              {selectedProntuario && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => generateProntuarioPdf(selectedProntuario)}
+                  className="ml-4"
+                >
+                  <FileDown className="h-4 w-4 mr-2" />
+                  Gerar PDF
+                </Button>
+              )}
+            </DialogTitle>
           </DialogHeader>
           {selectedProntuario && (
             <div className="space-y-4">
@@ -918,7 +1013,7 @@ const PtecSau = () => {
                       }`}
                     >
                       {selectedProntuario.situacao_atual}
-                    </span>
+                     </span>
                   </p>
                 </div>
               </div>
