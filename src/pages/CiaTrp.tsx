@@ -81,6 +81,9 @@ export default function CiaTrp() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedPedidoSup, setSelectedPedidoSup] = useState<PedidoSup | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isViaturaDialogOpen, setIsViaturaDialogOpen] = useState(false);
+  const [isMotoristaDialogOpen, setIsMotoristaDialogOpen] = useState(false);
+  const [isFichaDialogOpen, setIsFichaDialogOpen] = useState(false);
   const [editingViatura, setEditingViatura] = useState<Viatura | null>(null);
   const [editingMotorista, setEditingMotorista] = useState<Motorista | null>(null);
   const [editingFicha, setEditingFicha] = useState<FichaSaida | null>(null);
@@ -281,6 +284,7 @@ export default function CiaTrp() {
 
       toast.success("Viatura atualizada!");
       setEditingViatura(null);
+      setIsViaturaDialogOpen(false);
     } else {
       const { error } = await supabase
         .from("cia_trp_viaturas")
@@ -337,6 +341,7 @@ export default function CiaTrp() {
 
       toast.success("Motorista atualizado!");
       setEditingMotorista(null);
+      setIsMotoristaDialogOpen(false);
     } else {
       const { error } = await supabase
         .from("cia_trp_motoristas")
@@ -399,6 +404,7 @@ export default function CiaTrp() {
 
       toast.success("Ficha atualizada!");
       setEditingFicha(null);
+      setIsFichaDialogOpen(false);
     } else {
       // Marcar motorista e viatura como ocupados
       await supabase.from("cia_trp_motoristas").update({ status: "Ocupado" }).eq("id", fichaForm.motorista_id);
@@ -735,6 +741,7 @@ export default function CiaTrp() {
                                 onClick={() => {
                                   setEditingViatura(viatura);
                                   setViaturaForm({ modelo: viatura.modelo, eb: viatura.eb, status: viatura.status, obs: viatura.obs || "" });
+                                  setIsViaturaDialogOpen(true);
                                 }}
                               >
                                 <Edit className="h-4 w-4" />
@@ -869,6 +876,7 @@ export default function CiaTrp() {
                                 onClick={() => {
                                   setEditingMotorista(motorista);
                                   setMotoristaForm({ nome: motorista.nome, habilitacao: motorista.habilitacao, status: motorista.status, obs: motorista.obs || "" });
+                                  setIsMotoristaDialogOpen(true);
                                 }}
                               >
                                 <Edit className="h-4 w-4" />
@@ -1051,6 +1059,7 @@ export default function CiaTrp() {
                                       destino: ficha.destino,
                                       situacao: ficha.situacao
                                     });
+                                    setIsFichaDialogOpen(true);
                                   }}
                                 >
                                   <Edit className="h-4 w-4" />
@@ -1077,6 +1086,251 @@ export default function CiaTrp() {
       </Tabs>
 
       <RefreshButton onClick={fetchAll} isLoading={isRefreshing} />
+
+      {/* Modal de Edição de Viatura */}
+      <Dialog open={isViaturaDialogOpen} onOpenChange={(open) => {
+        setIsViaturaDialogOpen(open);
+        if (!open) {
+          setEditingViatura(null);
+          setViaturaForm({ modelo: "", eb: "", status: "Disponível", obs: "" });
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Viatura</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleViaturaSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="edit-modelo">Modelo</Label>
+              <Select value={viaturaForm.modelo} onValueChange={(value) => setViaturaForm({ ...viaturaForm, modelo: value })} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o modelo" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px] overflow-y-auto">
+                  <SelectItem value="Ambulância Hilux">Ambulância Hilux</SelectItem>
+                  <SelectItem value="VW Worker 15.210">VW Worker 15.210</SelectItem>
+                  <SelectItem value="Micro-ônibus">Micro-ônibus</SelectItem>
+                  <SelectItem value="MB Atego 1725/42">MB Atego 1725/42</SelectItem>
+                  <SelectItem value="Caminhão Baú">Caminhão Baú</SelectItem>
+                  <SelectItem value="Porta Container">Porta Container</SelectItem>
+                  <SelectItem value="Ford Cargo Oficina">Ford Cargo Oficina</SelectItem>
+                  <SelectItem value="Cavalo Mecânico/Prancha">Cavalo Mecânico/Prancha</SelectItem>
+                  <SelectItem value="Amb Land Rover Defender">Amb Land Rover Defender</SelectItem>
+                  <SelectItem value="Gol Balizador (Cav Mec)">Gol Balizador (Cav Mec)</SelectItem>
+                  <SelectItem value="Socorro Pesado (guincho)">Socorro Pesado (guincho)</SelectItem>
+                  <SelectItem value="CTA">CTA</SelectItem>
+                  <SelectItem value="CTC">CTC</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-eb">EB</Label>
+              <Input
+                id="edit-eb"
+                value={viaturaForm.eb}
+                onChange={(e) => setViaturaForm({ ...viaturaForm, eb: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-status-viatura">Status</Label>
+              <Select value={viaturaForm.status} onValueChange={(value) => setViaturaForm({ ...viaturaForm, status: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Disponível">Disponível</SelectItem>
+                  <SelectItem value="Ocupado">Ocupado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-obs-viatura">Observações</Label>
+              <Textarea
+                id="edit-obs-viatura"
+                value={viaturaForm.obs}
+                onChange={(e) => setViaturaForm({ ...viaturaForm, obs: e.target.value })}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" className="flex-1">
+                Atualizar
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setIsViaturaDialogOpen(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Edição de Motorista */}
+      <Dialog open={isMotoristaDialogOpen} onOpenChange={(open) => {
+        setIsMotoristaDialogOpen(open);
+        if (!open) {
+          setEditingMotorista(null);
+          setMotoristaForm({ nome: "", habilitacao: "", status: "Disponível", obs: "" });
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Motorista</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleMotoristaSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="edit-nome">Motorista</Label>
+              <Input
+                id="edit-nome"
+                value={motoristaForm.nome}
+                onChange={(e) => setMotoristaForm({ ...motoristaForm, nome: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-habilitacao">Habilitação</Label>
+              <Input
+                id="edit-habilitacao"
+                value={motoristaForm.habilitacao}
+                onChange={(e) => setMotoristaForm({ ...motoristaForm, habilitacao: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-status-motorista">Status</Label>
+              <Select value={motoristaForm.status} onValueChange={(value) => setMotoristaForm({ ...motoristaForm, status: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Disponível">Disponível</SelectItem>
+                  <SelectItem value="Ocupado">Ocupado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-obs-motorista">Observações</Label>
+              <Textarea
+                id="edit-obs-motorista"
+                value={motoristaForm.obs}
+                onChange={(e) => setMotoristaForm({ ...motoristaForm, obs: e.target.value })}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" className="flex-1">
+                Atualizar
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setIsMotoristaDialogOpen(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Edição de Ficha de Saída */}
+      <Dialog open={isFichaDialogOpen} onOpenChange={(open) => {
+        setIsFichaDialogOpen(open);
+        if (!open) {
+          setEditingFicha(null);
+          setFichaForm({ numero_ficha: "", motorista_id: "", viatura_id: "", horario_saida: "", horario_chegada: "", destino: "", situacao: "Em andamento" });
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Ficha de Saída</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleFichaSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="edit-numero-ficha">Número da Ficha</Label>
+              <Input
+                id="edit-numero-ficha"
+                value={fichaForm.numero_ficha}
+                onChange={(e) => setFichaForm({ ...fichaForm, numero_ficha: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-motorista">Motorista</Label>
+              <Select value={fichaForm.motorista_id} onValueChange={(value) => setFichaForm({ ...fichaForm, motorista_id: value })} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o motorista" />
+                </SelectTrigger>
+                <SelectContent>
+                  {motoristas.map((motorista) => (
+                    <SelectItem key={motorista.id} value={motorista.id}>
+                      {motorista.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-viatura">Viatura</Label>
+              <Select value={fichaForm.viatura_id} onValueChange={(value) => setFichaForm({ ...fichaForm, viatura_id: value })} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a viatura" />
+                </SelectTrigger>
+                <SelectContent>
+                  {viaturas.map((viatura) => (
+                    <SelectItem key={viatura.id} value={viatura.id}>
+                      {viatura.modelo} - {viatura.eb}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-destino">Destino</Label>
+              <Input
+                id="edit-destino"
+                value={fichaForm.destino}
+                onChange={(e) => setFichaForm({ ...fichaForm, destino: e.target.value })}
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-horario-saida">Horário de Saída</Label>
+                <Input
+                  id="edit-horario-saida"
+                  type="datetime-local"
+                  value={fichaForm.horario_saida}
+                  onChange={(e) => setFichaForm({ ...fichaForm, horario_saida: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-horario-chegada">Horário de Chegada</Label>
+                <Input
+                  id="edit-horario-chegada"
+                  type="datetime-local"
+                  value={fichaForm.horario_chegada}
+                  onChange={(e) => setFichaForm({ ...fichaForm, horario_chegada: e.target.value })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-situacao">Situação</Label>
+              <Select value={fichaForm.situacao} onValueChange={(value) => setFichaForm({ ...fichaForm, situacao: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Em andamento">Em andamento</SelectItem>
+                  <SelectItem value="Finalizada">Finalizada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" className="flex-1">
+                Atualizar
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setIsFichaDialogOpen(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
