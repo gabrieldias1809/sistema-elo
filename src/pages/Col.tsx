@@ -171,7 +171,7 @@ export default function Col() {
     
     pedidos.forEach(pedido => {
       pedido.materiais.forEach(m => {
-        materiaisCount[m.material] = (materiaisCount[m.material] || 0) + m.quantidade;
+        materiaisCount[m.material] = (materiaisCount[m.material] || 0) + 1;
       });
     });
 
