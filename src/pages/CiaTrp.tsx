@@ -710,7 +710,10 @@ export default function CiaTrp() {
                       </TableRow>
                     ) : (
                       viaturas.map((viatura) => (
-                        <TableRow key={viatura.id}>
+                        <TableRow 
+                          key={viatura.id}
+                          className={viatura.status === "Disponível" ? "bg-green-500/10" : "bg-red-500/10"}
+                        >
                           <TableCell>{viatura.modelo}</TableCell>
                           <TableCell>{viatura.eb}</TableCell>
                           <TableCell>
@@ -841,7 +844,10 @@ export default function CiaTrp() {
                       </TableRow>
                     ) : (
                       motoristas.map((motorista) => (
-                        <TableRow key={motorista.id}>
+                        <TableRow 
+                          key={motorista.id}
+                          className={motorista.status === "Disponível" ? "bg-green-500/10" : "bg-red-500/10"}
+                        >
                           <TableCell>{motorista.nome}</TableCell>
                           <TableCell>{motorista.habilitacao}</TableCell>
                           <TableCell>
