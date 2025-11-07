@@ -620,12 +620,26 @@ export default function CiaTrp() {
                 <form onSubmit={handleViaturaSubmit} className="space-y-4">
                   <div>
                     <Label htmlFor="modelo">Modelo*</Label>
-                    <Input
-                      id="modelo"
-                      value={viaturaForm.modelo}
-                      onChange={(e) => setViaturaForm({ ...viaturaForm, modelo: e.target.value })}
-                      required
-                    />
+                    <Select value={viaturaForm.modelo} onValueChange={(value) => setViaturaForm({ ...viaturaForm, modelo: value })} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o modelo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ambulância Hilux">Ambulância Hilux</SelectItem>
+                        <SelectItem value="VW Worker 15.210">VW Worker 15.210</SelectItem>
+                        <SelectItem value="Micro-ônibus">Micro-ônibus</SelectItem>
+                        <SelectItem value="MB Atego 1725/42">MB Atego 1725/42</SelectItem>
+                        <SelectItem value="Caminhão Baú">Caminhão Baú</SelectItem>
+                        <SelectItem value="Porta Container">Porta Container</SelectItem>
+                        <SelectItem value="Ford Cargo Oficina">Ford Cargo Oficina</SelectItem>
+                        <SelectItem value="Cavalo Mecânico/Prancha">Cavalo Mecânico/Prancha</SelectItem>
+                        <SelectItem value="Amb Land Rover Defender">Amb Land Rover Defender</SelectItem>
+                        <SelectItem value="Gol Balizador (Cav Mec)">Gol Balizador (Cav Mec)</SelectItem>
+                        <SelectItem value="Socorro Pesado (guincho)">Socorro Pesado (guincho)</SelectItem>
+                        <SelectItem value="CTA">CTA</SelectItem>
+                        <SelectItem value="CTC">CTC</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label htmlFor="eb">EB*</Label>
