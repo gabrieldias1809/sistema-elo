@@ -30,6 +30,7 @@ interface Material {
   material: string;
   quantidade: number;
   classe: string;
+  unidade_medida: string;
 }
 
 interface PedidoSup {
@@ -43,7 +44,6 @@ interface PedidoSup {
   data_hora_necessidade: string;
   situacao: string;
   created_by: string;
-  unidade_medida?: string;
   observacoes?: string;
 }
 
@@ -62,12 +62,11 @@ const COLORS = [
 
 export default function Col() {
   const [pedidos, setPedidos] = useState<PedidoSup[]>([]);
-  const [materiais, setMateriais] = useState<Material[]>([{ material: "", quantidade: 1, classe: "" }]);
+  const [materiais, setMateriais] = useState<Material[]>([{ material: "", quantidade: 1, classe: "", unidade_medida: "" }]);
   const [destino, setDestino] = useState("");
   const [coordenada, setCoordenada] = useState("");
   const [distancia, setDistancia] = useState("");
   const [dataHoraNecessidade, setDataHoraNecessidade] = useState("");
-  const [unidadeMedida, setUnidadeMedida] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState<PedidoSup | null>(null);
@@ -108,7 +107,7 @@ export default function Col() {
   };
 
   const addMaterial = () => {
-    setMateriais([...materiais, { material: "", quantidade: 1, classe: "" }]);
+    setMateriais([...materiais, { material: "", quantidade: 1, classe: "", unidade_medida: "" }]);
   };
 
   const removeMaterial = (index: number) => {
@@ -153,7 +152,6 @@ export default function Col() {
       coordenada: coordenada || null,
       distancia: distancia ? parseFloat(distancia) : null,
       data_hora_necessidade: dataHoraNecessidade,
-      unidade_medida: unidadeMedida || null,
       observacoes: observacoes || null,
       created_by: userData?.user?.id,
     });
@@ -165,12 +163,11 @@ export default function Col() {
     }
 
     toast.success("Pedido criado com sucesso!");
-    setMateriais([{ material: "", quantidade: 1, classe: "" }]);
+    setMateriais([{ material: "", quantidade: 1, classe: "", unidade_medida: "" }]);
     setDestino("");
     setCoordenada("");
     setDistancia("");
     setDataHoraNecessidade("");
-    setUnidadeMedida("");
     setObservacoes("");
     setLoading(false);
     fetchPedidos();
@@ -308,7 +305,7 @@ export default function Col() {
                   <select
                     value={m.classe}
                     onChange={(e) => updateMaterial(index, "classe", e.target.value)}
-                    className="w-20 px-2 border border-input bg-background rounded-md"
+                    className="w-20 px-2 border border-input bg-background rounded-md text-sm"
                   >
                     <option value="">Classe</option>
                     <option value="I">I</option>
@@ -321,6 +318,17 @@ export default function Col() {
                     <option value="VIII">VIII</option>
                     <option value="IX">IX</option>
                     <option value="X">X</option>
+                  </select>
+                  <select
+                    value={m.unidade_medida}
+                    onChange={(e) => updateMaterial(index, "unidade_medida", e.target.value)}
+                    className="w-24 px-2 border border-input bg-background rounded-md text-sm"
+                  >
+                    <option value="">Unidade</option>
+                    <option value="unidade">Unidade</option>
+                    <option value="kg">kg</option>
+                    <option value="L">L</option>
+                    <option value="m">m</option>
                   </select>
                   <Input
                     type="number"
@@ -383,21 +391,6 @@ export default function Col() {
                 value={dataHoraNecessidade}
                 onChange={(e) => setDataHoraNecessidade(e.target.value)}
               />
-            </div>
-
-            <div>
-              <Label htmlFor="unidadeMedida">Unidade de Medida</Label>
-              <Select value={unidadeMedida} onValueChange={setUnidadeMedida}>
-                <SelectTrigger id="unidadeMedida">
-                  <SelectValue placeholder="Selecione a unidade" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unidade">Unidade</SelectItem>
-                  <SelectItem value="kg">kg</SelectItem>
-                  <SelectItem value="L">L</SelectItem>
-                  <SelectItem value="m">m</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div>
@@ -492,7 +485,7 @@ export default function Col() {
                               <ul className="list-disc list-inside mt-2 space-y-1">
                                 {selectedPedido?.materiais.map((m, i) => (
                                   <li key={i}>
-                                    {m.material} (Classe {m.classe}) - Qtd: {m.quantidade}
+                                    {m.material} (Classe {m.classe}) - Qtd: {m.quantidade} {m.unidade_medida || ""}
                                   </li>
                                 ))}
                               </ul>
@@ -520,10 +513,6 @@ export default function Col() {
                                   ? new Date(selectedPedido.data_hora_necessidade).toLocaleString("pt-BR")
                                   : "-"}
                               </p>
-                            </div>
-                            <div>
-                              <Label>Unidade de Medida</Label>
-                              <p className="mt-1">{selectedPedido?.unidade_medida || "-"}</p>
                             </div>
                             <div>
                               <Label>Observações</Label>
