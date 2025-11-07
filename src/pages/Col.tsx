@@ -9,7 +9,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, Trash2, Eye, Edit, X } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import { RefreshButton } from "@/components/RefreshButton";
 
 interface Material {
@@ -32,16 +44,16 @@ interface PedidoSup {
 }
 
 const COLORS = [
-  "hsl(206, 76%, 58%)",  // Azul primário
-  "hsl(142, 76%, 45%)",  // Verde
-  "hsl(30, 90%, 55%)",   // Laranja
-  "hsl(280, 65%, 60%)",  // Roxo
-  "hsl(340, 75%, 55%)",  // Rosa
-  "hsl(180, 70%, 50%)",  // Ciano
-  "hsl(45, 80%, 60%)",   // Amarelo
-  "hsl(0, 70%, 55%)",    // Vermelho
-  "hsl(260, 60%, 55%)",  // Roxo claro
-  "hsl(100, 60%, 50%)"   // Verde lima
+  "hsl(206, 76%, 58%)", // Azul primário
+  "hsl(142, 76%, 45%)", // Verde
+  "hsl(30, 90%, 55%)", // Laranja
+  "hsl(280, 65%, 60%)", // Roxo
+  "hsl(340, 75%, 55%)", // Rosa
+  "hsl(180, 70%, 50%)", // Ciano
+  "hsl(45, 80%, 60%)", // Amarelo
+  "hsl(0, 70%, 55%)", // Vermelho
+  "hsl(260, 60%, 55%)", // Roxo claro
+  "hsl(100, 60%, 50%)", // Verde lima
 ];
 
 export default function Col() {
@@ -59,7 +71,7 @@ export default function Col() {
 
   useEffect(() => {
     fetchPedidos();
-    
+
     const channel = supabase
       .channel("col_realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "col_pedidos_sup" }, () => {
@@ -107,8 +119,8 @@ export default function Col() {
     e.preventDefault();
     setLoading(true);
 
-    const validMateriais = materiais.filter(m => m.material.trim() !== "" && m.classe !== "");
-    
+    const validMateriais = materiais.filter((m) => m.material.trim() !== "" && m.classe !== "");
+
     if (validMateriais.length === 0) {
       toast.error("Adicione pelo menos um material com classe");
       setLoading(false);
@@ -168,9 +180,9 @@ export default function Col() {
 
   const getMateriaisChart = () => {
     const materiaisCount: { [key: string]: number } = {};
-    
-    pedidos.forEach(pedido => {
-      pedido.materiais.forEach(m => {
+
+    pedidos.forEach((pedido) => {
+      pedido.materiais.forEach((m) => {
         materiaisCount[m.material] = (materiaisCount[m.material] || 0) + 1;
       });
     });
@@ -183,8 +195,8 @@ export default function Col() {
 
   const getDestinosChart = () => {
     const destinosCount: { [key: string]: number } = {};
-    
-    pedidos.forEach(pedido => {
+
+    pedidos.forEach((pedido) => {
       destinosCount[pedido.destino] = (destinosCount[pedido.destino] || 0) + 1;
     });
 
@@ -194,7 +206,7 @@ export default function Col() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Sistema ELO - COL</h1>
+        <h1 className="text-3xl font-bold">COL</h1>
       </div>
 
       {/* Gráficos */}
@@ -209,15 +221,15 @@ export default function Col() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="material" hide />
                 <YAxis />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(0, 0%, 100%)', 
-                    border: '1px solid hsl(220, 15%, 25%)',
-                    borderRadius: '8px',
-                    color: 'hsl(0, 0%, 0%)'
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(0, 0%, 100%)",
+                    border: "1px solid hsl(220, 15%, 25%)",
+                    borderRadius: "8px",
+                    color: "hsl(0, 0%, 0%)",
                   }}
-                  labelStyle={{ color: 'hsl(0, 0%, 0%)' }}
-                  itemStyle={{ color: 'hsl(0, 0%, 0%)' }}
+                  labelStyle={{ color: "hsl(0, 0%, 0%)" }}
+                  itemStyle={{ color: "hsl(0, 0%, 0%)" }}
                 />
                 <Bar dataKey="quantidade" radius={[8, 8, 0, 0]}>
                   {getMateriaisChart().map((entry, index) => (
@@ -249,15 +261,15 @@ export default function Col() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(0, 0%, 100%)', 
-                    border: '1px solid hsl(220, 15%, 25%)',
-                    borderRadius: '8px',
-                    color: 'hsl(0, 0%, 0%)'
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(0, 0%, 100%)",
+                    border: "1px solid hsl(220, 15%, 25%)",
+                    borderRadius: "8px",
+                    color: "hsl(0, 0%, 0%)",
                   }}
-                  labelStyle={{ color: 'hsl(0, 0%, 0%)' }}
-                  itemStyle={{ color: 'hsl(0, 0%, 0%)' }}
+                  labelStyle={{ color: "hsl(0, 0%, 0%)" }}
+                  itemStyle={{ color: "hsl(0, 0%, 0%)" }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -391,30 +403,46 @@ export default function Col() {
               {pedidos.map((pedido) => (
                 <TableRow key={pedido.id}>
                   <TableCell>{pedido.numero_pedido}</TableCell>
-                  <TableCell>{pedido.data_hora_necessidade ? new Date(pedido.data_hora_necessidade).toLocaleString("pt-BR") : "-"}</TableCell>
+                  <TableCell>
+                    {pedido.data_hora_necessidade
+                      ? new Date(pedido.data_hora_necessidade).toLocaleString("pt-BR")
+                      : "-"}
+                  </TableCell>
                   <TableCell>{pedido.destino}</TableCell>
                   <TableCell>{pedido.materiais.length} item(ns)</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      pedido.situacao === "Entregue" ? "bg-green-500/20 text-green-700" :
-                      pedido.situacao === "Separando" ? "bg-blue-500/20 text-blue-700" :
-                      pedido.situacao === "Cancelado" ? "bg-red-500/20 text-red-700" :
-                      "bg-yellow-500/20 text-yellow-700"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        pedido.situacao === "Entregue"
+                          ? "bg-green-500/20 text-green-700"
+                          : pedido.situacao === "Separando"
+                            ? "bg-blue-500/20 text-blue-700"
+                            : pedido.situacao === "Cancelado"
+                              ? "bg-red-500/20 text-red-700"
+                              : "bg-yellow-500/20 text-yellow-700"
+                      }`}
+                    >
                       {pedido.situacao}
                     </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Dialog open={isDialogOpen && selectedPedido?.id === pedido.id} onOpenChange={(open) => {
-                        setIsDialogOpen(open);
-                        if (!open) setSelectedPedido(null);
-                      }}>
+                      <Dialog
+                        open={isDialogOpen && selectedPedido?.id === pedido.id}
+                        onOpenChange={(open) => {
+                          setIsDialogOpen(open);
+                          if (!open) setSelectedPedido(null);
+                        }}
+                      >
                         <DialogTrigger asChild>
-                          <Button variant="outline" size="icon" onClick={() => {
-                            setSelectedPedido(pedido);
-                            setIsDialogOpen(true);
-                          }}>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => {
+                              setSelectedPedido(pedido);
+                              setIsDialogOpen(true);
+                            }}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
@@ -427,7 +455,9 @@ export default function Col() {
                               <Label>Materiais</Label>
                               <ul className="list-disc list-inside mt-2 space-y-1">
                                 {selectedPedido?.materiais.map((m, i) => (
-                                  <li key={i}>{m.material} (Classe {m.classe}) - Qtd: {m.quantidade}</li>
+                                  <li key={i}>
+                                    {m.material} (Classe {m.classe}) - Qtd: {m.quantidade}
+                                  </li>
                                 ))}
                               </ul>
                             </div>
@@ -442,12 +472,18 @@ export default function Col() {
                               </div>
                               <div>
                                 <Label>Distância</Label>
-                                <p className="mt-1">{selectedPedido?.distancia ? `${selectedPedido.distancia} km` : "-"}</p>
+                                <p className="mt-1">
+                                  {selectedPedido?.distancia ? `${selectedPedido.distancia} km` : "-"}
+                                </p>
                               </div>
                             </div>
                             <div>
                               <Label>Data e Hora da Necessidade</Label>
-                              <p className="mt-1">{selectedPedido?.data_hora_necessidade ? new Date(selectedPedido.data_hora_necessidade).toLocaleString("pt-BR") : "-"}</p>
+                              <p className="mt-1">
+                                {selectedPedido?.data_hora_necessidade
+                                  ? new Date(selectedPedido.data_hora_necessidade).toLocaleString("pt-BR")
+                                  : "-"}
+                              </p>
                             </div>
                             <div>
                               <Label>Situação Atual</Label>
@@ -455,7 +491,9 @@ export default function Col() {
                             </div>
                             <div>
                               <Label>Data e Hora de Criação</Label>
-                              <p className="mt-1">{selectedPedido && new Date(selectedPedido.data_hora).toLocaleString("pt-BR")}</p>
+                              <p className="mt-1">
+                                {selectedPedido && new Date(selectedPedido.data_hora).toLocaleString("pt-BR")}
+                              </p>
                             </div>
                           </div>
                         </DialogContent>
