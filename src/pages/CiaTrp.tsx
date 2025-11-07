@@ -15,6 +15,7 @@ interface PedidoTransporte {
   pedido_material_id: string;
   destino: string;
   observacoes: string;
+  chefe_viatura: string;
   situacao: string;
   created_at: string;
 }
@@ -22,6 +23,7 @@ interface PedidoTransporte {
 interface Material {
   material: string;
   quantidade: number;
+  classe: string;
 }
 
 interface PedidoSup {
@@ -29,7 +31,10 @@ interface PedidoSup {
   numero_pedido: number;
   materiais: Material[];
   destino: string;
+  coordenada: string;
+  distancia: number;
   data_hora: string;
+  data_hora_necessidade: string;
   situacao: string;
 }
 
@@ -155,7 +160,8 @@ export default function CiaTrp() {
                 <TableHead>Nº Pedido Transporte</TableHead>
                 <TableHead>Pedido Material ID</TableHead>
                 <TableHead>Destino</TableHead>
-                <TableHead>Observações</TableHead>
+                <TableHead>Chefe Viatura</TableHead>
+                <TableHead>Necessidade</TableHead>
                 <TableHead>Situação</TableHead>
                 <TableHead>Criado em</TableHead>
                 <TableHead>Ações</TableHead>
@@ -169,12 +175,17 @@ export default function CiaTrp() {
                   </TableCell>
                 </TableRow>
               ) : (
-                pedidosTransporte.map((pedido) => (
-                  <TableRow key={pedido.id}>
-                    <TableCell className="font-medium">{pedido.numero_pedido}</TableCell>
-                    <TableCell>{pedido.pedido_material_id.slice(0, 8)}...</TableCell>
-                    <TableCell>{pedido.destino}</TableCell>
-                    <TableCell>{pedido.observacoes || "-"}</TableCell>
+                pedidosTransporte.map((pedido) => {
+                  const pedidoSup = getPedidoSupDetails(pedido.pedido_material_id);
+                  return (
+                    <TableRow key={pedido.id}>
+                      <TableCell className="font-medium">{pedido.numero_pedido}</TableCell>
+                      <TableCell>{pedido.pedido_material_id.slice(0, 8)}...</TableCell>
+                      <TableCell>{pedido.destino}</TableCell>
+                      <TableCell>{pedido.chefe_viatura || "-"}</TableCell>
+                      <TableCell>
+                        {pedidoSup?.data_hora_necessidade ? new Date(pedidoSup.data_hora_necessidade).toLocaleString("pt-BR") : "-"}
+                      </TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         pedido.situacao === "Entregue" ? "bg-green-500/20 text-green-700" :
@@ -184,9 +195,9 @@ export default function CiaTrp() {
                       }`}>
                         {pedido.situacao}
                       </span>
-                    </TableCell>
-                    <TableCell>{new Date(pedido.created_at).toLocaleString("pt-BR")}</TableCell>
-                    <TableCell>
+                      </TableCell>
+                      <TableCell>{new Date(pedido.created_at).toLocaleString("pt-BR")}</TableCell>
+                      <TableCell>
                       <div className="flex gap-2">
                         <Dialog open={isDialogOpen && selectedPedidoSup?.id === pedido.pedido_material_id} onOpenChange={(open) => {
                           setIsDialogOpen(open);
@@ -219,20 +230,34 @@ export default function CiaTrp() {
                                 <Label>Materiais</Label>
                                 <ul className="list-disc list-inside mt-2 space-y-1">
                                   {selectedPedidoSup?.materiais.map((m, i) => (
-                                    <li key={i}>{m.material} - Qtd: {m.quantidade}</li>
+                                    <li key={i}>{m.material} (Classe {m.classe}) - Qtd: {m.quantidade}</li>
                                   ))}
                                 </ul>
                               </div>
+                              <div className="grid grid-cols-3 gap-4">
+                                <div>
+                                  <Label>Destino</Label>
+                                  <p className="mt-1">{selectedPedidoSup?.destino}</p>
+                                </div>
+                                <div>
+                                  <Label>Coordenada</Label>
+                                  <p className="mt-1">{selectedPedidoSup?.coordenada || "-"}</p>
+                                </div>
+                                <div>
+                                  <Label>Distância</Label>
+                                  <p className="mt-1">{selectedPedidoSup?.distancia ? `${selectedPedidoSup.distancia} km` : "-"}</p>
+                                </div>
+                              </div>
                               <div>
-                                <Label>Destino</Label>
-                                <p className="mt-1">{selectedPedidoSup?.destino}</p>
+                                <Label>Data/Hora Necessidade</Label>
+                                <p className="mt-1">{selectedPedidoSup?.data_hora_necessidade ? new Date(selectedPedidoSup.data_hora_necessidade).toLocaleString("pt-BR") : "-"}</p>
                               </div>
                               <div>
                                 <Label>Situação Atual</Label>
                                 <p className="mt-1">{selectedPedidoSup?.situacao}</p>
                               </div>
                               <div>
-                                <Label>Data e Hora</Label>
+                                <Label>Data e Hora de Criação</Label>
                                 <p className="mt-1">{selectedPedidoSup && new Date(selectedPedidoSup.data_hora).toLocaleString("pt-BR")}</p>
                               </div>
                             </div>
@@ -258,9 +283,10 @@ export default function CiaTrp() {
                           Cancelar
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>

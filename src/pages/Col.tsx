@@ -15,6 +15,7 @@ import { RefreshButton } from "@/components/RefreshButton";
 interface Material {
   material: string;
   quantidade: number;
+  classe: string;
 }
 
 interface PedidoSup {
@@ -22,7 +23,10 @@ interface PedidoSup {
   numero_pedido: number;
   materiais: Material[];
   destino: string;
+  coordenada: string;
+  distancia: number;
   data_hora: string;
+  data_hora_necessidade: string;
   situacao: string;
   created_by: string;
 }
@@ -42,8 +46,11 @@ const COLORS = [
 
 export default function Col() {
   const [pedidos, setPedidos] = useState<PedidoSup[]>([]);
-  const [materiais, setMateriais] = useState<Material[]>([{ material: "", quantidade: 1 }]);
+  const [materiais, setMateriais] = useState<Material[]>([{ material: "", quantidade: 1, classe: "" }]);
   const [destino, setDestino] = useState("");
+  const [coordenada, setCoordenada] = useState("");
+  const [distancia, setDistancia] = useState("");
+  const [dataHoraNecessidade, setDataHoraNecessidade] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState<PedidoSup | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -83,7 +90,7 @@ export default function Col() {
   };
 
   const addMaterial = () => {
-    setMateriais([...materiais, { material: "", quantidade: 1 }]);
+    setMateriais([...materiais, { material: "", quantidade: 1, classe: "" }]);
   };
 
   const removeMaterial = (index: number) => {
@@ -100,10 +107,10 @@ export default function Col() {
     e.preventDefault();
     setLoading(true);
 
-    const validMateriais = materiais.filter(m => m.material.trim() !== "");
+    const validMateriais = materiais.filter(m => m.material.trim() !== "" && m.classe !== "");
     
     if (validMateriais.length === 0) {
-      toast.error("Adicione pelo menos um material");
+      toast.error("Adicione pelo menos um material com classe");
       setLoading(false);
       return;
     }
@@ -114,11 +121,20 @@ export default function Col() {
       return;
     }
 
+    if (!dataHoraNecessidade) {
+      toast.error("Preencha a data e hora da necessidade");
+      setLoading(false);
+      return;
+    }
+
     const { data: userData } = await supabase.auth.getUser();
 
     const { error } = await supabase.from("col_pedidos_sup").insert({
       materiais: JSON.parse(JSON.stringify(validMateriais)),
       destino,
+      coordenada: coordenada || null,
+      distancia: distancia ? parseFloat(distancia) : null,
+      data_hora_necessidade: dataHoraNecessidade,
       created_by: userData?.user?.id,
     });
 
@@ -129,8 +145,11 @@ export default function Col() {
     }
 
     toast.success("Pedido criado com sucesso!");
-    setMateriais([{ material: "", quantidade: 1 }]);
+    setMateriais([{ material: "", quantidade: 1, classe: "" }]);
     setDestino("");
+    setCoordenada("");
+    setDistancia("");
+    setDataHoraNecessidade("");
     setLoading(false);
     fetchPedidos();
   };
@@ -245,6 +264,23 @@ export default function Col() {
                     onChange={(e) => updateMaterial(index, "material", e.target.value)}
                     className="flex-1"
                   />
+                  <select
+                    value={m.classe}
+                    onChange={(e) => updateMaterial(index, "classe", e.target.value)}
+                    className="w-20 px-2 border border-input bg-background rounded-md"
+                  >
+                    <option value="">Classe</option>
+                    <option value="I">I</option>
+                    <option value="II">II</option>
+                    <option value="III">III</option>
+                    <option value="IV">IV</option>
+                    <option value="V">V</option>
+                    <option value="VI">VI</option>
+                    <option value="VII">VII</option>
+                    <option value="VIII">VIII</option>
+                    <option value="IX">IX</option>
+                    <option value="X">X</option>
+                  </select>
                   <Input
                     type="number"
                     placeholder="Qtd"
@@ -266,13 +302,45 @@ export default function Col() {
               </Button>
             </div>
 
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="destino">Destino*</Label>
+                <Input
+                  id="destino"
+                  value={destino}
+                  onChange={(e) => setDestino(e.target.value)}
+                  placeholder="Local/fração/unidade"
+                />
+              </div>
+              <div>
+                <Label htmlFor="coordenada">Coordenada</Label>
+                <Input
+                  id="coordenada"
+                  value={coordenada}
+                  onChange={(e) => setCoordenada(e.target.value)}
+                  placeholder="Ex: -15.7939, -47.8828"
+                />
+              </div>
+              <div>
+                <Label htmlFor="distancia">Distância (km)</Label>
+                <Input
+                  id="distancia"
+                  type="number"
+                  value={distancia}
+                  onChange={(e) => setDistancia(e.target.value)}
+                  placeholder="Ex: 50"
+                  step="0.1"
+                />
+              </div>
+            </div>
+
             <div>
-              <Label htmlFor="destino">Destino</Label>
+              <Label htmlFor="dataHoraNecessidade">Data e Hora da Necessidade*</Label>
               <Input
-                id="destino"
-                value={destino}
-                onChange={(e) => setDestino(e.target.value)}
-                placeholder="Local/fração/unidade"
+                id="dataHoraNecessidade"
+                type="datetime-local"
+                value={dataHoraNecessidade}
+                onChange={(e) => setDataHoraNecessidade(e.target.value)}
               />
             </div>
 
@@ -293,7 +361,7 @@ export default function Col() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nº Pedido</TableHead>
-                <TableHead>Data/Hora</TableHead>
+                <TableHead>Necessidade</TableHead>
                 <TableHead>Destino</TableHead>
                 <TableHead>Materiais</TableHead>
                 <TableHead>Situação</TableHead>
@@ -304,7 +372,7 @@ export default function Col() {
               {pedidos.map((pedido) => (
                 <TableRow key={pedido.id}>
                   <TableCell>{pedido.numero_pedido}</TableCell>
-                  <TableCell>{new Date(pedido.data_hora).toLocaleString("pt-BR")}</TableCell>
+                  <TableCell>{pedido.data_hora_necessidade ? new Date(pedido.data_hora_necessidade).toLocaleString("pt-BR") : "-"}</TableCell>
                   <TableCell>{pedido.destino}</TableCell>
                   <TableCell>{pedido.materiais.length} item(ns)</TableCell>
                   <TableCell>
@@ -340,20 +408,34 @@ export default function Col() {
                               <Label>Materiais</Label>
                               <ul className="list-disc list-inside mt-2 space-y-1">
                                 {selectedPedido?.materiais.map((m, i) => (
-                                  <li key={i}>{m.material} - Qtd: {m.quantidade}</li>
+                                  <li key={i}>{m.material} (Classe {m.classe}) - Qtd: {m.quantidade}</li>
                                 ))}
                               </ul>
                             </div>
+                            <div className="grid grid-cols-3 gap-4">
+                              <div>
+                                <Label>Destino</Label>
+                                <p className="mt-1">{selectedPedido?.destino}</p>
+                              </div>
+                              <div>
+                                <Label>Coordenada</Label>
+                                <p className="mt-1">{selectedPedido?.coordenada || "-"}</p>
+                              </div>
+                              <div>
+                                <Label>Distância</Label>
+                                <p className="mt-1">{selectedPedido?.distancia ? `${selectedPedido.distancia} km` : "-"}</p>
+                              </div>
+                            </div>
                             <div>
-                              <Label>Destino</Label>
-                              <p className="mt-1">{selectedPedido?.destino}</p>
+                              <Label>Data e Hora da Necessidade</Label>
+                              <p className="mt-1">{selectedPedido?.data_hora_necessidade ? new Date(selectedPedido.data_hora_necessidade).toLocaleString("pt-BR") : "-"}</p>
                             </div>
                             <div>
                               <Label>Situação Atual</Label>
                               <p className="mt-1">{selectedPedido?.situacao}</p>
                             </div>
                             <div>
-                              <Label>Data e Hora</Label>
+                              <Label>Data e Hora de Criação</Label>
                               <p className="mt-1">{selectedPedido && new Date(selectedPedido.data_hora).toLocaleString("pt-BR")}</p>
                             </div>
                           </div>

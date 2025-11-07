@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       cia_sup_pedidos_transporte: {
         Row: {
+          chefe_viatura: string | null
           created_at: string
           created_by: string | null
           destino: string
@@ -27,6 +28,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          chefe_viatura?: string | null
           created_at?: string
           created_by?: string | null
           destino: string
@@ -38,6 +40,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          chefe_viatura?: string | null
           created_at?: string
           created_by?: string | null
           destino?: string
@@ -60,10 +63,13 @@ export type Database = {
       }
       col_pedidos_sup: {
         Row: {
+          coordenada: string | null
           created_at: string
           created_by: string | null
           data_hora: string
+          data_hora_necessidade: string | null
           destino: string
+          distancia: number | null
           id: string
           materiais: Json
           numero_pedido: number
@@ -71,10 +77,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          coordenada?: string | null
           created_at?: string
           created_by?: string | null
           data_hora?: string
+          data_hora_necessidade?: string | null
           destino: string
+          distancia?: number | null
           id?: string
           materiais: Json
           numero_pedido?: number
@@ -82,10 +91,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          coordenada?: string | null
           created_at?: string
           created_by?: string | null
           data_hora?: string
+          data_hora_necessidade?: string | null
           destino?: string
+          distancia?: number | null
           id?: string
           materiais?: Json
           numero_pedido?: number
