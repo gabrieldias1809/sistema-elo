@@ -51,6 +51,13 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 220 15% 25%;
     --sidebar-ring: 206 76% 58%;
+    
+    /* Chart colors */
+    --chart-1: 206 76% 58%;
+    --chart-2: 142 76% 45%;
+    --chart-3: 30 90% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 

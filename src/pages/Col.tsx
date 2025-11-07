@@ -32,16 +32,16 @@ interface PedidoSup {
 }
 
 const COLORS = [
-  "hsl(var(--chart-1))", 
-  "hsl(var(--chart-2))", 
-  "hsl(var(--chart-3))", 
-  "hsl(var(--chart-4))", 
-  "hsl(var(--chart-5))",
-  "hsl(220, 70%, 50%)",  // Azul
+  "hsl(206, 76%, 58%)",  // Azul primário
+  "hsl(142, 76%, 45%)",  // Verde
+  "hsl(30, 90%, 55%)",   // Laranja
+  "hsl(280, 65%, 60%)",  // Roxo
   "hsl(340, 75%, 55%)",  // Rosa
-  "hsl(160, 60%, 45%)",  // Verde água
-  "hsl(30, 80%, 55%)",   // Laranja
-  "hsl(280, 65%, 60%)"   // Roxo
+  "hsl(180, 70%, 50%)",  // Ciano
+  "hsl(45, 80%, 60%)",   // Amarelo
+  "hsl(0, 70%, 55%)",    // Vermelho
+  "hsl(260, 60%, 55%)",  // Roxo claro
+  "hsl(100, 60%, 50%)"   // Verde lima
 ];
 
 export default function Col() {
