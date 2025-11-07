@@ -205,19 +205,12 @@ export default function Col() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={getMateriaisChart()} margin={{ bottom: 60 }}>
+              <BarChart data={getMateriaisChart()}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="material" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={80}
-                  interval={0}
-                />
+                <XAxis dataKey="material" hide />
                 <YAxis />
                 <Tooltip />
-                <Legend />
-                <Bar dataKey="quantidade">
+                <Bar dataKey="quantidade" radius={[8, 8, 0, 0]}>
                   {getMateriaisChart().map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
@@ -238,9 +231,7 @@ export default function Col() {
                   data={getDestinosChart()}
                   cx="50%"
                   cy="50%"
-                  labelLine={true}
-                  label={(entry) => `${entry.destino} (${entry.value})`}
-                  outerRadius={90}
+                  outerRadius={100}
                   fill="hsl(var(--primary))"
                   dataKey="value"
                   nameKey="destino"
@@ -250,7 +241,6 @@ export default function Col() {
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
