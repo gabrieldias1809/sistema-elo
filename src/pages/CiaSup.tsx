@@ -138,6 +138,14 @@ export default function CiaSup() {
       return;
     }
 
+    // Validar se o pedido está em situação adequada
+    const pedidoSelecionado = pedidosSup.find(p => p.id === selectedPedidoMaterial);
+    if (!pedidoSelecionado || (pedidoSelecionado.situacao !== "Loteando" && pedidoSelecionado.situacao !== "PPE")) {
+      toast.error("Só é possível criar pedido de transporte para pedidos com situação 'Loteando' ou 'PPE'");
+      setLoading(false);
+      return;
+    }
+
     const { data: userData } = await supabase.auth.getUser();
 
     const { error } = await supabase.from("cia_sup_pedidos_transporte").insert({
@@ -381,9 +389,9 @@ export default function CiaSup() {
                           <SelectValue placeholder="Selecione um pedido" />
                         </SelectTrigger>
                         <SelectContent>
-                          {pedidosSup.filter(p => p.situacao === "Loteando" || p.situacao === "PPE" || p.situacao === "Embarcado").map((pedido) => (
+                          {pedidosSup.filter(p => p.situacao === "Loteando" || p.situacao === "PPE").map((pedido) => (
                             <SelectItem key={pedido.id} value={pedido.id}>
-                              #{pedido.numero_pedido} - {pedido.destino}
+                              #{pedido.numero_pedido} - {pedido.destino} - {pedido.situacao}
                             </SelectItem>
                           ))}
                         </SelectContent>
