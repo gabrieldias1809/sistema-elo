@@ -14,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { RefreshButton } from "@/components/RefreshButton";
 
+// Componente Cia Sup para gerenciar pedidos de suprimento
+
 interface Material {
   material: string;
   quantidade: number;
@@ -486,20 +488,34 @@ export default function CiaSup() {
                                   <Label>Materiais</Label>
                                   <ul className="list-disc list-inside mt-2 space-y-1">
                                     {selectedPedidoSup?.materiais.map((m, i) => (
-                                      <li key={i}>{m.material} - Qtd: {m.quantidade}</li>
+                                      <li key={i}>{m.material} (Classe {m.classe}) - Qtd: {m.quantidade}</li>
                                     ))}
                                   </ul>
                                 </div>
+                                <div className="grid grid-cols-3 gap-4">
+                                  <div>
+                                    <Label>Destino</Label>
+                                    <p className="mt-1">{selectedPedidoSup?.destino}</p>
+                                  </div>
+                                  <div>
+                                    <Label>Coordenada</Label>
+                                    <p className="mt-1">{selectedPedidoSup?.coordenada || "-"}</p>
+                                  </div>
+                                  <div>
+                                    <Label>Distância</Label>
+                                    <p className="mt-1">{selectedPedidoSup?.distancia ? `${selectedPedidoSup.distancia} km` : "-"}</p>
+                                  </div>
+                                </div>
                                 <div>
-                                  <Label>Destino</Label>
-                                  <p className="mt-1">{selectedPedidoSup?.destino}</p>
+                                  <Label>Data/Hora Necessidade</Label>
+                                  <p className="mt-1">{selectedPedidoSup?.data_hora_necessidade ? new Date(selectedPedidoSup.data_hora_necessidade).toLocaleString("pt-BR") : "-"}</p>
                                 </div>
                                 <div>
                                   <Label>Situação Atual</Label>
                                   <p className="mt-1">{selectedPedidoSup?.situacao}</p>
                                 </div>
                                 <div>
-                                  <Label>Data e Hora</Label>
+                                  <Label>Data e Hora de Criação</Label>
                                   <p className="mt-1">{selectedPedidoSup && new Date(selectedPedidoSup.data_hora).toLocaleString("pt-BR")}</p>
                                 </div>
                               </div>
