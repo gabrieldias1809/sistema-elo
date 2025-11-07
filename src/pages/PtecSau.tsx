@@ -164,15 +164,35 @@ const PtecSau = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Separar data e hora do timestamp
+    let dataFormatted = formData.data;
+    let horaFormatted = "";
+    
+    if (formData.data) {
+      const dt = new Date(formData.data);
+      dataFormatted = dt.toISOString().split('T')[0]; // Extrai apenas a data (YYYY-MM-DD)
+      horaFormatted = dt.toTimeString().split(' ')[0]; // Extrai apenas a hora (HH:MM:SS)
+    }
+
     const { error } = await supabase.from("ptec_sau_pms").insert([
       {
-        ...formData,
+        om_responsavel: formData.om_responsavel,
+        numero_pms: formData.numero_pms,
+        tipo_pm: formData.tipo_pm,
+        atividade: formData.atividade,
+        data: dataFormatted,
+        hora: horaFormatted,
+        fracao: formData.fracao,
+        descricao: formData.descricao,
+        conduta_esperada: formData.conduta_esperada,
+        observacoes: formData.observacoes,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       },
     ]);
 
     if (error) {
       toast.error("Erro ao criar PM");
+      console.error("Erro ao criar PM:", error);
       return;
     }
 
