@@ -148,6 +148,9 @@ export default function Col() {
       return;
     }
 
+    // Converter datetime-local para fuso horário de Brasília (UTC-3)
+    const dataHoraComFuso = dataHoraNecessidade + ":00-03:00";
+
     const { data: userData } = await supabase.auth.getUser();
 
     const { error } = await supabase.from("col_pedidos_sup").insert({
@@ -155,7 +158,7 @@ export default function Col() {
       destino,
       coordenada: coordenada || null,
       distancia: distancia ? parseFloat(distancia) : null,
-      data_hora_necessidade: dataHoraNecessidade,
+      data_hora_necessidade: dataHoraComFuso,
       observacoes: observacoes || null,
       created_by: userData?.user?.id,
     });
@@ -197,7 +200,20 @@ export default function Col() {
     setDestino(pedido.destino);
     setCoordenada(pedido.coordenada || "");
     setDistancia(pedido.distancia?.toString() || "");
-    setDataHoraNecessidade(pedido.data_hora_necessidade || "");
+    
+    // Converter data do banco (com fuso) para datetime-local (sem fuso)
+    let dataHoraFormatted = "";
+    if (pedido.data_hora_necessidade) {
+      const date = new Date(pedido.data_hora_necessidade);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      dataHoraFormatted = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+    
+    setDataHoraNecessidade(dataHoraFormatted);
     setObservacoes(pedido.observacoes || "");
     setIsEditDialogOpen(true);
   };
@@ -228,6 +244,11 @@ export default function Col() {
       return;
     }
 
+    // Converter datetime-local para fuso horário de Brasília (UTC-3)
+    const dataHoraComFuso = dataHoraNecessidade.includes('-03:00') 
+      ? dataHoraNecessidade 
+      : dataHoraNecessidade + ":00-03:00";
+
     const { error } = await supabase
       .from("col_pedidos_sup")
       .update({
@@ -235,7 +256,7 @@ export default function Col() {
         destino,
         coordenada: coordenada || null,
         distancia: distancia ? parseFloat(distancia) : null,
-        data_hora_necessidade: dataHoraNecessidade,
+        data_hora_necessidade: dataHoraComFuso,
         observacoes: observacoes || null,
       })
       .eq("id", editingPedido.id);
