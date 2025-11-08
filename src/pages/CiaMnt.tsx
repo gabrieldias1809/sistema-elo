@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getNextCentralizedOSNumber } from "@/hooks/useCentralizedOSNumber";
 import { ConsolidatedOSTable } from "@/components/cia-mnt/ConsolidatedOSTable";
 import { PTECOSTable } from "@/components/cia-mnt/PTECOSTable";
+import { PColSlvTable } from "@/components/cia-mnt/PColSlvTable";
 
 const CiaMnt = () => {
   const [open, setOpen] = useState(false);
@@ -371,7 +372,7 @@ const CiaMnt = () => {
         </Dialog>
 
       <Tabs defaultValue="consolidado" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="consolidado">
             <i className="ri-dashboard-line mr-2"></i>
             Consolidado
@@ -396,6 +397,10 @@ const CiaMnt = () => {
             <i className="ri-gun-line mr-2"></i>
             Ptec Armto
           </TabsTrigger>
+          <TabsTrigger value="p-col-slv">
+            <i className="ri-life-buoy-line mr-2"></i>
+            P Col Slv
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="consolidado">
           <ConsolidatedOSTable />
@@ -414,6 +419,9 @@ const CiaMnt = () => {
         </TabsContent>
         <TabsContent value="armto">
           <PTECOSTable ptecOrigem="armto" onCreateOS={() => handleOpenDialog("armto")} />
+        </TabsContent>
+        <TabsContent value="p-col-slv">
+          <PColSlvTable />
         </TabsContent>
       </Tabs>
     </div>

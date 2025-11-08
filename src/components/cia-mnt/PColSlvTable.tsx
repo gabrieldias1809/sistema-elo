@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Table,
@@ -19,15 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Eye, Pencil, Trash2, Printer } from "lucide-react";
+import { Eye, Pencil, Trash2, Printer } from "lucide-react";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import jsPDF from "jspdf";
 
@@ -45,7 +37,7 @@ interface Registro {
   created_at: string;
 }
 
-export default function PColSlv() {
+export function PColSlvTable() {
   const [registros, setRegistros] = useState<Registro[]>([]);
   const [open, setOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
@@ -253,151 +245,16 @@ export default function PColSlv() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">P Col Slv - Registros de Salvamento</h1>
+          <h2 className="text-2xl font-bold text-foreground">P Col Slv - Registros de Salvamento</h2>
           <p className="text-muted-foreground">Gerenciamento de registros de salvamento</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => handleOpenDialog()} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Novo Registro
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {isEditing ? "Editar Registro" : "Novo Registro de Salvamento"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="numero_registro">Nº Registro *</Label>
-                  <Input
-                    id="numero_registro"
-                    value={formData.numero_registro}
-                    disabled
-                    className="bg-muted"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="viatura">Viatura *</Label>
-                  <Input
-                    id="viatura"
-                    value={formData.viatura}
-                    onChange={(e) =>
-                      setFormData({ ...formData, viatura: e.target.value })
-                    }
-                    placeholder="Nome da viatura salvada"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="situacao_problema">Situação Problema *</Label>
-                <Textarea
-                  id="situacao_problema"
-                  value={formData.situacao_problema}
-                  onChange={(e) =>
-                    setFormData({ ...formData, situacao_problema: e.target.value })
-                  }
-                  placeholder="Descreva a situação problema"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="origem">Origem *</Label>
-                  <Input
-                    id="origem"
-                    value={formData.origem}
-                    onChange={(e) =>
-                      setFormData({ ...formData, origem: e.target.value })
-                    }
-                    placeholder="Origem da solicitação"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="militares_necessarios">Militares Necessários</Label>
-                  <Input
-                    id="militares_necessarios"
-                    value={formData.militares_necessarios}
-                    onChange={(e) =>
-                      setFormData({ ...formData, militares_necessarios: e.target.value })
-                    }
-                    placeholder="Quantidade ou nomes"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="material_empregado">Material Empregado</Label>
-                <Textarea
-                  id="material_empregado"
-                  value={formData.material_empregado}
-                  onChange={(e) =>
-                    setFormData({ ...formData, material_empregado: e.target.value })
-                  }
-                  placeholder="Descreva o material empregado"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Data/Hora Início</Label>
-                  <DateTimePicker
-                    value={formData.data_hora_inicio}
-                    onChange={(value) =>
-                      setFormData({
-                        ...formData,
-                        data_hora_inicio: value,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Data/Hora Fim</Label>
-                  <DateTimePicker
-                    value={formData.data_hora_fim}
-                    onChange={(value) =>
-                      setFormData({
-                        ...formData,
-                        data_hora_fim: value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="observacoes">Observações</Label>
-                <Textarea
-                  id="observacoes"
-                  value={formData.observacoes}
-                  onChange={(e) =>
-                    setFormData({ ...formData, observacoes: e.target.value })
-                  }
-                  placeholder="Observações adicionais"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  {isEditing ? "Atualizar" : "Criar"} Registro
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => handleOpenDialog()} className="gap-2">
+          <i className="ri-add-line"></i>
+          Novo Registro
+        </Button>
       </div>
 
       <div className="bg-card rounded-lg border">
@@ -464,6 +321,140 @@ export default function PColSlv() {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {isEditing ? "Editar Registro" : "Novo Registro de Salvamento"}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="numero_registro">Nº Registro *</Label>
+                <Input
+                  id="numero_registro"
+                  value={formData.numero_registro}
+                  disabled
+                  className="bg-muted"
+                />
+              </div>
+              <div>
+                <Label htmlFor="viatura">Viatura *</Label>
+                <Input
+                  id="viatura"
+                  value={formData.viatura}
+                  onChange={(e) =>
+                    setFormData({ ...formData, viatura: e.target.value })
+                  }
+                  placeholder="Nome da viatura salvada"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="situacao_problema">Situação Problema *</Label>
+              <Textarea
+                id="situacao_problema"
+                value={formData.situacao_problema}
+                onChange={(e) =>
+                  setFormData({ ...formData, situacao_problema: e.target.value })
+                }
+                placeholder="Descreva a situação problema"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="origem">Origem *</Label>
+                <Input
+                  id="origem"
+                  value={formData.origem}
+                  onChange={(e) =>
+                    setFormData({ ...formData, origem: e.target.value })
+                  }
+                  placeholder="Origem da solicitação"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="militares_necessarios">Militares Necessários</Label>
+                <Input
+                  id="militares_necessarios"
+                  value={formData.militares_necessarios}
+                  onChange={(e) =>
+                    setFormData({ ...formData, militares_necessarios: e.target.value })
+                  }
+                  placeholder="Quantidade ou nomes"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="material_empregado">Material Empregado</Label>
+              <Textarea
+                id="material_empregado"
+                value={formData.material_empregado}
+                onChange={(e) =>
+                  setFormData({ ...formData, material_empregado: e.target.value })
+                }
+                placeholder="Descreva o material empregado"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Data/Hora Início</Label>
+                <DateTimePicker
+                  value={formData.data_hora_inicio}
+                  onChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      data_hora_inicio: value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <Label>Data/Hora Fim</Label>
+                <DateTimePicker
+                  value={formData.data_hora_fim}
+                  onChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      data_hora_fim: value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="observacoes">Observações</Label>
+              <Textarea
+                id="observacoes"
+                value={formData.observacoes}
+                onChange={(e) =>
+                  setFormData({ ...formData, observacoes: e.target.value })
+                }
+                placeholder="Observações adicionais"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit">
+                {isEditing ? "Atualizar" : "Criar"} Registro
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="max-w-2xl">
