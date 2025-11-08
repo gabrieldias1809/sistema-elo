@@ -77,7 +77,7 @@ const CiaMnt = () => {
                 Selecionar PTEC
               </Label>
               <Select value={selectedPtec} onValueChange={setSelectedPtec}>
-                <SelectTrigger className="bg-white">
+                <SelectTrigger className="bg-primary/20 backdrop-blur-sm border-primary/30 text-foreground placeholder:text-foreground/80 hover:bg-primary/30 transition-colors">
                   <SelectValue placeholder="Escolha o Pelotão Técnico" />
                 </SelectTrigger>
                 <SelectContent>
