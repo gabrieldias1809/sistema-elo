@@ -20,6 +20,7 @@ const Layout = () => {
   const allNavItems = [
     { title: "Dashboard", url: "/", icon: "ri-dashboard-line", role: null },
     { title: "Cia Mnt", url: "/cia-mnt", icon: "ri-tools-fill", role: "cia_mnt" as const },
+    { title: "P Col Slv", url: "/p-col-slv", icon: "ri-life-buoy-line", role: "cia_mnt" as const },
     { title: "Oficina Com", url: "/oficina-com", icon: "ri-tools-line", role: "oficina_com" as const },
     { title: "Oficina Auto", url: "/oficina-auto", icon: "ri-tools-line", role: "oficina_auto" as const },
     { title: "Oficina Blind", url: "/oficina-blind", icon: "ri-tools-line", role: "oficina_blind" as const },

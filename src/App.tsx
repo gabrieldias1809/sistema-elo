@@ -21,6 +21,7 @@ import Col from "./pages/Col";
 import CiaSup from "./pages/CiaSup";
 import CiaTrp from "./pages/CiaTrp";
 import CiaMnt from "./pages/CiaMnt";
+import PColSlv from "./pages/PColSlv";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/" element={<Layout />}>
               <Route index element={<Dashboard />} />
               <Route path="cia-mnt" element={<CiaMnt />} />
+              <Route path="p-col-slv" element={<PColSlv />} />
               <Route path="oficina-com" element={<OficinaCom />} />
               <Route path="oficina-auto" element={<OficinaAuto />} />
               <Route path="oficina-blind" element={<OficinaBlind />} />

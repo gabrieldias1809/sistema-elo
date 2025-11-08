@@ -311,6 +311,54 @@ export type Database = {
         }
         Relationships: []
       }
+      p_col_slv_registros: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_hora_fim: string | null
+          data_hora_inicio: string | null
+          id: string
+          material_empregado: string | null
+          militares_necessarios: string | null
+          numero_registro: string
+          observacoes: string | null
+          origem: string
+          situacao_problema: string
+          updated_at: string
+          viatura: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_hora_fim?: string | null
+          data_hora_inicio?: string | null
+          id?: string
+          material_empregado?: string | null
+          militares_necessarios?: string | null
+          numero_registro: string
+          observacoes?: string | null
+          origem: string
+          situacao_problema: string
+          updated_at?: string
+          viatura: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_hora_fim?: string | null
+          data_hora_inicio?: string | null
+          id?: string
+          material_empregado?: string | null
+          militares_necessarios?: string | null
+          numero_registro?: string
+          observacoes?: string | null
+          origem?: string
+          situacao_problema?: string
+          updated_at?: string
+          viatura?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
