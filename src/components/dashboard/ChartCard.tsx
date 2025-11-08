@@ -55,13 +55,13 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
           .slice(0, 8)
           .map(([name, value]) => ({ name, value }));
       } else if (module.id === 'cia_rh') {
-        // Causas mais recorrentes
-        const causaCount: Record<string, number> = {};
+        // Públicos-alvo mais recorrentes (ACISO)
+        const publicoCount: Record<string, number> = {};
         module.data.forEach((item: any) => {
-          const key = item.causa_provavel || 'Não especificado';
-          causaCount[key] = (causaCount[key] || 0) + 1;
+          const key = item.publico_alvo || 'Não especificado';
+          publicoCount[key] = (publicoCount[key] || 0) + 1;
         });
-        return Object.entries(causaCount)
+        return Object.entries(publicoCount)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 6)
           .map(([name, value]) => ({ name, value }));
@@ -135,6 +135,17 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
           gravidadeCount[key] = (gravidadeCount[key] || 0) + 1;
         });
         return Object.entries(gravidadeCount).map(([name, value]) => ({ name, value }));
+      } else if (module.id === 'cia_rh') {
+        // Locais mais recorrentes (ACISO)
+        const localCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.local || 'Não especificado';
+          localCount[key] = (localCount[key] || 0) + 1;
+        });
+        return Object.entries(localCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 6)
+          .map(([name, value]) => ({ name, value }));
       } else if (module.id === 'cia_sup' || module.id === 'col') {
         // Destinos mais recorrentes
         const destinoCount: Record<string, number> = {};
@@ -171,13 +182,14 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
       return 'MEM com Mais Recorrência';
     } else if (chartType === 'bar') {
       if (module.id.includes('ptec_') || module.id.includes('oficina_')) return 'Marcas Mais Recorrentes';
-      if (module.id === 'cia_rh') return 'Causas Mais Recorrentes';
+      if (module.id === 'cia_rh') return 'Públicos-Alvo Mais Recorrentes';
       if (module.id === 'cia_sau') return 'Situação de Militares por Dia';
       if (module.id === 'cia_trp') return 'Destinos Mais Recorrentes';
       if (module.id === 'cia_sup' || module.id === 'col') return 'Materiais Mais Pedidos';
       return 'Por Situação';
     } else {
       if (module.id.includes('ptec_') || module.id.includes('oficina_')) return 'OMs Mais Recorrentes';
+      if (module.id === 'cia_rh') return 'Locais Mais Recorrentes';
       if (module.id === 'cia_sau') return 'Distribuição por Gravidade';
       if (module.id === 'cia_sup' || module.id === 'col') return 'Destinos Mais Recorrentes';
       return 'Por Distribuição';

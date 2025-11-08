@@ -64,12 +64,12 @@ export const useDashboardData = () => {
     enabled: visibleModules.includes("cia_mnt"),
   });
 
-  // Fetch data para CIA modules
+  // Fetch data para CIA modules (ACISO)
   const { data: ciaRhData } = useQuery({
-    queryKey: ["cia_rh_ocorrencias"],
+    queryKey: ["cia_rh_aciso"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("ptec_rh_ocorrencias")
+        .from("ptec_rh_aciso")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(100);
@@ -155,7 +155,7 @@ export const useDashboardData = () => {
       .channel("dashboard_realtime")
       .on("postgres_changes", { event: "*", schema: "public" }, () => {
         queryClient.invalidateQueries({ queryKey: ["cia_mnt_os_centralizadas"] });
-        queryClient.invalidateQueries({ queryKey: ["cia_rh_ocorrencias"] });
+        queryClient.invalidateQueries({ queryKey: ["cia_rh_aciso"] });
         queryClient.invalidateQueries({ queryKey: ["cia_sau_prontuarios"] });
         queryClient.invalidateQueries({ queryKey: ["cia_sau_pms"] });
         queryClient.invalidateQueries({ queryKey: ["cia_trp_transportes"] });
