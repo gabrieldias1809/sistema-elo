@@ -36,6 +36,7 @@ import {
   Legend,
 } from "recharts";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { Eye, Edit, Trash2, FileDown } from "lucide-react";
 import jsPDF from "jspdf";
 
@@ -965,7 +966,7 @@ const PtecSau = () => {
                     <TableCell>
                       <span className="text-xs text-muted-foreground">
                         {item.updated_at 
-                          ? format(new Date(item.updated_at), "dd/MM/yyyy HH:mm")
+                          ? format(toZonedTime(new Date(item.updated_at), "America/Sao_Paulo"), "dd/MM/yyyy HH:mm")
                           : "-"}
                       </span>
                     </TableCell>
@@ -1050,7 +1051,7 @@ const PtecSau = () => {
                     <TableCell>
                       <span className="text-xs text-muted-foreground">
                         {item.updated_at 
-                          ? format(new Date(item.updated_at), "dd/MM/yyyy HH:mm")
+                          ? format(toZonedTime(new Date(item.updated_at), "America/Sao_Paulo"), "dd/MM/yyyy HH:mm")
                           : "-"}
                       </span>
                     </TableCell>
