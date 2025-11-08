@@ -23,8 +23,14 @@ export const DateTimePicker = ({ value, onChange, placeholder = "Selecione data 
     if (selectedDate) {
       const currentTime = timeValue || "00:00";
       const [hours, minutes] = currentTime.split(":");
-      selectedDate.setHours(parseInt(hours), parseInt(minutes));
-      onChange(selectedDate.toISOString());
+      
+      // Criar data em horário de Brasília (UTC-3)
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const dateTimeString = `${year}-${month}-${day}T${hours}:${minutes}:00-03:00`;
+      
+      onChange(dateTimeString);
     }
   };
 
@@ -32,14 +38,21 @@ export const DateTimePicker = ({ value, onChange, placeholder = "Selecione data 
     const time = e.target.value;
     if (date) {
       const [hours, minutes] = time.split(":");
-      const newDate = new Date(date);
-      newDate.setHours(parseInt(hours), parseInt(minutes));
-      onChange(newDate.toISOString());
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateTimeString = `${year}-${month}-${day}T${hours}:${minutes}:00-03:00`;
+      
+      onChange(dateTimeString);
     } else {
       const today = new Date();
       const [hours, minutes] = time.split(":");
-      today.setHours(parseInt(hours), parseInt(minutes));
-      onChange(today.toISOString());
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const dateTimeString = `${year}-${month}-${day}T${hours}:${minutes}:00-03:00`;
+      
+      onChange(dateTimeString);
     }
   };
 

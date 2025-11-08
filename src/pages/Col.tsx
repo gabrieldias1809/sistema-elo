@@ -73,6 +73,8 @@ export default function Col() {
   const [loading, setLoading] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState<PedidoSup | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingPedido, setEditingPedido] = useState<PedidoSup | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
@@ -176,6 +178,8 @@ export default function Col() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir este pedido?")) return;
+    
     const { error } = await supabase.from("col_pedidos_sup").delete().eq("id", id);
 
     if (error) {
@@ -184,6 +188,74 @@ export default function Col() {
     }
 
     toast.success("Pedido excluído!");
+    fetchPedidos();
+  };
+
+  const handleEdit = (pedido: PedidoSup) => {
+    setEditingPedido(pedido);
+    setMateriais(pedido.materiais);
+    setDestino(pedido.destino);
+    setCoordenada(pedido.coordenada || "");
+    setDistancia(pedido.distancia?.toString() || "");
+    setDataHoraNecessidade(pedido.data_hora_necessidade || "");
+    setObservacoes(pedido.observacoes || "");
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPedido) return;
+    
+    setLoading(true);
+
+    const validMateriais = materiais.filter((m) => m.material.trim() !== "" && m.classe !== "");
+
+    if (validMateriais.length === 0) {
+      toast.error("Adicione pelo menos um material com classe");
+      setLoading(false);
+      return;
+    }
+
+    if (!destino.trim()) {
+      toast.error("Preencha o destino");
+      setLoading(false);
+      return;
+    }
+
+    if (!dataHoraNecessidade) {
+      toast.error("Preencha a data e hora da necessidade");
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase
+      .from("col_pedidos_sup")
+      .update({
+        materiais: JSON.parse(JSON.stringify(validMateriais)),
+        destino,
+        coordenada: coordenada || null,
+        distancia: distancia ? parseFloat(distancia) : null,
+        data_hora_necessidade: dataHoraNecessidade,
+        observacoes: observacoes || null,
+      })
+      .eq("id", editingPedido.id);
+
+    if (error) {
+      toast.error("Erro ao atualizar pedido");
+      setLoading(false);
+      return;
+    }
+
+    toast.success("Pedido atualizado com sucesso!");
+    setMateriais([{ material: "", quantidade: 1, classe: "", unidade_medida: "" }]);
+    setDestino("");
+    setCoordenada("");
+    setDistancia("");
+    setDataHoraNecessidade("");
+    setObservacoes("");
+    setEditingPedido(null);
+    setIsEditDialogOpen(false);
+    setLoading(false);
     fetchPedidos();
   };
 
@@ -533,6 +605,13 @@ export default function Col() {
                           </div>
                         </DialogContent>
                       </Dialog>
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={() => handleEdit(pedido)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                       <Button variant="destructive" size="icon" onClick={() => handleDelete(pedido.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -544,6 +623,150 @@ export default function Col() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Dialog de Edição */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Pedido #{editingPedido?.numero_pedido}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleUpdate} className="space-y-4">
+            <div className="space-y-3">
+              <Label>Materiais</Label>
+              {materiais.map((m, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    placeholder="Material"
+                    value={m.material}
+                    onChange={(e) => updateMaterial(index, "material", e.target.value)}
+                    className="flex-1"
+                  />
+                  <select
+                    value={m.classe}
+                    onChange={(e) => updateMaterial(index, "classe", e.target.value)}
+                    className="w-20 px-2 border border-input bg-background rounded-md text-sm"
+                  >
+                    <option value="">Classe</option>
+                    <option value="I">I</option>
+                    <option value="II">II</option>
+                    <option value="III">III</option>
+                    <option value="IV">IV</option>
+                    <option value="V">V</option>
+                    <option value="VI">VI</option>
+                    <option value="VII">VII</option>
+                    <option value="VIII">VIII</option>
+                    <option value="IX">IX</option>
+                    <option value="X">X</option>
+                  </select>
+                  <Input
+                    type="number"
+                    placeholder="Qtd"
+                    value={m.quantidade}
+                    onChange={(e) => updateMaterial(index, "quantidade", parseInt(e.target.value) || 0)}
+                    className="w-24"
+                    min="1"
+                  />
+                  <select
+                    value={m.unidade_medida}
+                    onChange={(e) => updateMaterial(index, "unidade_medida", e.target.value)}
+                    className="w-24 px-2 border border-input bg-background rounded-md text-sm"
+                  >
+                    <option value="">Unidade</option>
+                    <option value="U">U</option>
+                    <option value="kg">kg</option>
+                    <option value="L">L</option>
+                    <option value="m">m</option>
+                  </select>
+                  {materiais.length > 1 && (
+                    <Button type="button" variant="destructive" size="icon" onClick={() => removeMaterial(index)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={addMaterial} className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Material
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="edit_destino">Destino*</Label>
+                <Input
+                  id="edit_destino"
+                  value={destino}
+                  onChange={(e) => setDestino(e.target.value)}
+                  placeholder="Local/fração/unidade"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit_coordenada">Coordenada</Label>
+                <Input
+                  id="edit_coordenada"
+                  value={coordenada}
+                  onChange={(e) => setCoordenada(e.target.value)}
+                  placeholder="Ex: -15.7939, -47.8828"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit_distancia">Distância (km)</Label>
+                <Input
+                  id="edit_distancia"
+                  type="number"
+                  value={distancia}
+                  onChange={(e) => setDistancia(e.target.value)}
+                  placeholder="Ex: 50"
+                  step="0.1"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit_dataHoraNecessidade">Data e Hora da Necessidade*</Label>
+              <Input
+                id="edit_dataHoraNecessidade"
+                type="datetime-local"
+                value={dataHoraNecessidade}
+                onChange={(e) => setDataHoraNecessidade(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit_observacoes">Observações</Label>
+              <Textarea
+                id="edit_observacoes"
+                value={observacoes}
+                onChange={(e) => setObservacoes(e.target.value)}
+                placeholder="Digite observações adicionais sobre o pedido"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  setIsEditDialogOpen(false);
+                  setEditingPedido(null);
+                  setMateriais([{ material: "", quantidade: 1, classe: "", unidade_medida: "" }]);
+                  setDestino("");
+                  setCoordenada("");
+                  setDistancia("");
+                  setDataHoraNecessidade("");
+                  setObservacoes("");
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Atualizando..." : "Atualizar Pedido"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <RefreshButton onClick={fetchPedidos} isLoading={isRefreshing} />
     </div>
