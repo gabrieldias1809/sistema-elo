@@ -21,6 +21,7 @@ export const PedidoMaterialForm = ({ osOptions, ptecOrigem, oficinaDestino, onSu
     os_id: "",
     classe_material: "",
     quantidade: "1",
+    oficina_destino: oficinaDestino || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,10 +29,12 @@ export const PedidoMaterialForm = ({ osOptions, ptecOrigem, oficinaDestino, onSu
 
     const { error } = await supabase.from("ptec_pedidos_material").insert([
       {
-        ...formData,
+        material: formData.material,
+        os_id: formData.os_id,
+        classe_material: formData.classe_material,
         quantidade: parseFloat(formData.quantidade),
         ptec_origem: ptecOrigem,
-        oficina_destino: oficinaDestino,
+        oficina_destino: formData.oficina_destino || oficinaDestino,
         status: "Solicitado",
         created_by: (await supabase.auth.getUser()).data.user?.id,
       },
@@ -44,7 +47,7 @@ export const PedidoMaterialForm = ({ osOptions, ptecOrigem, oficinaDestino, onSu
 
     toast.success("Pedido criado com sucesso!");
     setOpen(false);
-    setFormData({ material: "", os_id: "", classe_material: "", quantidade: "1" });
+    setFormData({ material: "", os_id: "", classe_material: "", quantidade: "1", oficina_destino: oficinaDestino || "" });
     onSuccess?.();
   };
 
@@ -122,6 +125,27 @@ export const PedidoMaterialForm = ({ osOptions, ptecOrigem, oficinaDestino, onSu
               required
             />
           </div>
+          {!oficinaDestino && (
+            <div>
+              <Label>Oficina Destino</Label>
+              <Select
+                value={formData.oficina_destino}
+                onValueChange={(value) => setFormData({ ...formData, oficina_destino: value })}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a oficina" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="com">COM</SelectItem>
+                  <SelectItem value="auto">AUTO</SelectItem>
+                  <SelectItem value="blind">BLIND</SelectItem>
+                  <SelectItem value="op">OP</SelectItem>
+                  <SelectItem value="armto">ARMTO</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <Button type="submit" className="w-full gradient-primary text-white">
             Criar Pedido
           </Button>

@@ -6,6 +6,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
 
 interface PTECOSTableProps {
   ptecOrigem: string;
@@ -44,6 +51,12 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
   const [pedidos, setPedidos] = useState<PedidoMaterial[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingPedidos, setLoadingPedidos] = useState(true);
+  const [selectedOS, setSelectedOS] = useState<ConsolidatedOS | null>(null);
+  const [selectedPedido, setSelectedPedido] = useState<PedidoMaterial | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editPedidoDialogOpen, setEditPedidoDialogOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewPedidoDialogOpen, setViewPedidoDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchOS();
@@ -132,6 +145,96 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
     setLoadingPedidos(false);
   };
 
+  const handleDeleteOS = async (osId: string) => {
+    try {
+      const { error } = await supabase
+        .from("cia_mnt_os_centralizadas")
+        .delete()
+        .eq("id", osId);
+
+      if (error) throw error;
+
+      toast.success("OS deletada com sucesso");
+      fetchOS();
+    } catch (error) {
+      console.error("Erro ao deletar OS:", error);
+      toast.error("Erro ao deletar OS");
+    }
+  };
+
+  const handleDeletePedido = async (pedidoId: string) => {
+    try {
+      const { error } = await supabase
+        .from("ptec_pedidos_material")
+        .delete()
+        .eq("id", pedidoId);
+
+      if (error) throw error;
+
+      toast.success("Pedido deletado com sucesso");
+      fetchPedidos();
+    } catch (error) {
+      console.error("Erro ao deletar pedido:", error);
+      toast.error("Erro ao deletar pedido");
+    }
+  };
+
+  const handleUpdateOS = async () => {
+    if (!selectedOS) return;
+
+    try {
+      const { error } = await supabase
+        .from("cia_mnt_os_centralizadas")
+        .update({
+          situacao: selectedOS.situacao,
+          om_apoiada: selectedOS.om_apoiada,
+          marca: selectedOS.marca,
+          mem: selectedOS.mem,
+          sistema: selectedOS.sistema,
+          tipo_manutencao: selectedOS.tipo_manutencao,
+          servico_solicitado: selectedOS.servico_solicitado,
+        })
+        .eq("id", selectedOS.id);
+
+      if (error) throw error;
+
+      toast.success("OS atualizada com sucesso");
+      setEditDialogOpen(false);
+      fetchOS();
+    } catch (error) {
+      console.error("Erro ao atualizar OS:", error);
+      toast.error("Erro ao atualizar OS");
+    }
+  };
+
+  const handleUpdatePedido = async () => {
+    if (!selectedPedido) return;
+
+    try {
+      const { error } = await supabase
+        .from("ptec_pedidos_material")
+        .update({
+          material: selectedPedido.material,
+          quantidade: selectedPedido.quantidade,
+          classe_material: selectedPedido.classe_material,
+          oficina_destino: selectedPedido.oficina_destino,
+          status: selectedPedido.status,
+        })
+        .eq("id", selectedPedido.id);
+
+      if (error) throw error;
+
+      toast.success("Pedido atualizado com sucesso");
+      setEditPedidoDialogOpen(false);
+      fetchPedidos();
+    } catch (error) {
+      console.error("Erro ao atualizar pedido:", error);
+      toast.error("Erro ao atualizar pedido");
+    }
+  };
+
+  const osOptions = os.map(item => ({ id: item.id, numero_os: item.numero_os }));
+
   return (
     <div className="space-y-4">
       {/* Statistics */}
@@ -188,6 +291,12 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
             <Button variant="outline" size="sm" onClick={fetchOS}>
               <i className="ri-refresh-line mr-2"></i>Atualizar
             </Button>
+            <PedidoMaterialForm 
+              osOptions={osOptions}
+              ptecOrigem={ptecOrigem}
+              oficinaDestino=""
+              onSuccess={fetchPedidos}
+            />
             <Button onClick={onCreateOS} className="gradient-primary text-white">
               <i className="ri-add-line mr-2"></i>Nova OS
             </Button>
@@ -211,12 +320,13 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                   <TableHead>Tipo Mnt</TableHead>
                   <TableHead>Situação</TableHead>
                   <TableHead>Data Início</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {os.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                    <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
                       <i className="ri-file-list-line text-4xl mb-2 block"></i>
                       Nenhuma OS encontrada para este PTEC
                     </TableCell>
@@ -254,6 +364,51 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                           ? format(new Date(item.data_inicio), "dd/MM/yyyy HH:mm")
                           : "-"}
                       </TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedOS(item);
+                              setViewDialogOpen(true);
+                            }}
+                          >
+                            <i className="ri-eye-line"></i>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedOS(item);
+                              setEditDialogOpen(true);
+                            }}
+                          >
+                            <i className="ri-edit-line"></i>
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <i className="ri-delete-bin-line text-destructive"></i>
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja deletar a OS {item.numero_os}? Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteOS(item.id)}>
+                                  Deletar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -287,12 +442,13 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                   <TableHead>Oficina Destino</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Data</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pedidos.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
                       <i className="ri-shopping-cart-line text-4xl mb-2 block"></i>
                       Nenhum pedido de material encontrado
                     </TableCell>
@@ -322,6 +478,51 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                       <TableCell>
                         {format(new Date(pedido.created_at), "dd/MM/yyyy HH:mm")}
                       </TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedPedido(pedido);
+                              setViewPedidoDialogOpen(true);
+                            }}
+                          >
+                            <i className="ri-eye-line"></i>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedPedido(pedido);
+                              setEditPedidoDialogOpen(true);
+                            }}
+                          >
+                            <i className="ri-edit-line"></i>
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <i className="ri-delete-bin-line text-destructive"></i>
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja deletar o pedido de {pedido.material}? Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeletePedido(pedido.id)}>
+                                  Deletar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -330,6 +531,262 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
           </div>
         )}
       </Card>
+
+      {/* Dialog para visualizar OS */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalhes da OS {selectedOS?.numero_os}</DialogTitle>
+          </DialogHeader>
+          {selectedOS && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Nº OS</Label>
+                <p className="text-sm mt-1">{selectedOS.numero_os}</p>
+              </div>
+              <div>
+                <Label>Situação</Label>
+                <p className="text-sm mt-1">{selectedOS.situacao}</p>
+              </div>
+              <div>
+                <Label>OM Apoiada</Label>
+                <p className="text-sm mt-1">{selectedOS.om_apoiada}</p>
+              </div>
+              <div>
+                <Label>Marca</Label>
+                <p className="text-sm mt-1">{selectedOS.marca || "-"}</p>
+              </div>
+              <div>
+                <Label>MEM</Label>
+                <p className="text-sm mt-1">{selectedOS.mem || "-"}</p>
+              </div>
+              <div>
+                <Label>Sistema</Label>
+                <p className="text-sm mt-1">{selectedOS.sistema || "-"}</p>
+              </div>
+              <div>
+                <Label>Tipo Manutenção</Label>
+                <p className="text-sm mt-1">{selectedOS.tipo_manutencao || "-"}</p>
+              </div>
+              <div>
+                <Label>Data Início</Label>
+                <p className="text-sm mt-1">
+                  {selectedOS.data_inicio ? format(new Date(selectedOS.data_inicio), "dd/MM/yyyy HH:mm") : "-"}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <Label>Serviço Solicitado</Label>
+                <p className="text-sm mt-1">{selectedOS.servico_solicitado || "-"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para editar OS */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Editar OS {selectedOS?.numero_os}</DialogTitle>
+          </DialogHeader>
+          {selectedOS && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Situação</Label>
+                <Select
+                  value={selectedOS.situacao}
+                  onValueChange={(value) => setSelectedOS({ ...selectedOS, situacao: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Aberta">Aberta</SelectItem>
+                    <SelectItem value="Manutenido">Manutenido</SelectItem>
+                    <SelectItem value="Fechada">Fechada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>OM Apoiada</Label>
+                <Input
+                  value={selectedOS.om_apoiada}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, om_apoiada: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Marca</Label>
+                <Input
+                  value={selectedOS.marca || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, marca: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>MEM</Label>
+                <Input
+                  value={selectedOS.mem || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, mem: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Sistema</Label>
+                <Input
+                  value={selectedOS.sistema || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, sistema: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Tipo Manutenção</Label>
+                <Input
+                  value={selectedOS.tipo_manutencao || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, tipo_manutencao: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Serviço Solicitado</Label>
+                <Textarea
+                  value={selectedOS.servico_solicitado || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, servico_solicitado: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2 flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleUpdateOS}>Salvar</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para visualizar Pedido */}
+      <Dialog open={viewPedidoDialogOpen} onOpenChange={setViewPedidoDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Detalhes do Pedido</DialogTitle>
+          </DialogHeader>
+          {selectedPedido && (
+            <div className="grid gap-4">
+              <div>
+                <Label>Material</Label>
+                <p className="text-sm mt-1">{selectedPedido.material}</p>
+              </div>
+              <div>
+                <Label>Quantidade</Label>
+                <p className="text-sm mt-1">{selectedPedido.quantidade}</p>
+              </div>
+              <div>
+                <Label>Classe Material</Label>
+                <p className="text-sm mt-1">{selectedPedido.classe_material || "-"}</p>
+              </div>
+              <div>
+                <Label>Oficina Destino</Label>
+                <p className="text-sm mt-1">{selectedPedido.oficina_destino.toUpperCase()}</p>
+              </div>
+              <div>
+                <Label>Status</Label>
+                <p className="text-sm mt-1">{selectedPedido.status}</p>
+              </div>
+              <div>
+                <Label>Data</Label>
+                <p className="text-sm mt-1">{format(new Date(selectedPedido.created_at), "dd/MM/yyyy HH:mm")}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para editar Pedido */}
+      <Dialog open={editPedidoDialogOpen} onOpenChange={setEditPedidoDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Pedido</DialogTitle>
+          </DialogHeader>
+          {selectedPedido && (
+            <div className="grid gap-4">
+              <div>
+                <Label>Material</Label>
+                <Input
+                  value={selectedPedido.material}
+                  onChange={(e) => setSelectedPedido({ ...selectedPedido, material: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Quantidade</Label>
+                <Input
+                  type="number"
+                  value={selectedPedido.quantidade}
+                  onChange={(e) => setSelectedPedido({ ...selectedPedido, quantidade: Number(e.target.value) })}
+                />
+              </div>
+              <div>
+                <Label>Classe Material</Label>
+                <Select
+                  value={selectedPedido.classe_material || ""}
+                  onValueChange={(value) => setSelectedPedido({ ...selectedPedido, classe_material: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Classe I">Classe I</SelectItem>
+                    <SelectItem value="Classe II">Classe II</SelectItem>
+                    <SelectItem value="Classe III">Classe III</SelectItem>
+                    <SelectItem value="Classe IV">Classe IV</SelectItem>
+                    <SelectItem value="Classe V">Classe V</SelectItem>
+                    <SelectItem value="Classe VI">Classe VI</SelectItem>
+                    <SelectItem value="Classe VII">Classe VII</SelectItem>
+                    <SelectItem value="Classe VIII">Classe VIII</SelectItem>
+                    <SelectItem value="Classe IX">Classe IX</SelectItem>
+                    <SelectItem value="Classe X">Classe X</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Oficina Destino</Label>
+                <Select
+                  value={selectedPedido.oficina_destino}
+                  onValueChange={(value) => setSelectedPedido({ ...selectedPedido, oficina_destino: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="com">COM</SelectItem>
+                    <SelectItem value="auto">AUTO</SelectItem>
+                    <SelectItem value="blind">BLIND</SelectItem>
+                    <SelectItem value="op">OP</SelectItem>
+                    <SelectItem value="armto">ARMTO</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Status</Label>
+                <Select
+                  value={selectedPedido.status}
+                  onValueChange={(value) => setSelectedPedido({ ...selectedPedido, status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Solicitado">Solicitado</SelectItem>
+                    <SelectItem value="Entregue">Entregue</SelectItem>
+                    <SelectItem value="Cancelado">Cancelado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setEditPedidoDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleUpdatePedido}>Salvar</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
