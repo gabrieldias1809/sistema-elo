@@ -44,6 +44,11 @@ export const useDashboardData = () => {
       ];
     }
 
+    // Se for 2pel_p, tem acesso a oficina_auto e oficina_blind
+    if (roles.includes("2pel_p")) {
+      return ["oficina_auto", "oficina_blind"];
+    }
+
     // Usuário específico vê apenas seu módulo
     const userModule = roles.find(
       (r) => r.startsWith("ptec_") || r.startsWith("oficina_") || r.startsWith("cia_") || r === "p_distr",

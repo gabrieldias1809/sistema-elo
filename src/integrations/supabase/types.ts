@@ -1136,6 +1136,7 @@ export type Database = {
         | "cia_sup"
         | "cia_trp"
         | "cia_mnt"
+        | "2pel_p"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1284,6 +1285,7 @@ export const Constants = {
         "cia_sup",
         "cia_trp",
         "cia_mnt",
+        "2pel_p",
       ],
     },
   },

@@ -21,8 +21,8 @@ const Layout = () => {
     { title: "Dashboard", url: "/", icon: "ri-dashboard-line", role: null },
     { title: "Cia Mnt", url: "/cia-mnt", icon: "ri-tools-fill", role: "cia_mnt" as const },
     { title: "Oficina Com", url: "/oficina-com", icon: "ri-tools-line", role: "oficina_com" as const },
-    { title: "Oficina Auto", url: "/oficina-auto", icon: "ri-tools-line", role: "oficina_auto" as const },
-    { title: "Oficina Blind", url: "/oficina-blind", icon: "ri-tools-line", role: "oficina_blind" as const },
+    { title: "Oficina Auto", url: "/oficina-auto", icon: "ri-tools-line", role: "oficina_auto" as const, alternateRoles: ["2pel_p"] },
+    { title: "Oficina Blind", url: "/oficina-blind", icon: "ri-tools-line", role: "oficina_blind" as const, alternateRoles: ["2pel_p"] },
     { title: "Oficina Op", url: "/oficina-op", icon: "ri-tools-line", role: "oficina_op" as const },
     { title: "Oficina Armto", url: "/oficina-armto", icon: "ri-tools-line", role: "oficina_armto" as const },
     { title: "Posto Distribuição", url: "/posto-distribuicao", icon: "ri-store-2-line", role: "p_distr" as const },
@@ -34,7 +34,15 @@ const Layout = () => {
     { title: "Gerenciar Usuários", url: "/usuarios", icon: "ri-user-settings-line", role: "admin" as const },
   ];
 
-  const navItems = allNavItems.filter((item) => !item.role || hasRole(item.role));
+  const navItems = allNavItems.filter((item) => {
+    if (!item.role) return true;
+    if (hasRole(item.role)) return true;
+    // Check alternate roles if defined
+    if ('alternateRoles' in item && item.alternateRoles) {
+      return item.alternateRoles.some(altRole => hasRole(altRole as any));
+    }
+    return false;
+  });
 
   return (
     <div className="min-h-screen bg-background">

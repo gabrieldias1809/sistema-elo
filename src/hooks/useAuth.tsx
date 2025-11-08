@@ -25,7 +25,8 @@ type AppRole =
   | "oficina_armto"
   | "cia_sup"
   | "cia_trp"
-  | "cia_mnt";
+  | "cia_mnt"
+  | "2pel_p";
 
 interface AuthContextType {
   user: User | null;
