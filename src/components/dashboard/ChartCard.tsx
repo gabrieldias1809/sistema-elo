@@ -257,7 +257,11 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
               <XAxis dataKey="name" />
               <YAxis />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="value" fill="hsl(var(--purple-500))" />
+              <Bar dataKey="value">
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Bar>
             </BarChart>
           ) : (
             <PieChart>
