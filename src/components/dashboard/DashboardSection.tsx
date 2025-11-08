@@ -19,10 +19,10 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
     const pms = module.data.filter((item: any) => item.tipo_pm || item.numero_pms);
     
     const foraDeCombate = prontuarios.filter(
-      (item: any) => item.situacao_atual && item.situacao_atual !== 'Retorno ao combate'
+      (item: any) => item.situacao_atual && item.situacao_atual.toLowerCase() !== 'retorno ao combate'
     ).length;
     const retornoAoCombate = prontuarios.filter(
-      (item: any) => item.situacao_atual === 'Retorno ao combate'
+      (item: any) => item.situacao_atual && item.situacao_atual.toLowerCase() === 'retorno ao combate'
     ).length;
     
     return { totalPM: pms.length, foraDeCombate, retornoAoCombate };
