@@ -395,6 +395,7 @@ export type Database = {
           observacoes: string | null
           om_apoiada: string
           quantidade_classe_iii: number | null
+          registro_material: string | null
           servico_realizado: string | null
           servico_solicitado: string | null
           sistema: string | null
@@ -413,6 +414,7 @@ export type Database = {
           observacoes?: string | null
           om_apoiada: string
           quantidade_classe_iii?: number | null
+          registro_material?: string | null
           servico_realizado?: string | null
           servico_solicitado?: string | null
           sistema?: string | null
@@ -431,6 +433,7 @@ export type Database = {
           observacoes?: string | null
           om_apoiada?: string
           quantidade_classe_iii?: number | null
+          registro_material?: string | null
           servico_realizado?: string | null
           servico_solicitado?: string | null
           sistema?: string | null

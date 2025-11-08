@@ -29,7 +29,7 @@ const PtecArmto = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
   const [memSuggestions, setMemSuggestions] = useState<string[]>([]);
-  const [sistemaSuggestions, setSistemaSuggestions] = useState<string[]>([]);
+  const [registroMaterialSuggestions, setRegistroMaterialSuggestions] = useState<string[]>([]);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingOS, setViewingOS] = useState<any>(null);
   
@@ -38,7 +38,7 @@ const PtecArmto = () => {
     situacao: "",
     om_apoiada: "",
     mem: "",
-    sistema: "",
+    registro_material: "",
     servico_solicitado: "",
     data_inicio: "",
     data_fim: "",
@@ -71,7 +71,7 @@ const PtecArmto = () => {
         situacao: editingOS.situacao || "",
         om_apoiada: editingOS.om_apoiada || "",
         mem: editingOS.mem || "",
-        sistema: editingOS.sistema || "",
+        registro_material: editingOS.registro_material || "",
         servico_solicitado: editingOS.servico_solicitado || "",
         data_inicio: editingOS.data_inicio || "",
         data_fim: editingOS.data_fim || "",
@@ -97,11 +97,11 @@ const PtecArmto = () => {
     // Extract unique suggestions
     const uniqueOms = [...new Set(data?.map(d => d.om_apoiada).filter(Boolean))];
     const uniqueMems = [...new Set(data?.map(d => d.mem).filter(Boolean))];
-    const uniqueSistemas = [...new Set(data?.map(d => d.sistema).filter(Boolean))];
+    const uniqueRegistroMaterial = [...new Set(data?.map(d => d.registro_material).filter(Boolean))];
     
     setOmSuggestions(uniqueOms);
     setMemSuggestions(uniqueMems);
-    setSistemaSuggestions(uniqueSistemas);
+    setRegistroMaterialSuggestions(uniqueRegistroMaterial);
   };
 
   const getNextOSNumber = async () => {
@@ -122,7 +122,7 @@ const PtecArmto = () => {
     if (!formData.situacao) missingFields.push("Situação");
     if (!formData.om_apoiada) missingFields.push("OM Apoiada");
     if (!formData.mem) missingFields.push("MEM");
-    if (!formData.sistema) missingFields.push("Sistema");
+    if (!formData.registro_material) missingFields.push("Registro ou Nº do Material");
     if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
 
     if (missingFields.length > 0) {
@@ -174,7 +174,7 @@ const PtecArmto = () => {
       situacao: "",
       om_apoiada: "",
       mem: "",
-      sistema: "",
+      registro_material: "",
       servico_solicitado: "",
       data_inicio: "",
       data_fim: "",
@@ -218,7 +218,7 @@ const PtecArmto = () => {
           <tr><td class="label">Situação</td><td>${item.situacao}</td></tr>
           <tr><td class="label">OM Apoiada</td><td>${item.om_apoiada}</td></tr>
           <tr><td class="label">MEM</td><td>${item.mem || '-'}</td></tr>
-          <tr><td class="label">Sistema</td><td>${item.sistema || '-'}</td></tr>
+          <tr><td class="label">Registro ou Nº do Material</td><td>${item.registro_material || '-'}</td></tr>
           <tr><td class="label">Quantidade Classe III</td><td>${item.quantidade_classe_iii || '-'} L</td></tr>
           <tr><td class="label">Data Início</td><td>${item.data_inicio ? format(new Date(item.data_inicio), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
           <tr><td class="label">Data Fim</td><td>${item.data_fim ? format(new Date(item.data_fim), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
@@ -266,16 +266,6 @@ const PtecArmto = () => {
       existing.value++;
     } else {
       acc.push({ name: item.mem || "N/A", value: 1 });
-    }
-    return acc;
-  }, []);
-
-  const sistemaData = os.reduce((acc: any[], item) => {
-    const existing = acc.find((x) => x.name === item.sistema);
-    if (existing) {
-      existing.value++;
-    } else {
-      acc.push({ name: item.sistema || "N/A", value: 1 });
     }
     return acc;
   }, []);
@@ -379,13 +369,13 @@ const PtecArmto = () => {
                   />
                 </div>
                 <div>
-                  <Label>Sistema</Label>
+                  <Label>Registro ou Nº do Material</Label>
                   <AutocompleteInput
-                    value={formData.sistema}
+                    value={formData.registro_material}
                     onChange={(value) =>
-                      setFormData({ ...formData, sistema: value })
+                      setFormData({ ...formData, registro_material: value })
                     }
-                    suggestions={sistemaSuggestions}
+                    suggestions={registroMaterialSuggestions}
                     className="placeholder:text-transparent"
                   />
                 </div>
@@ -454,21 +444,6 @@ const PtecArmto = () => {
               <YAxis />
               <Tooltip />
               <Bar dataKey="value" fill="#C43302" />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Sistemas com mais falhas
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={sistemaData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#EDAA25" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -625,8 +600,8 @@ const PtecArmto = () => {
                   <p className="font-medium">{viewingOS.mem || "-"}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">Sistema</Label>
-                  <p className="font-medium">{viewingOS.sistema || "-"}</p>
+                  <Label className="text-muted-foreground">Registro ou Nº do Material</Label>
+                  <p className="font-medium">{viewingOS.registro_material || "-"}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Quantidade Classe III (Litros)</Label>
