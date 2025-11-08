@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
+import { DateTimePicker } from "@/components/DateTimePicker";
 
 interface PTECOSTableProps {
   ptecOrigem: string;
@@ -29,7 +30,11 @@ interface ConsolidatedOS {
   mem?: string;
   sistema?: string;
   tipo_manutencao?: string;
+  registro_material?: string;
   servico_solicitado?: string;
+  servico_realizado?: string;
+  situacao_atual?: string;
+  observacoes?: string;
   data_inicio?: string;
   data_fim?: string;
   created_at: string;
@@ -169,13 +174,17 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
           <tr><td class="label">PTEC Origem</td><td>${os.ptec_origem?.toUpperCase()}</td></tr>
           <tr><td class="label">Situação</td><td>${os.situacao}</td></tr>
           <tr><td class="label">OM Apoiada</td><td>${os.om_apoiada}</td></tr>
-          <tr><td class="label">Marca</td><td>${os.marca || '-'}</td></tr>
+          ${ptecOrigem !== 'armto' ? `<tr><td class="label">Marca</td><td>${os.marca || '-'}</td></tr>` : ''}
           <tr><td class="label">MEM</td><td>${os.mem || '-'}</td></tr>
-          <tr><td class="label">Sistema</td><td>${os.sistema || '-'}</td></tr>
+          ${['com', 'op', 'auto', 'blind'].includes(ptecOrigem) ? `<tr><td class="label">Sistema</td><td>${os.sistema || '-'}</td></tr>` : ''}
           <tr><td class="label">Tipo Manutenção</td><td>${os.tipo_manutencao || '-'}</td></tr>
+          ${['auto', 'blind', 'armto'].includes(ptecOrigem) ? `<tr><td class="label">Registro/Nº Material</td><td>${os.registro_material || '-'}</td></tr>` : ''}
           <tr><td class="label">Data Início</td><td>${os.data_inicio ? format(new Date(os.data_inicio), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
           <tr><td class="label">Data Fim</td><td>${os.data_fim ? format(new Date(os.data_fim), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
           <tr><td class="label">Serviço Solicitado</td><td>${os.servico_solicitado || '-'}</td></tr>
+          <tr><td class="label">Serviço Realizado</td><td>${os.servico_realizado || '-'}</td></tr>
+          <tr><td class="label">Situação Atual</td><td>${os.situacao_atual || '-'}</td></tr>
+          <tr><td class="label">Observações</td><td>${os.observacoes || '-'}</td></tr>
         </table>
       </body>
       </html>
@@ -233,7 +242,13 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
           mem: selectedOS.mem,
           sistema: selectedOS.sistema,
           tipo_manutencao: selectedOS.tipo_manutencao,
+          registro_material: selectedOS.registro_material,
           servico_solicitado: selectedOS.servico_solicitado,
+          servico_realizado: selectedOS.servico_realizado,
+          situacao_atual: selectedOS.situacao_atual,
+          observacoes: selectedOS.observacoes,
+          data_inicio: selectedOS.data_inicio,
+          data_fim: selectedOS.data_fim,
         })
         .eq("id", selectedOS.id);
 
@@ -575,7 +590,7 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
 
       {/* Dialog para visualizar OS */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <span>Detalhes da OS {selectedOS?.numero_os}</span>
@@ -606,31 +621,59 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                 <Label>OM Apoiada</Label>
                 <p className="text-sm mt-1">{selectedOS.om_apoiada}</p>
               </div>
-              <div>
-                <Label>Marca</Label>
-                <p className="text-sm mt-1">{selectedOS.marca || "-"}</p>
-              </div>
+              {ptecOrigem !== "armto" && (
+                <div>
+                  <Label>Marca</Label>
+                  <p className="text-sm mt-1">{selectedOS.marca || "-"}</p>
+                </div>
+              )}
               <div>
                 <Label>MEM</Label>
                 <p className="text-sm mt-1">{selectedOS.mem || "-"}</p>
               </div>
-              <div>
-                <Label>Sistema</Label>
-                <p className="text-sm mt-1">{selectedOS.sistema || "-"}</p>
-              </div>
+              {["com", "op", "auto", "blind"].includes(ptecOrigem) && (
+                <div>
+                  <Label>Sistema</Label>
+                  <p className="text-sm mt-1">{selectedOS.sistema || "-"}</p>
+                </div>
+              )}
               <div>
                 <Label>Tipo Manutenção</Label>
                 <p className="text-sm mt-1">{selectedOS.tipo_manutencao || "-"}</p>
               </div>
+              {["auto", "blind", "armto"].includes(ptecOrigem) && (
+                <div>
+                  <Label>Registro ou Nº do Material</Label>
+                  <p className="text-sm mt-1">{selectedOS.registro_material || "-"}</p>
+                </div>
+              )}
               <div>
                 <Label>Data Início</Label>
                 <p className="text-sm mt-1">
                   {selectedOS.data_inicio ? format(new Date(selectedOS.data_inicio), "dd/MM/yyyy HH:mm") : "-"}
                 </p>
               </div>
+              <div>
+                <Label>Data Fim</Label>
+                <p className="text-sm mt-1">
+                  {selectedOS.data_fim ? format(new Date(selectedOS.data_fim), "dd/MM/yyyy HH:mm") : "-"}
+                </p>
+              </div>
               <div className="col-span-2">
                 <Label>Serviço Solicitado</Label>
                 <p className="text-sm mt-1">{selectedOS.servico_solicitado || "-"}</p>
+              </div>
+              <div className="col-span-2">
+                <Label>Serviço Realizado</Label>
+                <p className="text-sm mt-1">{selectedOS.servico_realizado || "-"}</p>
+              </div>
+              <div className="col-span-2">
+                <Label>Situação Atual</Label>
+                <p className="text-sm mt-1">{selectedOS.situacao_atual || "-"}</p>
+              </div>
+              <div className="col-span-2">
+                <Label>Observações</Label>
+                <p className="text-sm mt-1">{selectedOS.observacoes || "-"}</p>
               </div>
             </div>
           )}
@@ -639,7 +682,7 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
 
       {/* Dialog para editar OS */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar OS {selectedOS?.numero_os}</DialogTitle>
           </DialogHeader>
@@ -668,13 +711,15 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                   onChange={(e) => setSelectedOS({ ...selectedOS, om_apoiada: e.target.value })}
                 />
               </div>
-              <div>
-                <Label>Marca</Label>
-                <Input
-                  value={selectedOS.marca || ""}
-                  onChange={(e) => setSelectedOS({ ...selectedOS, marca: e.target.value })}
-                />
-              </div>
+              {ptecOrigem !== "armto" && (
+                <div>
+                  <Label>Marca</Label>
+                  <Input
+                    value={selectedOS.marca || ""}
+                    onChange={(e) => setSelectedOS({ ...selectedOS, marca: e.target.value })}
+                  />
+                </div>
+              )}
               <div>
                 <Label>MEM</Label>
                 <Input
@@ -682,18 +727,51 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                   onChange={(e) => setSelectedOS({ ...selectedOS, mem: e.target.value })}
                 />
               </div>
-              <div>
-                <Label>Sistema</Label>
-                <Input
-                  value={selectedOS.sistema || ""}
-                  onChange={(e) => setSelectedOS({ ...selectedOS, sistema: e.target.value })}
-                />
-              </div>
+              {["com", "op", "auto", "blind"].includes(ptecOrigem) && (
+                <div>
+                  <Label>Sistema</Label>
+                  <Input
+                    value={selectedOS.sistema || ""}
+                    onChange={(e) => setSelectedOS({ ...selectedOS, sistema: e.target.value })}
+                  />
+                </div>
+              )}
               <div>
                 <Label>Tipo Manutenção</Label>
-                <Input
+                <Select
                   value={selectedOS.tipo_manutencao || ""}
-                  onChange={(e) => setSelectedOS({ ...selectedOS, tipo_manutencao: e.target.value })}
+                  onValueChange={(value) => setSelectedOS({ ...selectedOS, tipo_manutencao: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PMS">PMS</SelectItem>
+                    <SelectItem value="PMR">PMR</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {["auto", "blind", "armto"].includes(ptecOrigem) && (
+                <div>
+                  <Label>Registro ou Nº do Material</Label>
+                  <Input
+                    value={selectedOS.registro_material || ""}
+                    onChange={(e) => setSelectedOS({ ...selectedOS, registro_material: e.target.value })}
+                  />
+                </div>
+              )}
+              <div className="col-span-2">
+                <Label>Data Início</Label>
+                <DateTimePicker
+                  value={selectedOS.data_inicio || ""}
+                  onChange={(value) => setSelectedOS({ ...selectedOS, data_inicio: value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Data Fim</Label>
+                <DateTimePicker
+                  value={selectedOS.data_fim || ""}
+                  onChange={(value) => setSelectedOS({ ...selectedOS, data_fim: value })}
                 />
               </div>
               <div className="col-span-2">
@@ -701,6 +779,27 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                 <Textarea
                   value={selectedOS.servico_solicitado || ""}
                   onChange={(e) => setSelectedOS({ ...selectedOS, servico_solicitado: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Serviço Realizado</Label>
+                <Textarea
+                  value={selectedOS.servico_realizado || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, servico_realizado: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Situação Atual</Label>
+                <Textarea
+                  value={selectedOS.situacao_atual || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, situacao_atual: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Observações</Label>
+                <Textarea
+                  value={selectedOS.observacoes || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, observacoes: e.target.value })}
                 />
               </div>
               <div className="col-span-2 flex justify-end gap-2">
