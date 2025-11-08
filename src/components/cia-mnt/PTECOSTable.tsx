@@ -28,15 +28,29 @@ interface ConsolidatedOS {
   created_at: string;
 }
 
+interface PedidoMaterial {
+  id: string;
+  material: string;
+  quantidade: number;
+  classe_material?: string;
+  oficina_destino: string;
+  status: string;
+  created_at: string;
+  os_id: string;
+}
+
 export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
   const [os, setOS] = useState<ConsolidatedOS[]>([]);
+  const [pedidos, setPedidos] = useState<PedidoMaterial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingPedidos, setLoadingPedidos] = useState(true);
 
   useEffect(() => {
     fetchOS();
+    fetchPedidos();
 
-    // Realtime subscription
-    const channel = supabase
+    // Realtime subscription for OS
+    const channelOS = supabase
       .channel(`ptec_${ptecOrigem}_os_changes`)
       .on(
         "postgres_changes",
@@ -51,8 +65,25 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
       )
       .subscribe();
 
+    // Realtime subscription for pedidos
+    const channelPedidos = supabase
+      .channel(`ptec_${ptecOrigem}_pedidos_changes`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ptec_pedidos_material" },
+        (payload) => {
+          if (payload.new && (payload.new as any).ptec_origem === ptecOrigem) {
+            fetchPedidos();
+          } else if (payload.old && (payload.old as any).ptec_origem === ptecOrigem) {
+            fetchPedidos();
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(channelOS);
+      supabase.removeChannel(channelPedidos);
     };
   }, [ptecOrigem]);
 
@@ -77,6 +108,28 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
       toast.error("Erro ao carregar dados");
     }
     setLoading(false);
+  };
+
+  const fetchPedidos = async () => {
+    setLoadingPedidos(true);
+    try {
+      const { data, error } = await supabase
+        .from("ptec_pedidos_material")
+        .select("*")
+        .eq("ptec_origem", ptecOrigem)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        toast.error("Erro ao carregar pedidos de material");
+        console.error(error);
+      } else {
+        setPedidos(data || []);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar pedidos:", err);
+      toast.error("Erro ao carregar pedidos");
+    }
+    setLoadingPedidos(false);
   };
 
   return (
@@ -200,6 +253,74 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                         {item.data_inicio
                           ? format(new Date(item.data_inicio), "dd/MM/yyyy HH:mm")
                           : "-"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </Card>
+
+      {/* Pedidos de Material */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Pedidos de Material ({pedidos.length})</h3>
+          <Button variant="outline" size="sm" onClick={fetchPedidos}>
+            <i className="ri-refresh-line mr-2"></i>Atualizar
+          </Button>
+        </div>
+
+        {loadingPedidos ? (
+          <div className="flex justify-center items-center py-12">
+            <i className="ri-loader-4-line text-4xl animate-spin text-primary"></i>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Material</TableHead>
+                  <TableHead>Quantidade</TableHead>
+                  <TableHead>Classe</TableHead>
+                  <TableHead>Oficina Destino</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Data</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pedidos.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                      <i className="ri-shopping-cart-line text-4xl mb-2 block"></i>
+                      Nenhum pedido de material encontrado
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  pedidos.map((pedido) => (
+                    <TableRow key={pedido.id}>
+                      <TableCell className="font-medium">{pedido.material}</TableCell>
+                      <TableCell>{pedido.quantidade}</TableCell>
+                      <TableCell>{pedido.classe_material || "-"}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{pedido.oficina_destino.toUpperCase()}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            pedido.status === "Entregue"
+                              ? "default"
+                              : pedido.status === "Cancelado"
+                              ? "destructive"
+                              : "secondary"
+                          }
+                        >
+                          {pedido.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(pedido.created_at), "dd/MM/yyyy HH:mm")}
                       </TableCell>
                     </TableRow>
                   ))
