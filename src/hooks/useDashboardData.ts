@@ -85,8 +85,7 @@ export const useDashboardData = () => {
       const { data, error } = await supabase
         .from("ptec_sau_prontuarios")
         .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100);
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data || [];
     },
@@ -99,8 +98,7 @@ export const useDashboardData = () => {
       const { data, error } = await supabase
         .from("ptec_sau_pms")
         .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100);
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data || [];
     },
