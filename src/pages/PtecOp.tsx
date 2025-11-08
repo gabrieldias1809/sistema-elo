@@ -18,6 +18,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 import { format } from "date-fns";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
+import { getNextCentralizedOSNumber } from "@/hooks/useCentralizedOSNumber";
 
 const PtecOp = () => {
   const [os, setOS] = useState<any[]>([]);
@@ -109,19 +110,13 @@ const PtecOp = () => {
   };
 
   const getNextOSNumber = async () => {
-    const { data, error } = await supabase
-      .from("ptec_op_os")
-      .select("numero_os")
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (error) {
-      console.error("Erro ao buscar último número:", error);
-      return;
+    try {
+      const nextNumber = await getNextCentralizedOSNumber();
+      setFormData(prev => ({ ...prev, numero_os: nextNumber }));
+    } catch (error) {
+      console.error("Erro ao buscar próximo número de OS:", error);
+      toast.error("Erro ao gerar número da OS");
     }
-
-    const lastNumber = data && data.length > 0 ? parseInt(data[0].numero_os) : 0;
-    setFormData(prev => ({ ...prev, numero_os: (lastNumber + 1).toString().padStart(3, '0') }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

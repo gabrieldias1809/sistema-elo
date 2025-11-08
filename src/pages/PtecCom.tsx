@@ -18,6 +18,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import jsPDF from "jspdf";
+import { getNextCentralizedOSNumber } from "@/hooks/useCentralizedOSNumber";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
@@ -218,20 +219,13 @@ const PtecCom = () => {
   };
 
   const getNextOSNumber = async () => {
-    const { data, error } = await supabase
-      .from("ptec_com_os")
-      .select("numero_os")
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (error) {
-      console.error("Erro ao buscar último número:", error);
-      return;
+    try {
+      const nextNumber = await getNextCentralizedOSNumber();
+      setFormData(prev => ({ ...prev, numero_os: nextNumber }));
+    } catch (error) {
+      console.error("Erro ao buscar próximo número de OS:", error);
+      toast.error("Erro ao gerar número da OS");
     }
-
-    const lastNumber = data && data.length > 0 ? parseInt(data[0].numero_os) : 0;
-    const osNumber = (lastNumber + 1).toString().padStart(3, "0");
-    setFormData(prev => ({ ...prev, numero_os: osNumber }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

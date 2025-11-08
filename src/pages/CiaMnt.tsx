@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PtecCom from "./PtecCom";
 import PtecAuto from "./PtecAuto";
 import PtecBlind from "./PtecBlind";
 import PtecOp from "./PtecOp";
 import PtecArmto from "./PtecArmto";
+import { ConsolidatedOSTable } from "@/components/cia-mnt/ConsolidatedOSTable";
 
 const CiaMnt = () => {
   const [selectedPtec, setSelectedPtec] = useState<string>("");
@@ -48,57 +50,77 @@ const CiaMnt = () => {
         </p>
       </div>
 
-      {/* PTEC Selector */}
-      <Card className="p-6 gradient-primary">
-        <div className="max-w-md">
-          <Label className="text-white text-base mb-3 block">
+      {/* Tabs */}
+      <Tabs defaultValue="consolidated" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="consolidated">
+            <i className="ri-dashboard-line mr-2"></i>
+            Visão Consolidada
+          </TabsTrigger>
+          <TabsTrigger value="ptec">
             <i className="ri-folder-settings-line mr-2"></i>
-            Selecionar PTEC
-          </Label>
-          <Select value={selectedPtec} onValueChange={setSelectedPtec}>
-            <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Escolha o Pelotão Técnico" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="com">
-                <div className="flex items-center gap-2">
-                  <i className="ri-radio-line"></i>
-                  Ptec Com - Comunicações
-                </div>
-              </SelectItem>
-              <SelectItem value="auto">
-                <div className="flex items-center gap-2">
-                  <i className="ri-car-line"></i>
-                  Ptec Auto - Automotiva
-                </div>
-              </SelectItem>
-              <SelectItem value="blind">
-                <div className="flex items-center gap-2">
-                  <i className="ri-shield-line"></i>
-                  Ptec Blind - Blindados
-                </div>
-              </SelectItem>
-              <SelectItem value="op">
-                <div className="flex items-center gap-2">
-                  <i className="ri-hammer-line"></i>
-                  Ptec Op - Optrônicos
-                </div>
-              </SelectItem>
-              <SelectItem value="armto">
-                <div className="flex items-center gap-2">
-                  <i className="ri-sword-line"></i>
-                  Ptec Armto - Armamento
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </Card>
+            Por PTEC
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Content Area */}
-      <div>
-        {renderPtecContent()}
-      </div>
+        {/* Consolidated View */}
+        <TabsContent value="consolidated" className="space-y-6">
+          <ConsolidatedOSTable />
+        </TabsContent>
+
+        {/* PTEC Specific View */}
+        <TabsContent value="ptec" className="space-y-6">
+          <Card className="p-6 gradient-primary">
+            <div className="max-w-md">
+              <Label className="text-white text-base mb-3 block">
+                <i className="ri-folder-settings-line mr-2"></i>
+                Selecionar PTEC
+              </Label>
+              <Select value={selectedPtec} onValueChange={setSelectedPtec}>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Escolha o Pelotão Técnico" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="com">
+                    <div className="flex items-center gap-2">
+                      <i className="ri-radio-line"></i>
+                      Ptec Com - Comunicações
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="auto">
+                    <div className="flex items-center gap-2">
+                      <i className="ri-car-line"></i>
+                      Ptec Auto - Automotiva
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="blind">
+                    <div className="flex items-center gap-2">
+                      <i className="ri-shield-line"></i>
+                      Ptec Blind - Blindados
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="op">
+                    <div className="flex items-center gap-2">
+                      <i className="ri-hammer-line"></i>
+                      Ptec Op - Optrônicos
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="armto">
+                    <div className="flex items-center gap-2">
+                      <i className="ri-sword-line"></i>
+                      Ptec Armto - Armamento
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </Card>
+
+          <div>
+            {renderPtecContent()}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
