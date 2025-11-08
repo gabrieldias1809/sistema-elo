@@ -75,12 +75,6 @@ const CiaMnt = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validação para pel_p_mnt - tipo_viatura é obrigatório
-    if (formData.ptec_origem === "pel_p_mnt" && !formData.tipo_viatura) {
-      toast.error("Tipo de Viatura é obrigatório para Pel P Mnt");
-      return;
-    }
-
     const user = await supabase.auth.getUser();
     const userId = user.data.user?.id;
 
@@ -144,7 +138,7 @@ const CiaMnt = () => {
       }
 
       // Inserir na tabela centralizada
-      const centralData: any = {
+      const centralData = {
         numero_os: formData.numero_os,
         ptec_origem: formData.ptec_origem,
         situacao: formData.situacao,
@@ -159,17 +153,6 @@ const CiaMnt = () => {
         observacoes: formData.observacoes || formData.observacoes_material || null,
         created_by: userId,
       };
-
-      // Adicionar campos específicos do pel_p_mnt
-      if (formData.ptec_origem === "pel_p_mnt") {
-        centralData.tipo_viatura = formData.tipo_viatura;
-        centralData.registro_material = formData.registro_numero_material;
-      }
-
-      // Adicionar registro_material para armto
-      if (formData.ptec_origem === "armto") {
-        centralData.registro_material = formData.registro_numero_material;
-      }
 
       const { error: errorCentral } = await supabase.from("cia_mnt_os_centralizadas").insert([centralData]);
 
@@ -316,11 +299,10 @@ const CiaMnt = () => {
                 </div>
                 {showTipoViatura && (
                   <div>
-                    <Label>Tipo de Viatura *</Label>
+                    <Label>Tipo de Viatura</Label>
                     <Select
                       value={formData.tipo_viatura}
                       onValueChange={(value) => setFormData({ ...formData, tipo_viatura: value })}
-                      required
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione" />
