@@ -226,6 +226,10 @@ const PtecSau = () => {
       horaFormatted = timePart ? `${timePart}:00` : "00:00:00"; // HH:MM:SS
     }
 
+    // Capturar o horário local do computador
+    const now = new Date();
+    const updatedAt = now.toISOString();
+
     const pmPayload = {
       om_responsavel: formData.om_responsavel,
       numero_pms: formData.numero_pms,
@@ -239,6 +243,7 @@ const PtecSau = () => {
       observacoes: formData.observacoes,
       militares_envolvidos: formData.militares_envolvidos,
       created_by: (await supabase.auth.getUser()).data.user?.id,
+      updated_at: updatedAt,
     };
 
     if (editingPm) {
@@ -287,6 +292,10 @@ const PtecSau = () => {
   const handleProntuarioSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Capturar o horário local do computador
+    const now = new Date();
+    const updatedAt = now.toISOString();
+
     const prontuarioPayload = {
       nome: prontuarioData.nome,
       idade: parseInt(prontuarioData.idade),
@@ -294,6 +303,7 @@ const PtecSau = () => {
       situacao_atual: prontuarioData.situacao_atual,
       data: prontuarioData.data,
       created_by: (await supabase.auth.getUser()).data.user?.id,
+      updated_at: updatedAt,
     };
 
     if (editingProntuario) {
@@ -966,7 +976,7 @@ const PtecSau = () => {
                     <TableCell>
                       <span className="text-xs text-muted-foreground">
                         {item.updated_at 
-                          ? format(toZonedTime(new Date(item.updated_at), "America/Sao_Paulo"), "dd/MM/yyyy HH:mm")
+                          ? format(new Date(item.updated_at), "dd/MM/yyyy HH:mm")
                           : "-"}
                       </span>
                     </TableCell>
@@ -1051,7 +1061,7 @@ const PtecSau = () => {
                     <TableCell>
                       <span className="text-xs text-muted-foreground">
                         {item.updated_at 
-                          ? format(toZonedTime(new Date(item.updated_at), "America/Sao_Paulo"), "dd/MM/yyyy HH:mm")
+                          ? format(new Date(item.updated_at), "dd/MM/yyyy HH:mm")
                           : "-"}
                       </span>
                     </TableCell>
