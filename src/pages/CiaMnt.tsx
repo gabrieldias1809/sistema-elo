@@ -58,7 +58,7 @@ const CiaMnt = () => {
   const { suggestions: sistemaSuggestions, loading: loadingSistema } = useSuggestions({
     table: 'cia_mnt_os_centralizadas',
     field: 'sistema',
-    enabled: open && ['com', 'op'].includes(formData.ptec_origem)
+    enabled: open && ['com', 'op', 'auto', 'blind'].includes(formData.ptec_origem)
   });
 
   const handleOpenDialog = async (ptecOrigem?: string) => {
@@ -108,13 +108,13 @@ const CiaMnt = () => {
       dataToSubmit.marca = formData.marca;
     }
 
-    // Adicionar sistema apenas para Com e Op (não Armto)
-    if (["com", "op"].includes(formData.ptec_origem) && formData.sistema) {
+    // Adicionar sistema para Com, Op, Auto e Blind
+    if (["com", "op", "auto", "blind"].includes(formData.ptec_origem) && formData.sistema) {
       dataToSubmit.sistema = formData.sistema;
     }
     
-    // Adicionar registro_material para Auto, Blind e Armto
-    if (["auto", "blind", "armto"].includes(formData.ptec_origem) && formData.registro_numero_material) {
+    // Adicionar registro_material apenas para Armto
+    if (formData.ptec_origem === "armto" && formData.registro_numero_material) {
       dataToSubmit.registro_material = formData.registro_numero_material;
     }
     
@@ -181,8 +181,8 @@ const CiaMnt = () => {
   };
 
   // Determinar quais campos mostrar baseado no PTEC selecionado
-  const showSistema = ["com", "op"].includes(formData.ptec_origem);
-  const showRegistroMaterial = ["auto", "blind", "armto"].includes(formData.ptec_origem);
+  const showSistema = ["com", "op", "auto", "blind"].includes(formData.ptec_origem);
+  const showRegistroMaterial = formData.ptec_origem === "armto";
   const showMarca = formData.ptec_origem !== "armto";
 
   return (
