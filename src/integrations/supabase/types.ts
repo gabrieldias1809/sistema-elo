@@ -1000,6 +1000,7 @@ export type Database = {
         | "col"
         | "cia_sup"
         | "cia_trp"
+        | "cia_mnt"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1147,6 +1148,7 @@ export const Constants = {
         "col",
         "cia_sup",
         "cia_trp",
+        "cia_mnt",
       ],
     },
   },
