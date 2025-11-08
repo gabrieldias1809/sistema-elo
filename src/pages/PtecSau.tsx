@@ -941,6 +941,7 @@ const PtecSau = () => {
                   <TableHead>Atividade</TableHead>
                   <TableHead>Data/Hora</TableHead>
                   <TableHead>Local</TableHead>
+                  <TableHead>Última Atualização</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -961,6 +962,13 @@ const PtecSau = () => {
                         : "-"}
                     </TableCell>
                     <TableCell>{item.local || "-"}</TableCell>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground">
+                        {item.updated_at 
+                          ? format(new Date(item.updated_at), "dd/MM/yyyy HH:mm")
+                          : "-"}
+                      </span>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
@@ -999,6 +1007,7 @@ const PtecSau = () => {
                   <TableHead>Gravidade</TableHead>
                   <TableHead>Situação Atual</TableHead>
                   <TableHead>Data</TableHead>
+                  <TableHead>Última Atualização</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -1037,6 +1046,13 @@ const PtecSau = () => {
                     </TableCell>
                     <TableCell>
                       {item.data ? format(new Date(item.data), "dd/MM/yyyy") : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground">
+                        {item.updated_at 
+                          ? format(new Date(item.updated_at), "dd/MM/yyyy HH:mm")
+                          : "-"}
+                      </span>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
