@@ -73,37 +73,6 @@ const CiaMnt = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validação de campos obrigatórios
-    const missingFields: string[] = [];
-    if (!formData.numero_os) missingFields.push("Nº OS");
-    if (!formData.ptec_origem) missingFields.push("PTEC Origem");
-    if (!formData.situacao) missingFields.push("Situação");
-    if (!formData.om_apoiada) missingFields.push("OM Apoiada");
-    
-    // Marca não é obrigatória para Armto
-    if (formData.ptec_origem !== "armto" && !formData.marca) {
-      missingFields.push("Marca");
-    }
-    
-    if (!formData.mem) missingFields.push("MEM");
-    if (!formData.tipo_manutencao) missingFields.push("Tipo de PMS");
-    if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
-
-    // Para PTECs com sistema (Com, Op - mas não Armto), validar sistema
-    if (["com", "op"].includes(formData.ptec_origem) && !formData.sistema) {
-      missingFields.push("Sistema");
-    }
-
-    // Para PTECs com registro_numero_material (Auto, Blind, Armto), validar esse campo
-    if (["auto", "blind", "armto"].includes(formData.ptec_origem) && !formData.registro_numero_material) {
-      missingFields.push("Registro ou Nº do Material");
-    }
-
-    if (missingFields.length > 0) {
-      toast.error(`Preencha os seguintes campos: ${missingFields.join(", ")}`);
-      return;
-    }
-
     const user = await supabase.auth.getUser();
     const userId = user.data.user?.id;
 
@@ -233,16 +202,15 @@ const CiaMnt = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Nº OS *</Label>
+                  <Label>Nº OS</Label>
                   <Input 
                     value={formData.numero_os}
                     onChange={(e) => setFormData({ ...formData, numero_os: e.target.value })}
-                    required
                     placeholder="Digite o número da OS"
                   />
                 </div>
                 <div>
-                  <Label>PTEC Origem *</Label>
+                  <Label>PTEC Origem</Label>
                   <Select
                     value={formData.ptec_origem}
                     onValueChange={(value) => setFormData({ ...formData, ptec_origem: value })}
@@ -260,7 +228,7 @@ const CiaMnt = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label>Situação *</Label>
+                  <Label>Situação</Label>
                   <Select
                     value={formData.situacao}
                     onValueChange={(value) => setFormData({ ...formData, situacao: value })}
@@ -276,42 +244,39 @@ const CiaMnt = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label>OM Apoiada *</Label>
+                  <Label>OM Apoiada</Label>
                   <AutocompleteInput
                     value={formData.om_apoiada}
                     onChange={(value) => setFormData({ ...formData, om_apoiada: value })}
                     suggestions={omSuggestions}
                     loading={loadingOM}
                     placeholder="Digite a OM apoiada"
-                    required
                   />
                 </div>
                 {showMarca && (
                   <div>
-                    <Label>Marca *</Label>
+                    <Label>Marca</Label>
                     <AutocompleteInput
                       value={formData.marca}
                       onChange={(value) => setFormData({ ...formData, marca: value })}
                       suggestions={marcaSuggestions}
                       loading={loadingMarca}
                       placeholder="Digite a marca"
-                      required={showMarca}
                     />
                   </div>
                 )}
                 <div>
-                  <Label>MEM *</Label>
+                  <Label>MEM</Label>
                   <AutocompleteInput
                     value={formData.mem}
                     onChange={(value) => setFormData({ ...formData, mem: value })}
                     suggestions={memSuggestions}
                     loading={loadingMEM}
                     placeholder="Digite o MEM"
-                    required
                   />
                 </div>
                 <div>
-                  <Label>Tipo de PMS *</Label>
+                  <Label>Tipo de PMS</Label>
                   <Select
                     value={formData.tipo_manutencao}
                     onValueChange={(value) => setFormData({ ...formData, tipo_manutencao: value })}
@@ -327,26 +292,24 @@ const CiaMnt = () => {
                 </div>
                 {showRegistroMaterial && (
                   <div>
-                    <Label>Registro ou Nº do Material *</Label>
+                    <Label>Registro ou Nº do Material</Label>
                     <Input
                       value={formData.registro_numero_material}
                       onChange={(e) =>
                         setFormData({ ...formData, registro_numero_material: e.target.value })
                       }
-                      required={showRegistroMaterial}
                     />
                   </div>
                 )}
                 {showSistema && (
                   <div>
-                    <Label>Sistema *</Label>
+                    <Label>Sistema</Label>
                     <AutocompleteInput
                       value={formData.sistema}
                       onChange={(value) => setFormData({ ...formData, sistema: value })}
                       suggestions={sistemaSuggestions}
                       loading={loadingSistema}
                       placeholder="Digite o sistema"
-                      required={showSistema}
                     />
                   </div>
                 )}
@@ -365,11 +328,10 @@ const CiaMnt = () => {
                   />
                 </div>
                 <div className="col-span-2">
-                  <Label>Serviço Solicitado *</Label>
+                  <Label>Serviço Solicitado</Label>
                   <Textarea
                     value={formData.servico_solicitado}
                     onChange={(e) => setFormData({ ...formData, servico_solicitado: e.target.value })}
-                    required
                   />
                 </div>
                 {showRegistroMaterial && (
