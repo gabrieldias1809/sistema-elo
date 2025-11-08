@@ -25,21 +25,11 @@ export const useDashboardData = () => {
   const getVisibleModules = () => {
     if (isAdmin) {
       return [
-        "ptec_com",
-        "ptec_auto",
-        "ptec_blind",
-        "ptec_op",
-        "ptec_armto",
-        "oficina_com",
-        "oficina_auto",
-        "oficina_blind",
-        "oficina_op",
-        "oficina_armto",
+        "cia_mnt",
         "cia_rh",
         "cia_sau",
         "cia_trp",
         "cia_sup",
-        "cia_mnt",
         "col",
       ];
     }
@@ -59,75 +49,19 @@ export const useDashboardData = () => {
 
   const visibleModules = getVisibleModules();
 
-  // Fetch data para PTEC modules
-  const { data: ptecComData } = useQuery({
-    queryKey: ["ptec_com_os"],
+  // Fetch data para CIA MNT (OS Centralizadas)
+  const { data: ciaMntData } = useQuery({
+    queryKey: ["cia_mnt_os_centralizadas"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("ptec_com_os")
+        .from("cia_mnt_os_centralizadas")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(100);
       if (error) throw error;
       return data || [];
     },
-    enabled: visibleModules.includes("ptec_com") || visibleModules.includes("oficina_com"),
-  });
-
-  const { data: ptecAutoData } = useQuery({
-    queryKey: ["ptec_auto_os"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ptec_auto_os")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: visibleModules.includes("ptec_auto") || visibleModules.includes("oficina_auto"),
-  });
-
-  const { data: ptecBlindData } = useQuery({
-    queryKey: ["ptec_blind_os"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ptec_blind_os")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: visibleModules.includes("ptec_blind") || visibleModules.includes("oficina_blind"),
-  });
-
-  const { data: ptecOpData } = useQuery({
-    queryKey: ["ptec_op_os"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ptec_op_os")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: visibleModules.includes("ptec_op") || visibleModules.includes("oficina_op"),
-  });
-
-  const { data: ptecArmtoData } = useQuery({
-    queryKey: ["ptec_armto_os"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ptec_armto_os")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: visibleModules.includes("ptec_armto") || visibleModules.includes("oficina_armto"),
+    enabled: visibleModules.includes("cia_mnt"),
   });
 
   // Fetch data para CIA modules
@@ -220,11 +154,7 @@ export const useDashboardData = () => {
     const channel = supabase
       .channel("dashboard_realtime")
       .on("postgres_changes", { event: "*", schema: "public" }, () => {
-        queryClient.invalidateQueries({ queryKey: ["ptec_com_os"] });
-        queryClient.invalidateQueries({ queryKey: ["ptec_auto_os"] });
-        queryClient.invalidateQueries({ queryKey: ["ptec_blind_os"] });
-        queryClient.invalidateQueries({ queryKey: ["ptec_op_os"] });
-        queryClient.invalidateQueries({ queryKey: ["ptec_armto_os"] });
+        queryClient.invalidateQueries({ queryKey: ["cia_mnt_os_centralizadas"] });
         queryClient.invalidateQueries({ queryKey: ["cia_rh_ocorrencias"] });
         queryClient.invalidateQueries({ queryKey: ["cia_sau_prontuarios"] });
         queryClient.invalidateQueries({ queryKey: ["cia_sau_pms"] });
@@ -248,40 +178,11 @@ export const useDashboardData = () => {
     let icon = "";
 
     switch (module) {
-      case "ptec_com":
-      case "oficina_com":
-        data = ptecComData || [];
-        name = module === "ptec_com" ? "PTEC Comunicações" : "Oficina Comunicações";
-        color = "from-blue-500 to-blue-700";
-        icon = "💻";
-        break;
-      case "ptec_auto":
-      case "oficina_auto":
-        data = ptecAutoData || [];
-        name = module === "ptec_auto" ? "PTEC Auto" : "Oficina Auto";
-        color = "from-orange-500 to-orange-700";
-        icon = "🚗";
-        break;
-      case "ptec_blind":
-      case "oficina_blind":
-        data = ptecBlindData || [];
-        name = module === "ptec_blind" ? "PTEC Blindados" : "Oficina Blindados";
-        color = "from-gray-500 to-gray-700";
-        icon = "🛡️";
-        break;
-      case "ptec_op":
-      case "oficina_op":
-        data = ptecOpData || [];
-        name = module === "ptec_op" ? "PTEC Operador" : "Oficina Operador";
-        color = "from-green-500 to-green-700";
-        icon = "⚙️";
-        break;
-      case "ptec_armto":
-      case "oficina_armto":
-        data = ptecArmtoData || [];
-        name = module === "ptec_armto" ? "PTEC Armamento" : "Oficina Armamento";
-        color = "from-red-500 to-red-700";
-        icon = "⚔️";
+      case "cia_mnt":
+        data = ciaMntData || [];
+        name = "Companhia de Manutenção";
+        color = "from-slate-600 to-slate-800";
+        icon = "🔧";
         break;
       case "cia_rh":
       case "ptec_rh":
