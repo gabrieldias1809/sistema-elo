@@ -219,7 +219,7 @@ const PtecArmto = () => {
           <tr><td class="label">OM Apoiada</td><td>${item.om_apoiada}</td></tr>
           <tr><td class="label">MEM</td><td>${item.mem || '-'}</td></tr>
           <tr><td class="label">Registro ou Nº do Material</td><td>${item.registro_material || '-'}</td></tr>
-          <tr><td class="label">Quantidade Classe III</td><td>${item.quantidade_classe_iii || '-'} L</td></tr>
+          <tr><td class="label">Quantidade Classe III (Litros)</td><td>${item.quantidade_classe_iii || '-'}</td></tr>
           <tr><td class="label">Data Início</td><td>${item.data_inicio ? format(new Date(item.data_inicio), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
           <tr><td class="label">Data Fim</td><td>${item.data_fim ? format(new Date(item.data_fim), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
           <tr><td class="label">Serviço Solicitado</td><td>${item.servico_solicitado || '-'}</td></tr>
