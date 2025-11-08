@@ -39,6 +39,7 @@ export const useDashboardData = () => {
         "cia_sau",
         "cia_trp",
         "cia_sup",
+        "cia_mnt",
         "col",
       ];
     }

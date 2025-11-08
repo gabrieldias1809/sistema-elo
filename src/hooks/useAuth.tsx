@@ -22,7 +22,10 @@ type AppRole =
   | "oficina_auto"
   | "oficina_blind"
   | "oficina_op"
-  | "oficina_armto";
+  | "oficina_armto"
+  | "cia_sup"
+  | "cia_trp"
+  | "cia_mnt";
 
 interface AuthContextType {
   user: User | null;

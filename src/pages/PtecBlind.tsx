@@ -40,11 +40,12 @@ const PtecBlind = () => {
     marca: "",
     mem: "",
     sistema: "",
+    tipo_manutencao: "",
+    registro_numero_material: "",
     servico_solicitado: "",
     data_inicio: "",
     data_fim: "",
-    quantidade_classe_iii: "",
-    observacoes: "",
+    observacoes_material: "",
   });
 
   useEffect(() => {
@@ -74,11 +75,12 @@ const PtecBlind = () => {
         marca: editingOS.marca || "",
         mem: editingOS.mem || "",
         sistema: editingOS.sistema || "",
+        tipo_manutencao: editingOS.tipo_manutencao || "",
+        registro_numero_material: editingOS.registro_numero_material || "",
         servico_solicitado: editingOS.servico_solicitado || "",
         data_inicio: editingOS.data_inicio || "",
         data_fim: editingOS.data_fim || "",
-        quantidade_classe_iii: editingOS.quantidade_classe_iii?.toString() || "",
-        observacoes: editingOS.observacoes || "",
+        observacoes_material: editingOS.observacoes_material || "",
       });
     }
   }, [open, editingOS]);
@@ -134,6 +136,8 @@ const PtecBlind = () => {
     if (!formData.marca) missingFields.push("Marca");
     if (!formData.mem) missingFields.push("MEM");
     if (!formData.sistema) missingFields.push("Sistema");
+    if (!formData.tipo_manutencao) missingFields.push("Tipo de Manutenção");
+    if (!formData.registro_numero_material) missingFields.push("Registro ou Nº do Material");
     if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
 
     if (missingFields.length > 0) {
@@ -145,9 +149,6 @@ const PtecBlind = () => {
       ...formData,
       data_inicio: formData.data_inicio || null,
       data_fim: formData.data_fim || null,
-      quantidade_classe_iii: formData.quantidade_classe_iii
-        ? parseFloat(formData.quantidade_classe_iii)
-        : null,
     };
 
     if (editingOS) {
@@ -187,11 +188,12 @@ const PtecBlind = () => {
       marca: "",
       mem: "",
       sistema: "",
+      tipo_manutencao: "",
+      registro_numero_material: "",
       servico_solicitado: "",
       data_inicio: "",
       data_fim: "",
-      quantidade_classe_iii: "",
-      observacoes: "",
+      observacoes_material: "",
     });
     fetchOS();
   };
@@ -437,15 +439,30 @@ const PtecBlind = () => {
                   />
                 </div>
                 <div>
-                  <Label>Quantidade Classe III (Litros)</Label>
+                  <Label>Tipo de Manutenção</Label>
+                  <Select
+                    value={formData.tipo_manutencao}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, tipo_manutencao: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PMS">PMS</SelectItem>
+                      <SelectItem value="PMR">PMR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Registro ou Nº do Material</Label>
                   <Input
-                    type="number"
-                    step="0.01"
-                    value={formData.quantidade_classe_iii}
+                    value={formData.registro_numero_material}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        quantidade_classe_iii: e.target.value,
+                        registro_numero_material: e.target.value,
                       })
                     }
                     className="placeholder:text-transparent"
@@ -485,11 +502,11 @@ const PtecBlind = () => {
                 />
               </div>
               <div>
-                <Label>Observações</Label>
+                <Label>Observações do Material</Label>
                 <Textarea
-                  value={formData.observacoes}
+                  value={formData.observacoes_material}
                   onChange={(e) =>
-                    setFormData({ ...formData, observacoes: e.target.value })
+                    setFormData({ ...formData, observacoes_material: e.target.value })
                   }
                   className="placeholder:text-transparent"
                 />
