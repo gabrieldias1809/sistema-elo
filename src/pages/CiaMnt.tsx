@@ -13,6 +13,8 @@ import { getNextCentralizedOSNumber } from "@/hooks/useCentralizedOSNumber";
 import { ConsolidatedOSTable } from "@/components/cia-mnt/ConsolidatedOSTable";
 import { PTECOSTable } from "@/components/cia-mnt/PTECOSTable";
 import { PColSlvTable } from "@/components/cia-mnt/PColSlvTable";
+import { AutocompleteInput } from "@/components/AutocompleteInput";
+import { useSuggestions } from "@/hooks/useSuggestions";
 
 const CiaMnt = () => {
   const [open, setOpen] = useState(false);
@@ -32,6 +34,31 @@ const CiaMnt = () => {
     data_fim: "",
     observacoes: "",
     observacoes_material: "",
+  });
+
+  // Sugestões baseadas no histórico
+  const { suggestions: omSuggestions, loading: loadingOM } = useSuggestions({
+    table: 'cia_mnt_os_centralizadas',
+    field: 'om_apoiada',
+    enabled: open
+  });
+
+  const { suggestions: marcaSuggestions, loading: loadingMarca } = useSuggestions({
+    table: 'cia_mnt_os_centralizadas',
+    field: 'marca',
+    enabled: open && formData.ptec_origem !== 'armto'
+  });
+
+  const { suggestions: memSuggestions, loading: loadingMEM } = useSuggestions({
+    table: 'cia_mnt_os_centralizadas',
+    field: 'mem',
+    enabled: open
+  });
+
+  const { suggestions: sistemaSuggestions, loading: loadingSistema } = useSuggestions({
+    table: 'cia_mnt_os_centralizadas',
+    field: 'sistema',
+    enabled: open && ['com', 'op'].includes(formData.ptec_origem)
   });
 
   const handleOpenDialog = async (ptecOrigem?: string) => {
@@ -250,27 +277,36 @@ const CiaMnt = () => {
                 </div>
                 <div>
                   <Label>OM Apoiada *</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.om_apoiada}
-                    onChange={(e) => setFormData({ ...formData, om_apoiada: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, om_apoiada: value })}
+                    suggestions={omSuggestions}
+                    loading={loadingOM}
+                    placeholder="Digite a OM apoiada"
                     required
                   />
                 </div>
                 {showMarca && (
                   <div>
                     <Label>Marca *</Label>
-                    <Input
+                    <AutocompleteInput
                       value={formData.marca}
-                      onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                      onChange={(value) => setFormData({ ...formData, marca: value })}
+                      suggestions={marcaSuggestions}
+                      loading={loadingMarca}
+                      placeholder="Digite a marca"
                       required={showMarca}
                     />
                   </div>
                 )}
                 <div>
                   <Label>MEM *</Label>
-                  <Input
+                  <AutocompleteInput
                     value={formData.mem}
-                    onChange={(e) => setFormData({ ...formData, mem: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, mem: value })}
+                    suggestions={memSuggestions}
+                    loading={loadingMEM}
+                    placeholder="Digite o MEM"
                     required
                   />
                 </div>
@@ -304,9 +340,12 @@ const CiaMnt = () => {
                 {showSistema && (
                   <div>
                     <Label>Sistema *</Label>
-                    <Input
+                    <AutocompleteInput
                       value={formData.sistema}
-                      onChange={(e) => setFormData({ ...formData, sistema: e.target.value })}
+                      onChange={(value) => setFormData({ ...formData, sistema: value })}
+                      suggestions={sistemaSuggestions}
+                      loading={loadingSistema}
+                      placeholder="Digite o sistema"
                       required={showSistema}
                     />
                   </div>

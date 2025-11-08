@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Loader2 } from "lucide-react";
 
 interface AutocompleteInputProps {
   value: string;
@@ -10,6 +11,8 @@ interface AutocompleteInputProps {
   placeholder?: string;
   className?: string;
   required?: boolean;
+  loading?: boolean;
+  disabled?: boolean;
 }
 
 export const AutocompleteInput = ({
@@ -19,6 +22,8 @@ export const AutocompleteInput = ({
   placeholder,
   className,
   required,
+  loading = false,
+  disabled = false,
 }: AutocompleteInputProps) => {
   const [open, setOpen] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -36,18 +41,26 @@ export const AutocompleteInput = ({
 
   return (
     <div className="relative">
-      <Input
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-        placeholder={placeholder}
-        className={className}
-        required={required}
-      />
-      {open && filteredSuggestions.length > 0 && (
+      <div className="relative">
+        <Input
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          placeholder={placeholder}
+          className={className}
+          required={required}
+          disabled={disabled || loading}
+        />
+        {loading && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          </div>
+        )}
+      </div>
+      {open && filteredSuggestions.length > 0 && !loading && (
         <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
           <Command>
             <CommandList>

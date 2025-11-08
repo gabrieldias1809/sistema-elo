@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AutocompleteInput } from "@/components/AutocompleteInput";
+import { useSuggestions } from "@/hooks/useSuggestions";
 
 interface PedidoMaterialFormProps {
   osOptions: Array<{ id: string; numero_os: string }>;
@@ -23,6 +25,12 @@ export const PedidoMaterialForm = ({ osOptions, ptecOrigem, oficinaDestino, onSu
     classe_material: "",
     quantidade: "1",
     oficina_destino: oficinaDestino || "",
+  });
+
+  const { suggestions: materialSuggestions, loading: loadingMaterial } = useSuggestions({
+    table: 'ptec_pedidos_material',
+    field: 'material',
+    enabled: open
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,9 +75,12 @@ export const PedidoMaterialForm = ({ osOptions, ptecOrigem, oficinaDestino, onSu
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label>Material</Label>
-            <Input
+            <AutocompleteInput
               value={formData.material}
-              onChange={(e) => setFormData({ ...formData, material: e.target.value })}
+              onChange={(value) => setFormData({ ...formData, material: value })}
+              suggestions={materialSuggestions}
+              loading={loadingMaterial}
+              placeholder="Digite o nome do material"
               required
             />
           </div>
