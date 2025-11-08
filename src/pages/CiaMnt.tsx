@@ -94,7 +94,7 @@ const CiaMnt = () => {
       return;
     }
 
-    // Preparar dados baseado no PTEC
+    // Preparar dados para tabela PTEC (campos comuns a todas)
     let dataToSubmit: any = {
       numero_os: formData.numero_os,
       situacao: formData.situacao,
@@ -107,17 +107,13 @@ const CiaMnt = () => {
       created_by: userId,
     };
 
-    // Adicionar campos específicos baseado no PTEC
-    if (["com", "op", "armto"].includes(formData.ptec_origem)) {
+    // Adicionar sistema e observações (todos os PTECs têm esses campos)
+    if (formData.sistema) {
       dataToSubmit.sistema = formData.sistema;
-      dataToSubmit.observacoes = formData.observacoes;
     }
-
-    if (["auto", "blind"].includes(formData.ptec_origem)) {
-      dataToSubmit.tipo_manutencao = formData.tipo_manutencao;
-      dataToSubmit.registro_numero_material = formData.registro_numero_material;
-      dataToSubmit.observacoes_material = formData.observacoes_material;
-    }
+    
+    // Campo observacoes existe em todas as tabelas PTEC
+    dataToSubmit.observacoes = formData.observacoes || formData.observacoes_material || null;
 
     try {
       // Inserir na tabela específica do PTEC
