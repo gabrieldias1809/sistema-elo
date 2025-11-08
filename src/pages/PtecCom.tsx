@@ -44,6 +44,7 @@ const PtecCom = () => {
     marca: "",
     mem: "",
     sistema: "",
+    tipo_manutencao: "",
     servico_solicitado: "",
     data_inicio: "",
     data_fim: "",
@@ -81,6 +82,7 @@ const PtecCom = () => {
         marca: editingOS.marca || "",
         mem: editingOS.mem || "",
         sistema: editingOS.sistema || "",
+        tipo_manutencao: editingOS.tipo_manutencao || "",
         servico_solicitado: editingOS.servico_solicitado || "",
         data_inicio: editingOS.data_inicio || "",
         data_fim: editingOS.data_fim || "",
@@ -239,6 +241,7 @@ const PtecCom = () => {
     if (!formData.marca) missingFields.push("Marca");
     if (!formData.mem) missingFields.push("MEM");
     if (!formData.sistema) missingFields.push("Sistema");
+    if (!formData.tipo_manutencao) missingFields.push("Tipo de PMS");
     if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
 
     if (missingFields.length > 0) {
@@ -256,40 +259,72 @@ const PtecCom = () => {
     
     console.log("✅ Dados validados, preparando para enviar:", dataToSubmit);
 
+    const user = await supabase.auth.getUser();
+    const userId = user.data.user?.id;
+
     if (editingOS) {
       console.log("📝 Atualizando OS existente:", editingOS.id);
-      const { error } = await supabase
+      
+      // Atualizar na tabela do PTEC
+      const { error: errorPtec } = await supabase
         .from("ptec_com_os")
         .update(dataToSubmit)
         .eq("id", editingOS.id);
 
-      if (error) {
-        console.error("❌ Erro ao atualizar OS:", error);
+      if (errorPtec) {
+        console.error("❌ Erro ao atualizar OS na tabela PTEC:", errorPtec);
         toast.error("Erro ao atualizar OS");
         return;
+      }
+
+      // Atualizar na tabela centralizada
+      const { error: errorCentral } = await supabase
+        .from("cia_mnt_os_centralizadas")
+        .update({
+          ...dataToSubmit,
+          ptec_origem: "com",
+        })
+        .eq("numero_os", formData.numero_os);
+
+      if (errorCentral) {
+        console.error("❌ Erro ao atualizar OS centralizada:", errorCentral);
       }
 
       console.log("✅ OS atualizada com sucesso!");
       toast.success("OS atualizada com sucesso!");
     } else {
       console.log("📝 Criando nova OS");
-      const user = await supabase.auth.getUser();
-      console.log("👤 Usuário atual:", user.data.user?.id);
       
-      const { error } = await supabase.from("ptec_com_os").insert([
+      // Inserir na tabela do PTEC
+      const { error: errorPtec } = await supabase.from("ptec_com_os").insert([
         {
           ...dataToSubmit,
-          created_by: user.data.user?.id,
+          created_by: userId,
         },
       ]);
 
-      if (error) {
-        console.error("❌ Erro ao criar OS:", error);
+      if (errorPtec) {
+        console.error("❌ Erro ao criar OS na tabela PTEC:", errorPtec);
         toast.error("Erro ao criar OS");
         return;
       }
 
-      console.log("✅ OS criada com sucesso!");
+      // Inserir na tabela centralizada
+      const { error: errorCentral } = await supabase.from("cia_mnt_os_centralizadas").insert([
+        {
+          ...dataToSubmit,
+          ptec_origem: "com",
+          created_by: userId,
+        },
+      ]);
+
+      if (errorCentral) {
+        console.error("❌ Erro ao criar OS centralizada:", errorCentral);
+        toast.error("Erro ao criar OS centralizada");
+        return;
+      }
+
+      console.log("✅ OS criada com sucesso em ambas as tabelas!");
       toast.success("OS criada com sucesso!");
     }
 
@@ -302,6 +337,7 @@ const PtecCom = () => {
       marca: "",
       mem: "",
       sistema: "",
+      tipo_manutencao: "",
       servico_solicitado: "",
       data_inicio: "",
       data_fim: "",
@@ -493,6 +529,23 @@ const PtecCom = () => {
                     suggestions={sistemaSuggestions}
                     className="placeholder:text-transparent"
                   />
+                </div>
+                <div>
+                  <Label>Tipo de PMS</Label>
+                  <Select
+                    value={formData.tipo_manutencao}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, tipo_manutencao: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PMS">PMS</SelectItem>
+                      <SelectItem value="PMR">PMR</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="col-span-2">
                   <Label>Data Início</Label>
