@@ -30,7 +30,7 @@ export const DataTable = ({ module }: DataTableProps) => {
     const firstItem = recentData[0];
     
     if ('numero_os' in firstItem) {
-      return ['numero_os', 'om_apoiada', 'marca', 'situacao', 'created_at'];
+      return ['numero_os', 'ptec_origem', 'om_apoiada', 'marca', 'situacao', 'created_at'];
     } else if ('numero_pedido' in firstItem && 'materiais' in firstItem) {
       // col_pedidos_sup
       return ['numero_pedido', 'destino', 'situacao', 'created_at'];
@@ -55,6 +55,18 @@ export const DataTable = ({ module }: DataTableProps) => {
   const formatValue = (key: string, value: any) => {
     if (value === null || value === undefined) return '-';
     
+    if (key === 'ptec_origem') {
+      const ptecNames: Record<string, string> = {
+        com: 'COM',
+        auto: 'AUTO',
+        blind: 'BLIND',
+        op: 'OP',
+        armto: 'ARMTO',
+        mb: 'MB',
+      };
+      return ptecNames[value] || value.toUpperCase();
+    }
+    
     if (key.includes('created_at') || key.includes('data')) {
       try {
         return format(new Date(value), 'dd/MM/yyyy HH:mm');
@@ -70,6 +82,7 @@ export const DataTable = ({ module }: DataTableProps) => {
     const names: Record<string, string> = {
       numero_os: 'Nº OS',
       numero_pedido: 'Nº Pedido',
+      ptec_origem: 'PTEC',
       om_apoiada: 'OM',
       situacao: 'Situação',
       status: 'Status',
