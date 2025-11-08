@@ -117,7 +117,10 @@ const OficinaOp = () => {
       <tr><td class="label">Nº OS</td><td>${item.numero_os}</td></tr>
       <tr><td class="label">Situação</td><td>${item.situacao}</td></tr>
       <tr><td class="label">OM Apoiada</td><td>${item.om_apoiada}</td></tr>
-      <tr><td class="label">Marca</td><td>${item.marca || '-'}</td></tr>
+      <tr><td class="label">Tipo PMS</td><td>${item.tipo_pms || '-'}</td></tr>
+      <tr><td class="label">Data Início</td><td>${item.data_inicio ? format(new Date(item.data_inicio), "dd/MM/yyyy HH:mm") : '-'}</td></tr>
+      <tr><td class="label">Data Fim</td><td>${item.data_fim ? format(new Date(item.data_fim), "dd/MM/yyyy HH:mm") : '-'}</td></tr>
+      <tr><td class="label">Descrição do Problema</td><td>${item.descricao_problema || '-'}</td></tr>
       <tr><td class="label">Serviço Realizado</td><td>${item.servico_realizado || '-'}</td></tr>
       </table></body></html>`;
     printWindow.document.write(content);
@@ -335,8 +338,11 @@ const OficinaOp = () => {
                 <TableHead>Nº OS</TableHead>
                 <TableHead>Situação</TableHead>
                 <TableHead>OM Apoiada</TableHead>
-                <TableHead>Marca</TableHead>
+                <TableHead>Tipo PMS</TableHead>
+                <TableHead>Descrição</TableHead>
+                <TableHead>Data Início</TableHead>
                 <TableHead>Data Fim</TableHead>
+                <TableHead>Serviço Realizado</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -357,8 +363,11 @@ const OficinaOp = () => {
                       <TableCell>{item.numero_os}</TableCell>
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
-                  <TableCell>{item.marca}</TableCell>
-                  <TableCell>{item.data_fim ? new Date(item.data_fim).toLocaleString('pt-BR') : "-"}</TableCell>
+                  <TableCell>{item.tipo_pms || "-"}</TableCell>
+                  <TableCell>{item.descricao_problema || "-"}</TableCell>
+                  <TableCell>{item.data_inicio ? format(new Date(item.data_inicio), "dd/MM/yyyy HH:mm") : "-"}</TableCell>
+                  <TableCell>{item.data_fim ? format(new Date(item.data_fim), "dd/MM/yyyy HH:mm") : "-"}</TableCell>
+                  <TableCell>{item.servico_realizado || "-"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => handleView(item)} title="Visualizar">
@@ -394,8 +403,11 @@ const OficinaOp = () => {
                 <div><Label className="text-muted-foreground">Nº OS</Label><p className="font-medium">{viewingOS.numero_os}</p></div>
                 <div><Label className="text-muted-foreground">Situação</Label><p className="font-medium">{viewingOS.situacao}</p></div>
                 <div><Label className="text-muted-foreground">OM Apoiada</Label><p className="font-medium">{viewingOS.om_apoiada}</p></div>
-                <div><Label className="text-muted-foreground">Marca</Label><p className="font-medium">{viewingOS.marca || "-"}</p></div>
+                <div><Label className="text-muted-foreground">Tipo PMS</Label><p className="font-medium">{viewingOS.tipo_pms || "-"}</p></div>
+                <div><Label className="text-muted-foreground">Data Início</Label><p className="font-medium">{viewingOS.data_inicio ? format(new Date(viewingOS.data_inicio), "dd/MM/yyyy HH:mm") : "-"}</p></div>
+                <div><Label className="text-muted-foreground">Data Fim</Label><p className="font-medium">{viewingOS.data_fim ? format(new Date(viewingOS.data_fim), "dd/MM/yyyy HH:mm") : "-"}</p></div>
               </div>
+              <div><Label className="text-muted-foreground">Descrição do Problema</Label><p className="font-medium whitespace-pre-wrap">{viewingOS.descricao_problema || "-"}</p></div>
               <div><Label className="text-muted-foreground">Serviço Realizado</Label><p className="font-medium whitespace-pre-wrap">{viewingOS.servico_realizado || "-"}</p></div>
             </div>
           )}
