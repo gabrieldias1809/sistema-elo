@@ -157,7 +157,7 @@ const PtecSau = () => {
 
   const fetchPms = async () => {
     setIsRefreshing(true);
-    const { data, error } = await supabase.from("ptec_sau_pms").select("*").order("data", { ascending: false });
+    const { data, error } = await supabase.from("ptec_sau_pms").select("*").order("updated_at", { ascending: false });
 
     if (error) {
       toast.error("Erro ao carregar dados");
@@ -203,7 +203,7 @@ const PtecSau = () => {
   }, [open, editingPm]);
 
   const fetchProntuarios = async () => {
-    const { data, error } = await supabase.from("ptec_sau_prontuarios").select("*").order("data", { ascending: false });
+    const { data, error } = await supabase.from("ptec_sau_prontuarios").select("*").order("updated_at", { ascending: false });
 
     if (error) {
       toast.error("Erro ao carregar prontuários");
