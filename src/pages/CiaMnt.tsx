@@ -58,7 +58,7 @@ const CiaMnt = () => {
   const { suggestions: sistemaSuggestions, loading: loadingSistema } = useSuggestions({
     table: 'cia_mnt_os_centralizadas',
     field: 'sistema',
-    enabled: open && ['com', 'op', 'auto', 'blind'].includes(formData.ptec_origem)
+    enabled: open && ['com', 'auto', 'blind'].includes(formData.ptec_origem)
   });
 
   const handleOpenDialog = async (ptecOrigem?: string) => {
@@ -91,35 +91,52 @@ const CiaMnt = () => {
       return;
     }
 
-    // Preparar dados para tabela PTEC (campos comuns a todas)
-    let dataToSubmit: any = {
-      numero_os: formData.numero_os,
-      situacao: formData.situacao,
-      om_apoiada: formData.om_apoiada,
-      mem: formData.mem,
-      servico_solicitado: formData.servico_solicitado,
-      data_inicio: formData.data_inicio || null,
-      data_fim: formData.data_fim || null,
-      created_by: userId,
-    };
-
-    // Adicionar marca apenas se não for Armto
-    if (formData.ptec_origem !== "armto" && formData.marca) {
-      dataToSubmit.marca = formData.marca;
-    }
-
-    // Adicionar sistema para Com, Op, Auto e Blind
-    if (["com", "op", "auto", "blind"].includes(formData.ptec_origem) && formData.sistema) {
-      dataToSubmit.sistema = formData.sistema;
-    }
+    // Preparar dados específicos para PTEC Op
+    let dataToSubmit: any;
     
-    // Adicionar registro_material para Auto, Blind e Armto
-    if (["auto", "blind", "armto"].includes(formData.ptec_origem) && formData.registro_numero_material) {
-      dataToSubmit.registro_material = formData.registro_numero_material;
+    if (formData.ptec_origem === "op") {
+      dataToSubmit = {
+        numero_os: formData.numero_os,
+        situacao: formData.situacao,
+        om_apoiada: formData.om_apoiada,
+        data_inicio: formData.data_inicio || null,
+        data_fim: formData.data_fim || null,
+        tipo_pms: formData.tipo_manutencao,
+        descricao_problema: formData.servico_solicitado,
+        ptec_origem: "op",
+        created_by: userId,
+      };
+    } else {
+      // Preparar dados para outros PTECs (campos comuns)
+      dataToSubmit = {
+        numero_os: formData.numero_os,
+        situacao: formData.situacao,
+        om_apoiada: formData.om_apoiada,
+        mem: formData.mem,
+        servico_solicitado: formData.servico_solicitado,
+        data_inicio: formData.data_inicio || null,
+        data_fim: formData.data_fim || null,
+        created_by: userId,
+      };
+
+      // Adicionar marca apenas se não for Armto
+      if (formData.ptec_origem !== "armto" && formData.marca) {
+        dataToSubmit.marca = formData.marca;
+      }
+
+      // Adicionar sistema para Com, Auto e Blind
+      if (["com", "auto", "blind"].includes(formData.ptec_origem) && formData.sistema) {
+        dataToSubmit.sistema = formData.sistema;
+      }
+      
+      // Adicionar registro_material para Auto, Blind e Armto
+      if (["auto", "blind", "armto"].includes(formData.ptec_origem) && formData.registro_numero_material) {
+        dataToSubmit.registro_material = formData.registro_numero_material;
+      }
+      
+      // Campo observacoes existe em todas as tabelas PTEC
+      dataToSubmit.observacoes = formData.observacoes || formData.observacoes_material || null;
     }
-    
-    // Campo observacoes existe em todas as tabelas PTEC
-    dataToSubmit.observacoes = formData.observacoes || formData.observacoes_material || null;
 
     try {
       // Inserir na tabela específica do PTEC
@@ -181,9 +198,9 @@ const CiaMnt = () => {
   };
 
   // Determinar quais campos mostrar baseado no PTEC selecionado
-  const showSistema = ["com", "op", "auto", "blind"].includes(formData.ptec_origem);
+  const showSistema = ["com", "auto", "blind"].includes(formData.ptec_origem);
   const showRegistroMaterial = ["auto", "blind", "armto"].includes(formData.ptec_origem);
-  const showMarca = formData.ptec_origem !== "armto";
+  const showMarca = formData.ptec_origem !== "armto" && formData.ptec_origem !== "op";
 
   return (
     <div className="space-y-6">
