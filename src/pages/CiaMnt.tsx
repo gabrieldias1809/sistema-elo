@@ -57,18 +57,23 @@ const CiaMnt = () => {
     if (!formData.ptec_origem) missingFields.push("PTEC Origem");
     if (!formData.situacao) missingFields.push("Situação");
     if (!formData.om_apoiada) missingFields.push("OM Apoiada");
-    if (!formData.marca) missingFields.push("Marca");
+    
+    // Marca não é obrigatória para Armto
+    if (formData.ptec_origem !== "armto" && !formData.marca) {
+      missingFields.push("Marca");
+    }
+    
     if (!formData.mem) missingFields.push("MEM");
     if (!formData.tipo_manutencao) missingFields.push("Tipo de PMS");
     if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
 
-    // Para PTECs com sistema (Com, Op, Armto), validar sistema
-    if (["com", "op", "armto"].includes(formData.ptec_origem) && !formData.sistema) {
+    // Para PTECs com sistema (Com, Op - mas não Armto), validar sistema
+    if (["com", "op"].includes(formData.ptec_origem) && !formData.sistema) {
       missingFields.push("Sistema");
     }
 
-    // Para PTECs com registro_numero_material (Auto, Blind), validar esse campo
-    if (["auto", "blind"].includes(formData.ptec_origem) && !formData.registro_numero_material) {
+    // Para PTECs com registro_numero_material (Auto, Blind, Armto), validar esse campo
+    if (["auto", "blind", "armto"].includes(formData.ptec_origem) && !formData.registro_numero_material) {
       missingFields.push("Registro ou Nº do Material");
     }
 
@@ -100,7 +105,6 @@ const CiaMnt = () => {
       numero_os: formData.numero_os,
       situacao: formData.situacao,
       om_apoiada: formData.om_apoiada,
-      marca: formData.marca,
       mem: formData.mem,
       servico_solicitado: formData.servico_solicitado,
       data_inicio: formData.data_inicio || null,
@@ -108,9 +112,19 @@ const CiaMnt = () => {
       created_by: userId,
     };
 
-    // Adicionar sistema e observações (todos os PTECs têm esses campos)
-    if (formData.sistema) {
+    // Adicionar marca apenas se não for Armto
+    if (formData.ptec_origem !== "armto" && formData.marca) {
+      dataToSubmit.marca = formData.marca;
+    }
+
+    // Adicionar sistema apenas para Com e Op (não Armto)
+    if (["com", "op"].includes(formData.ptec_origem) && formData.sistema) {
       dataToSubmit.sistema = formData.sistema;
+    }
+    
+    // Adicionar registro_material para Auto, Blind e Armto
+    if (["auto", "blind", "armto"].includes(formData.ptec_origem) && formData.registro_numero_material) {
+      dataToSubmit.registro_material = formData.registro_numero_material;
     }
     
     // Campo observacoes existe em todas as tabelas PTEC
@@ -176,8 +190,9 @@ const CiaMnt = () => {
   };
 
   // Determinar quais campos mostrar baseado no PTEC selecionado
-  const showSistema = ["com", "op", "armto"].includes(formData.ptec_origem);
-  const showRegistroMaterial = ["auto", "blind"].includes(formData.ptec_origem);
+  const showSistema = ["com", "op"].includes(formData.ptec_origem);
+  const showRegistroMaterial = ["auto", "blind", "armto"].includes(formData.ptec_origem);
+  const showMarca = formData.ptec_origem !== "armto";
 
   return (
     <div className="space-y-6">
@@ -241,14 +256,16 @@ const CiaMnt = () => {
                     required
                   />
                 </div>
-                <div>
-                  <Label>Marca *</Label>
-                  <Input
-                    value={formData.marca}
-                    onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
-                    required
-                  />
-                </div>
+                {showMarca && (
+                  <div>
+                    <Label>Marca *</Label>
+                    <Input
+                      value={formData.marca}
+                      onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                      required={showMarca}
+                    />
+                  </div>
+                )}
                 <div>
                   <Label>MEM *</Label>
                   <Input
