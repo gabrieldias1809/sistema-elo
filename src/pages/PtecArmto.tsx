@@ -486,7 +486,7 @@ const PtecArmto = () => {
                 <TableHead>Nº OS</TableHead>
                 <TableHead>Situação</TableHead>
                 <TableHead>OM Apoiada</TableHead>
-                <TableHead>Registro Material</TableHead>
+                <TableHead>MEM</TableHead>
                 <TableHead>Combustível (L)</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
@@ -508,7 +508,7 @@ const PtecArmto = () => {
                   <TableCell>{item.numero_os}</TableCell>
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
-                  <TableCell>{item.registro_material || "-"}</TableCell>
+                  <TableCell>{item.mem}</TableCell>
                   <TableCell>{item.quantidade_classe_iii || "-"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -594,6 +594,10 @@ const PtecArmto = () => {
                 <div>
                   <Label className="text-muted-foreground">OM Apoiada</Label>
                   <p className="font-medium">{viewingOS.om_apoiada}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">MEM</Label>
+                  <p className="font-medium">{viewingOS.mem || "-"}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Registro ou Nº do Material</Label>

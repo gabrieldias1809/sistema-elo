@@ -169,10 +169,9 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
           <tr><td class="label">PTEC Origem</td><td>${os.ptec_origem?.toUpperCase()}</td></tr>
           <tr><td class="label">Situação</td><td>${os.situacao}</td></tr>
           <tr><td class="label">OM Apoiada</td><td>${os.om_apoiada}</td></tr>
-          ${ptecOrigem !== 'armto' ? `<tr><td class="label">Marca</td><td>${os.marca || '-'}</td></tr>` : ''}
+          <tr><td class="label">Marca</td><td>${os.marca || '-'}</td></tr>
           <tr><td class="label">MEM</td><td>${os.mem || '-'}</td></tr>
-          ${ptecOrigem !== 'armto' ? `<tr><td class="label">Sistema</td><td>${os.sistema || '-'}</td></tr>` : ''}
-          ${ptecOrigem === 'armto' ? `<tr><td class="label">Registro Material</td><td>${(os as any).registro_material || '-'}</td></tr>` : ''}
+          <tr><td class="label">Sistema</td><td>${os.sistema || '-'}</td></tr>
           <tr><td class="label">Tipo Manutenção</td><td>${os.tipo_manutencao || '-'}</td></tr>
           <tr><td class="label">Data Início</td><td>${os.data_inicio ? format(new Date(os.data_inicio), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
           <tr><td class="label">Data Fim</td><td>${os.data_fim ? format(new Date(os.data_fim), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
@@ -225,23 +224,17 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
     if (!selectedOS) return;
 
     try {
-      const updateData: any = {
-        situacao: selectedOS.situacao,
-        om_apoiada: selectedOS.om_apoiada,
-        mem: selectedOS.mem,
-        tipo_manutencao: selectedOS.tipo_manutencao,
-        servico_solicitado: selectedOS.servico_solicitado,
-      };
-
-      // Só incluir marca e sistema se não for armto
-      if (ptecOrigem !== 'armto') {
-        updateData.marca = selectedOS.marca;
-        updateData.sistema = selectedOS.sistema;
-      }
-
       const { error } = await supabase
         .from("cia_mnt_os_centralizadas")
-        .update(updateData)
+        .update({
+          situacao: selectedOS.situacao,
+          om_apoiada: selectedOS.om_apoiada,
+          marca: selectedOS.marca,
+          mem: selectedOS.mem,
+          sistema: selectedOS.sistema,
+          tipo_manutencao: selectedOS.tipo_manutencao,
+          servico_solicitado: selectedOS.servico_solicitado,
+        })
         .eq("id", selectedOS.id);
 
       if (error) throw error;
@@ -362,10 +355,9 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                 <TableRow>
                   <TableHead>Nº OS</TableHead>
                   <TableHead>OM Apoiada</TableHead>
-                  {ptecOrigem !== 'armto' && <TableHead>Marca</TableHead>}
+                  <TableHead>Marca</TableHead>
                   <TableHead>MEM</TableHead>
-                  {ptecOrigem !== 'armto' && <TableHead>Sistema</TableHead>}
-                  {ptecOrigem === 'armto' && <TableHead>Registro Material</TableHead>}
+                  <TableHead>Sistema</TableHead>
                   <TableHead>Tipo Mnt</TableHead>
                   <TableHead>Situação</TableHead>
                   <TableHead>Data Início</TableHead>
@@ -385,10 +377,9 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">{item.numero_os}</TableCell>
                       <TableCell>{item.om_apoiada}</TableCell>
-                      {ptecOrigem !== 'armto' && <TableCell>{item.marca || "-"}</TableCell>}
+                      <TableCell>{item.marca || "-"}</TableCell>
                       <TableCell>{item.mem || "-"}</TableCell>
-                      {ptecOrigem !== 'armto' && <TableCell>{item.sistema || "-"}</TableCell>}
-                      {ptecOrigem === 'armto' && <TableCell>{(item as any).registro_material || "-"}</TableCell>}
+                      <TableCell>{item.sistema || "-"}</TableCell>
                       <TableCell>
                         {item.tipo_manutencao ? (
                           <Badge variant="outline">{item.tipo_manutencao}</Badge>
@@ -615,28 +606,18 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                 <Label>OM Apoiada</Label>
                 <p className="text-sm mt-1">{selectedOS.om_apoiada}</p>
               </div>
-              {ptecOrigem !== 'armto' && (
-                <div>
-                  <Label>Marca</Label>
-                  <p className="text-sm mt-1">{selectedOS.marca || "-"}</p>
-                </div>
-              )}
+              <div>
+                <Label>Marca</Label>
+                <p className="text-sm mt-1">{selectedOS.marca || "-"}</p>
+              </div>
               <div>
                 <Label>MEM</Label>
                 <p className="text-sm mt-1">{selectedOS.mem || "-"}</p>
               </div>
-              {ptecOrigem !== 'armto' && (
-                <div>
-                  <Label>Sistema</Label>
-                  <p className="text-sm mt-1">{selectedOS.sistema || "-"}</p>
-                </div>
-              )}
-              {ptecOrigem === 'armto' && (
-                <div>
-                  <Label>Registro Material</Label>
-                  <p className="text-sm mt-1">{(selectedOS as any).registro_material || "-"}</p>
-                </div>
-              )}
+              <div>
+                <Label>Sistema</Label>
+                <p className="text-sm mt-1">{selectedOS.sistema || "-"}</p>
+              </div>
               <div>
                 <Label>Tipo Manutenção</Label>
                 <p className="text-sm mt-1">{selectedOS.tipo_manutencao || "-"}</p>
@@ -687,15 +668,13 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                   onChange={(e) => setSelectedOS({ ...selectedOS, om_apoiada: e.target.value })}
                 />
               </div>
-              {ptecOrigem !== 'armto' && (
-                <div>
-                  <Label>Marca</Label>
-                  <Input
-                    value={selectedOS.marca || ""}
-                    onChange={(e) => setSelectedOS({ ...selectedOS, marca: e.target.value })}
-                  />
-                </div>
-              )}
+              <div>
+                <Label>Marca</Label>
+                <Input
+                  value={selectedOS.marca || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, marca: e.target.value })}
+                />
+              </div>
               <div>
                 <Label>MEM</Label>
                 <Input
@@ -703,15 +682,13 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
                   onChange={(e) => setSelectedOS({ ...selectedOS, mem: e.target.value })}
                 />
               </div>
-              {ptecOrigem !== 'armto' && (
-                <div>
-                  <Label>Sistema</Label>
-                  <Input
-                    value={selectedOS.sistema || ""}
-                    onChange={(e) => setSelectedOS({ ...selectedOS, sistema: e.target.value })}
-                  />
-                </div>
-              )}
+              <div>
+                <Label>Sistema</Label>
+                <Input
+                  value={selectedOS.sistema || ""}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, sistema: e.target.value })}
+                />
+              </div>
               <div>
                 <Label>Tipo Manutenção</Label>
                 <Input
