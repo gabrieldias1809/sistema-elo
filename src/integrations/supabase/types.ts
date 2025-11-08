@@ -866,6 +866,7 @@ export type Database = {
           hora: string | null
           id: string
           local: string | null
+          militares_envolvidos: Json | null
           numero_pms: string
           observacoes: string | null
           om_responsavel: string
@@ -883,6 +884,7 @@ export type Database = {
           hora?: string | null
           id?: string
           local?: string | null
+          militares_envolvidos?: Json | null
           numero_pms: string
           observacoes?: string | null
           om_responsavel: string
@@ -900,6 +902,7 @@ export type Database = {
           hora?: string | null
           id?: string
           local?: string | null
+          militares_envolvidos?: Json | null
           numero_pms?: string
           observacoes?: string | null
           om_responsavel?: string
