@@ -72,6 +72,7 @@ const PtecSau = () => {
     descricao: "",
     conduta_esperada: "",
     observacoes: "",
+    militares_envolvidos: [] as Array<{ posto_graduacao: string; nome_guerra: string }>,
   });
 
   const [prontuarioData, setProntuarioData] = useState({
@@ -89,17 +90,26 @@ const PtecSau = () => {
 
   useEffect(() => {
     if (editingPm) {
+      // Formatar data e hora para datetime-local
+      let datetimeLocal = "";
+      if (editingPm.data) {
+        const dateStr = editingPm.data;
+        const timeStr = editingPm.hora || "00:00:00";
+        datetimeLocal = `${dateStr}T${timeStr.substring(0, 5)}`;
+      }
+      
       setFormData({
         om_responsavel: editingPm.om_responsavel || "",
         numero_pms: editingPm.numero_pms || "",
         tipo_pm: editingPm.tipo_pm || "PMS",
         atividade: editingPm.atividade || "",
-        data: editingPm.data || "",
-        hora: editingPm.hora || "",
+        data: datetimeLocal,
+        hora: "",
         fracao: editingPm.fracao || "",
         descricao: editingPm.descricao || "",
         conduta_esperada: editingPm.conduta_esperada || "",
         observacoes: editingPm.observacoes || "",
+        militares_envolvidos: editingPm.militares_envolvidos || [],
       });
     } else {
       setFormData({
@@ -113,18 +123,25 @@ const PtecSau = () => {
         descricao: "",
         conduta_esperada: "",
         observacoes: "",
+        militares_envolvidos: [],
       });
     }
   }, [editingPm]);
 
   useEffect(() => {
     if (editingProntuario) {
+      // Formatar data para input type="date" (YYYY-MM-DD)
+      let dateFormatted = "";
+      if (editingProntuario.data) {
+        dateFormatted = editingProntuario.data.split('T')[0];
+      }
+      
       setProntuarioData({
         nome: editingProntuario.nome || "",
         idade: editingProntuario.idade?.toString() || "",
         nivel_gravidade: editingProntuario.nivel_gravidade || "",
         situacao_atual: editingProntuario.situacao_atual || "",
-        data: editingProntuario.data || "",
+        data: dateFormatted,
       });
     } else {
       setProntuarioData({
@@ -198,14 +215,14 @@ const PtecSau = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Separar data e hora do timestamp
-    let dataFormatted = formData.data;
+    // Separar data e hora do input datetime-local
+    let dataFormatted = "";
     let horaFormatted = "";
     
     if (formData.data) {
-      const dt = new Date(formData.data);
-      dataFormatted = dt.toISOString().split('T')[0]; // Extrai apenas a data (YYYY-MM-DD)
-      horaFormatted = dt.toTimeString().split(' ')[0]; // Extrai apenas a hora (HH:MM:SS)
+      const [datePart, timePart] = formData.data.split('T');
+      dataFormatted = datePart; // YYYY-MM-DD
+      horaFormatted = timePart ? `${timePart}:00` : "00:00:00"; // HH:MM:SS
     }
 
     const pmPayload = {
@@ -219,6 +236,7 @@ const PtecSau = () => {
       descricao: formData.descricao,
       conduta_esperada: formData.conduta_esperada,
       observacoes: formData.observacoes,
+      militares_envolvidos: formData.militares_envolvidos,
       created_by: (await supabase.auth.getUser()).data.user?.id,
     };
 
@@ -260,6 +278,7 @@ const PtecSau = () => {
       descricao: "",
       conduta_esperada: "",
       observacoes: "",
+      militares_envolvidos: [],
     });
     fetchPms();
   };
@@ -453,12 +472,28 @@ const PtecSau = () => {
     y += 10;
     doc.text(`Atividade: ${pm.atividade || "-"}`, 20, y);
     y += 10;
-    doc.text(`Data/Hora: ${pm.data ? format(new Date(pm.data), "dd/MM/yyyy HH:mm") : "-"}`, 20, y);
+    
+    // Mostrar data e hora separadamente
+    const dataHora = pm.data && pm.hora 
+      ? `${format(new Date(pm.data), "dd/MM/yyyy")} ${pm.hora.substring(0, 5)}`
+      : "-";
+    doc.text(`Data/Hora: ${dataHora}`, 20, y);
     y += 10;
     doc.text(`Local: ${pm.local || "-"}`, 20, y);
     y += 10;
     doc.text(`Fração: ${pm.fracao || "-"}`, 20, y);
     y += 15;
+    
+    // Militares Envolvidos
+    if (pm.militares_envolvidos && pm.militares_envolvidos.length > 0) {
+      doc.text("Militares Envolvidos:", 20, y);
+      y += 8;
+      pm.militares_envolvidos.forEach((militar: any) => {
+        doc.text(`  ${militar.posto_graduacao} ${militar.nome_guerra}`, 25, y);
+        y += 7;
+      });
+      y += 8;
+    }
     
     doc.text("Descrição:", 20, y);
     y += 8;
@@ -494,7 +529,7 @@ const PtecSau = () => {
     y += 10;
     doc.text(`Idade: ${prontuario.idade} anos`, 20, y);
     y += 10;
-    doc.text(`Data do Atendimento: ${prontuario.data ? format(new Date(prontuario.data), "dd/MM/yyyy HH:mm") : "-"}`, 20, y);
+    doc.text(`Data do Atendimento: ${prontuario.data ? format(new Date(prontuario.data), "dd/MM/yyyy") : "-"}`, 20, y);
     y += 10;
     doc.text(`Nível de Gravidade: ${prontuario.nivel_gravidade}`, 20, y);
     y += 10;
@@ -584,10 +619,11 @@ const PtecSau = () => {
                   </div>
                   <div>
                     <Label>Data e Hora</Label>
-                    <DateTimePicker
+                    <Input
+                      type="datetime-local"
                       value={formData.data}
-                      onChange={(value) => setFormData({ ...formData, data: value })}
-                      placeholder="Selecione data e hora"
+                      onChange={(e) => setFormData({ ...formData, data: e.target.value })}
+                      required
                     />
                   </div>
                   <div>
@@ -624,6 +660,65 @@ const PtecSau = () => {
                     className="placeholder:text-transparent"
                   />
                 </div>
+                
+                {/* Militares Envolvidos */}
+                <div className="space-y-2">
+                  <Label>Militares Envolvidos</Label>
+                  {formData.militares_envolvidos.map((militar, index) => (
+                    <div key={index} className="grid grid-cols-[1fr_2fr_auto] gap-2 items-end">
+                      <div>
+                        <Input
+                          placeholder="Posto/Grad"
+                          value={militar.posto_graduacao}
+                          onChange={(e) => {
+                            const newMilitares = [...formData.militares_envolvidos];
+                            newMilitares[index].posto_graduacao = e.target.value;
+                            setFormData({ ...formData, militares_envolvidos: newMilitares });
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          placeholder="Nome de Guerra"
+                          value={militar.nome_guerra}
+                          onChange={(e) => {
+                            const newMilitares = [...formData.militares_envolvidos];
+                            newMilitares[index].nome_guerra = e.target.value;
+                            setFormData({ ...formData, militares_envolvidos: newMilitares });
+                          }}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          const newMilitares = formData.militares_envolvidos.filter((_, i) => i !== index);
+                          setFormData({ ...formData, militares_envolvidos: newMilitares });
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        militares_envolvidos: [
+                          ...formData.militares_envolvidos,
+                          { posto_graduacao: "", nome_guerra: "" }
+                        ]
+                      });
+                    }}
+                  >
+                    <i className="ri-add-line mr-2"></i>Adicionar Militar
+                  </Button>
+                </div>
+                
                 <Button type="submit" className="w-full gradient-primary text-white">
                   {editingPm ? "Atualizar" : "Criar"} PM
                 </Button>
@@ -671,10 +766,11 @@ const PtecSau = () => {
                   </div>
                   <div>
                     <Label>Data do Atendimento</Label>
-                    <DateTimePicker
+                    <Input
+                      type="date"
                       value={prontuarioData.data}
-                      onChange={(value) => setProntuarioData({ ...prontuarioData, data: value })}
-                      placeholder="Selecione data e hora"
+                      onChange={(e) => setProntuarioData({ ...prontuarioData, data: e.target.value })}
+                      required
                     />
                   </div>
                   <div>
@@ -860,7 +956,9 @@ const PtecSau = () => {
                     <TableCell>{item.om_responsavel}</TableCell>
                     <TableCell>{item.atividade || "-"}</TableCell>
                     <TableCell>
-                      {item.data ? format(new Date(item.data), "dd/MM/yyyy HH:mm") : "-"}
+                      {item.data && item.hora 
+                        ? `${format(new Date(item.data), "dd/MM/yyyy")} ${item.hora.substring(0, 5)}`
+                        : "-"}
                     </TableCell>
                     <TableCell>{item.local || "-"}</TableCell>
                     <TableCell className="text-right">
@@ -938,7 +1036,7 @@ const PtecSau = () => {
                       </span>
                     </TableCell>
                     <TableCell>
-                      {item.data ? format(new Date(item.data), "dd/MM/yyyy HH:mm") : "-"}
+                      {item.data ? format(new Date(item.data), "dd/MM/yyyy") : "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
@@ -1007,7 +1105,9 @@ const PtecSau = () => {
                 <div>
                   <Label className="text-muted-foreground">Data e Hora</Label>
                   <p className="font-medium">
-                    {selectedPm.data ? format(new Date(selectedPm.data), "dd/MM/yyyy HH:mm") : "-"}
+                    {selectedPm.data && selectedPm.hora
+                      ? `${format(new Date(selectedPm.data), "dd/MM/yyyy")} ${selectedPm.hora.substring(0, 5)}`
+                      : "-"}
                   </p>
                 </div>
                 <div>
@@ -1019,6 +1119,18 @@ const PtecSau = () => {
                   <p className="font-medium">{selectedPm.fracao || "-"}</p>
                 </div>
               </div>
+              {selectedPm.militares_envolvidos && selectedPm.militares_envolvidos.length > 0 && (
+                <div>
+                  <Label className="text-muted-foreground">Militares Envolvidos</Label>
+                  <div className="mt-2 space-y-1">
+                    {selectedPm.militares_envolvidos.map((militar: any, index: number) => (
+                      <p key={index} className="font-medium">
+                        {militar.posto_graduacao} {militar.nome_guerra}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div>
                 <Label className="text-muted-foreground">Descrição</Label>
                 <p className="font-medium whitespace-pre-wrap">{selectedPm.descricao || "-"}</p>
@@ -1070,7 +1182,7 @@ const PtecSau = () => {
                   <Label className="text-muted-foreground">Data do Atendimento</Label>
                   <p className="font-medium">
                     {selectedProntuario.data
-                      ? format(new Date(selectedProntuario.data), "dd/MM/yyyy HH:mm")
+                      ? format(new Date(selectedProntuario.data), "dd/MM/yyyy")
                       : "-"}
                   </p>
                 </div>
