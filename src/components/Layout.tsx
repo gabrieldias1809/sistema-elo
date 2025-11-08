@@ -19,11 +19,7 @@ const Layout = () => {
 
   const allNavItems = [
     { title: "Dashboard", url: "/", icon: "ri-dashboard-line", role: null },
-    { title: "Ptec Com", url: "/ptec-com", icon: "ri-computer-line", role: "ptec_com" as const },
-    { title: "Ptec Auto", url: "/ptec-auto", icon: "ri-car-line", role: "ptec_auto" as const },
-    { title: "Ptec Blind", url: "/ptec-blind", icon: "ri-shield-line", role: "ptec_blind" as const },
-    { title: "Ptec Op", url: "/ptec-op", icon: "ri-settings-3-line", role: "ptec_op" as const },
-    { title: "Ptec Armto", url: "/ptec-armto", icon: "ri-sword-line", role: "ptec_armto" as const },
+    { title: "Cia Mnt", url: "/cia-mnt", icon: "ri-tools-fill", role: "cia_mnt" as const },
     { title: "Oficina Com", url: "/oficina-com", icon: "ri-tools-line", role: "oficina_com" as const },
     { title: "Oficina Auto", url: "/oficina-auto", icon: "ri-tools-line", role: "oficina_auto" as const },
     { title: "Oficina Blind", url: "/oficina-blind", icon: "ri-tools-line", role: "oficina_blind" as const },
@@ -35,7 +31,6 @@ const Layout = () => {
     { title: "COL", url: "/col", icon: "ri-government-line", role: "col" as const },
     { title: "Cia Sup", url: "/cia-sup", icon: "ri-box-3-line", role: "cia_sup" as const },
     { title: "Cia Trp", url: "/cia-trp", icon: "ri-truck-line", role: "cia_trp" as const },
-    { title: "Cia Mnt", url: "/cia-mnt", icon: "ri-tools-fill", role: "cia_mnt" as const },
     { title: "Gerenciar Usuários", url: "/usuarios", icon: "ri-user-settings-line", role: "admin" as const },
   ];
 

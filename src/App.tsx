@@ -7,12 +7,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Layout from "./components/Layout";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
-import PtecCom from "./pages/PtecCom";
-import PtecMB from "./pages/PtecMB";
-import PtecAuto from "./pages/PtecAuto";
-import PtecBlind from "./pages/PtecBlind";
-import PtecOp from "./pages/PtecOp";
-import PtecArmto from "./pages/PtecArmto";
 import OficinaCom from "./pages/OficinaCom";
 import OficinaAuto from "./pages/OficinaAuto";
 import OficinaBlind from "./pages/OficinaBlind";
@@ -42,12 +36,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Dashboard />} />
-              <Route path="ptec-com" element={<PtecCom />} />
-              <Route path="ptec-mb" element={<PtecMB />} />
-              <Route path="ptec-auto" element={<PtecAuto />} />
-              <Route path="ptec-blind" element={<PtecBlind />} />
-              <Route path="ptec-op" element={<PtecOp />} />
-              <Route path="ptec-armto" element={<PtecArmto />} />
+              <Route path="cia-mnt" element={<CiaMnt />} />
               <Route path="oficina-com" element={<OficinaCom />} />
               <Route path="oficina-auto" element={<OficinaAuto />} />
               <Route path="oficina-blind" element={<OficinaBlind />} />
@@ -60,7 +49,6 @@ const App = () => (
               <Route path="col" element={<Col />} />
               <Route path="cia-sup" element={<CiaSup />} />
               <Route path="cia-trp" element={<CiaTrp />} />
-              <Route path="cia-mnt" element={<CiaMnt />} />
               <Route path="usuarios" element={<UserManagement />} />
             </Route>
             <Route path="*" element={<NotFound />} />

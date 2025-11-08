@@ -1,120 +1,386 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PtecCom from "./PtecCom";
-import PtecAuto from "./PtecAuto";
-import PtecBlind from "./PtecBlind";
-import PtecOp from "./PtecOp";
-import PtecArmto from "./PtecArmto";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DateTimePicker } from "@/components/DateTimePicker";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { getNextCentralizedOSNumber } from "@/hooks/useCentralizedOSNumber";
 import { ConsolidatedOSTable } from "@/components/cia-mnt/ConsolidatedOSTable";
 
 const CiaMnt = () => {
-  const [selectedPtec, setSelectedPtec] = useState<string>("");
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    numero_os: "",
+    ptec_origem: "",
+    situacao: "",
+    om_apoiada: "",
+    marca: "",
+    mem: "",
+    sistema: "",
+    tipo_manutencao: "",
+    registro_numero_material: "",
+    servico_solicitado: "",
+    data_inicio: "",
+    data_fim: "",
+    observacoes: "",
+    observacoes_material: "",
+  });
 
-  const renderPtecContent = () => {
-    switch (selectedPtec) {
-      case "com":
-        return <PtecCom />;
-      case "auto":
-        return <PtecAuto />;
-      case "blind":
-        return <PtecBlind />;
-      case "op":
-        return <PtecOp />;
-      case "armto":
-        return <PtecArmto />;
-      default:
-        return (
-          <Card className="p-8 text-center">
-            <div className="space-y-4">
-              <i className="ri-tools-fill text-6xl text-muted-foreground"></i>
-              <h3 className="text-xl font-semibold">Selecione um PTEC</h3>
-              <p className="text-muted-foreground">
-                Escolha um Pelotão Técnico acima para visualizar e gerenciar suas Ordens de Serviço
-              </p>
-            </div>
-          </Card>
-        );
+  const handleOpenDialog = async () => {
+    try {
+      const nextNumber = await getNextCentralizedOSNumber();
+      setFormData(prev => ({ ...prev, numero_os: nextNumber }));
+      setOpen(true);
+    } catch (error) {
+      console.error("Erro ao buscar próximo número de OS:", error);
+      toast.error("Erro ao gerar número da OS");
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validação de campos obrigatórios
+    const missingFields: string[] = [];
+    if (!formData.ptec_origem) missingFields.push("PTEC Origem");
+    if (!formData.situacao) missingFields.push("Situação");
+    if (!formData.om_apoiada) missingFields.push("OM Apoiada");
+    if (!formData.marca) missingFields.push("Marca");
+    if (!formData.mem) missingFields.push("MEM");
+    if (!formData.tipo_manutencao) missingFields.push("Tipo de PMS");
+    if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
+
+    // Para PTECs com sistema (Com, Op, Armto), validar sistema
+    if (["com", "op", "armto"].includes(formData.ptec_origem) && !formData.sistema) {
+      missingFields.push("Sistema");
+    }
+
+    // Para PTECs com registro_numero_material (Auto, Blind), validar esse campo
+    if (["auto", "blind"].includes(formData.ptec_origem) && !formData.registro_numero_material) {
+      missingFields.push("Registro ou Nº do Material");
+    }
+
+    if (missingFields.length > 0) {
+      toast.error(`Preencha os seguintes campos: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    const user = await supabase.auth.getUser();
+    const userId = user.data.user?.id;
+
+    // Mapear nome da tabela baseado no PTEC
+    const tableMap: Record<string, string> = {
+      com: "ptec_com_os",
+      auto: "ptec_auto_os",
+      blind: "ptec_blind_os",
+      op: "ptec_op_os",
+      armto: "ptec_armto_os",
+    };
+
+    const tableName = tableMap[formData.ptec_origem];
+    if (!tableName) {
+      toast.error("PTEC de origem inválido");
+      return;
+    }
+
+    // Preparar dados baseado no PTEC
+    let dataToSubmit: any = {
+      numero_os: formData.numero_os,
+      situacao: formData.situacao,
+      om_apoiada: formData.om_apoiada,
+      marca: formData.marca,
+      mem: formData.mem,
+      servico_solicitado: formData.servico_solicitado,
+      data_inicio: formData.data_inicio || null,
+      data_fim: formData.data_fim || null,
+      created_by: userId,
+    };
+
+    // Adicionar campos específicos baseado no PTEC
+    if (["com", "op", "armto"].includes(formData.ptec_origem)) {
+      dataToSubmit.sistema = formData.sistema;
+      dataToSubmit.observacoes = formData.observacoes;
+    }
+
+    if (["auto", "blind"].includes(formData.ptec_origem)) {
+      dataToSubmit.tipo_manutencao = formData.tipo_manutencao;
+      dataToSubmit.registro_numero_material = formData.registro_numero_material;
+      dataToSubmit.observacoes_material = formData.observacoes_material;
+    }
+
+    try {
+      // Inserir na tabela específica do PTEC
+      const { error: errorPtec } = await supabase.from(tableName as any).insert([dataToSubmit]);
+
+      if (errorPtec) {
+        console.error("❌ Erro ao criar OS na tabela PTEC:", errorPtec);
+        toast.error("Erro ao criar OS na tabela do PTEC");
+        return;
+      }
+
+      // Inserir na tabela centralizada
+      const centralData = {
+        numero_os: formData.numero_os,
+        ptec_origem: formData.ptec_origem,
+        situacao: formData.situacao,
+        om_apoiada: formData.om_apoiada,
+        marca: formData.marca,
+        mem: formData.mem,
+        sistema: formData.sistema || null,
+        tipo_manutencao: formData.tipo_manutencao || null,
+        servico_solicitado: formData.servico_solicitado,
+        data_inicio: formData.data_inicio || null,
+        data_fim: formData.data_fim || null,
+        observacoes: formData.observacoes || formData.observacoes_material || null,
+        created_by: userId,
+      };
+
+      const { error: errorCentral } = await supabase.from("cia_mnt_os_centralizadas").insert([centralData]);
+
+      if (errorCentral) {
+        console.error("❌ Erro ao criar OS centralizada:", errorCentral);
+        toast.error("Erro ao criar OS centralizada");
+        return;
+      }
+
+      toast.success("OS criada com sucesso!");
+      setOpen(false);
+      setFormData({
+        numero_os: "",
+        ptec_origem: "",
+        situacao: "",
+        om_apoiada: "",
+        marca: "",
+        mem: "",
+        sistema: "",
+        tipo_manutencao: "",
+        registro_numero_material: "",
+        servico_solicitado: "",
+        data_inicio: "",
+        data_fim: "",
+        observacoes: "",
+        observacoes_material: "",
+      });
+    } catch (error) {
+      console.error("❌ Erro ao criar OS:", error);
+      toast.error("Erro ao criar OS");
+    }
+  };
+
+  // Determinar quais campos mostrar baseado no PTEC selecionado
+  const showSistema = ["com", "op", "armto"].includes(formData.ptec_origem);
+  const showRegistroMaterial = ["auto", "blind"].includes(formData.ptec_origem);
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Cia Mnt</h1>
-        <p className="text-muted-foreground">Companhia de Manutenção - Supervisão de Pelotões Técnicos</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Cia Mnt - Manutenção</h1>
+          <p className="text-muted-foreground mt-1">Gerenciamento centralizado de Ordens de Serviço</p>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={handleOpenDialog} className="gradient-primary text-white">
+              <i className="ri-add-line mr-2"></i>Nova OS
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Nova Ordem de Serviço</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nº OS</Label>
+                  <Input value={formData.numero_os} disabled className="bg-muted" />
+                </div>
+                <div>
+                  <Label>PTEC Origem *</Label>
+                  <Select
+                    value={formData.ptec_origem}
+                    onValueChange={(value) => setFormData({ ...formData, ptec_origem: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="com">Ptec Com</SelectItem>
+                      <SelectItem value="auto">Ptec Auto</SelectItem>
+                      <SelectItem value="blind">Ptec Blind</SelectItem>
+                      <SelectItem value="op">Ptec Op</SelectItem>
+                      <SelectItem value="armto">Ptec Armto</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Situação *</Label>
+                  <Select
+                    value={formData.situacao}
+                    onValueChange={(value) => setFormData({ ...formData, situacao: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Aberta">Aberta</SelectItem>
+                      <SelectItem value="Manutenido">Manutenido</SelectItem>
+                      <SelectItem value="Fechada">Fechada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>OM Apoiada *</Label>
+                  <Input
+                    value={formData.om_apoiada}
+                    onChange={(e) => setFormData({ ...formData, om_apoiada: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label>Marca *</Label>
+                  <Input
+                    value={formData.marca}
+                    onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label>MEM *</Label>
+                  <Input
+                    value={formData.mem}
+                    onChange={(e) => setFormData({ ...formData, mem: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label>Tipo de PMS *</Label>
+                  <Select
+                    value={formData.tipo_manutencao}
+                    onValueChange={(value) => setFormData({ ...formData, tipo_manutencao: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PMS">PMS</SelectItem>
+                      <SelectItem value="PMR">PMR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {showRegistroMaterial && (
+                  <div>
+                    <Label>Registro ou Nº do Material *</Label>
+                    <Input
+                      value={formData.registro_numero_material}
+                      onChange={(e) =>
+                        setFormData({ ...formData, registro_numero_material: e.target.value })
+                      }
+                      required={showRegistroMaterial}
+                    />
+                  </div>
+                )}
+                {showSistema && (
+                  <div>
+                    <Label>Sistema *</Label>
+                    <Input
+                      value={formData.sistema}
+                      onChange={(e) => setFormData({ ...formData, sistema: e.target.value })}
+                      required={showSistema}
+                    />
+                  </div>
+                )}
+                <div className="col-span-2">
+                  <Label>Data Início</Label>
+                  <DateTimePicker
+                    value={formData.data_inicio}
+                    onChange={(value) => setFormData({ ...formData, data_inicio: value })}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Label>Data Fim</Label>
+                  <DateTimePicker
+                    value={formData.data_fim}
+                    onChange={(value) => setFormData({ ...formData, data_fim: value })}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Label>Serviço Solicitado *</Label>
+                  <Textarea
+                    value={formData.servico_solicitado}
+                    onChange={(e) => setFormData({ ...formData, servico_solicitado: e.target.value })}
+                    required
+                  />
+                </div>
+                {showRegistroMaterial && (
+                  <div className="col-span-2">
+                    <Label>Observações do Material</Label>
+                    <Textarea
+                      value={formData.observacoes_material}
+                      onChange={(e) =>
+                        setFormData({ ...formData, observacoes_material: e.target.value })
+                      }
+                    />
+                  </div>
+                )}
+                {showSistema && (
+                  <div className="col-span-2">
+                    <Label>Observações</Label>
+                    <Textarea
+                      value={formData.observacoes}
+                      onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button type="submit" className="gradient-primary text-white">
+                  Criar OS
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setOpen(false);
+                    setFormData({
+                      numero_os: "",
+                      ptec_origem: "",
+                      situacao: "",
+                      om_apoiada: "",
+                      marca: "",
+                      mem: "",
+                      sistema: "",
+                      tipo_manutencao: "",
+                      registro_numero_material: "",
+                      servico_solicitado: "",
+                      data_inicio: "",
+                      data_fim: "",
+                      observacoes: "",
+                      observacoes_material: "",
+                    });
+                  }}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="consolidated" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
-          <TabsTrigger value="consolidated">
+      <Tabs defaultValue="consolidado" className="w-full">
+        <TabsList>
+          <TabsTrigger value="consolidado">
             <i className="ri-dashboard-line mr-2"></i>
             Visão Consolidada
           </TabsTrigger>
-          <TabsTrigger value="ptec">
-            <i className="ri-folder-settings-line mr-2"></i>
-            Por PTEC
-          </TabsTrigger>
         </TabsList>
-
-        {/* Consolidated View */}
-        <TabsContent value="consolidated" className="space-y-6">
+        <TabsContent value="consolidado">
           <ConsolidatedOSTable />
-        </TabsContent>
-
-        {/* PTEC Specific View */}
-        <TabsContent value="ptec" className="space-y-6">
-          <Card className="p-6 gradient-primary">
-            <div className="max-w-md">
-              <Label className="text-white text-base mb-3 block">
-                <i className="ri-folder-settings-line mr-2"></i>
-                Selecionar PTEC
-              </Label>
-              <Select value={selectedPtec} onValueChange={setSelectedPtec}>
-                <SelectTrigger className="bg-primary/20 backdrop-blur-sm border-primary/30 text-foreground placeholder:text-foreground/80 hover:bg-primary/30 transition-colors">
-                  <SelectValue placeholder="Escolha o Pelotão Técnico" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="com">
-                    <div className="flex items-center gap-2">
-                      <i className="ri-radio-line"></i>
-                      Ptec Com
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="auto">
-                    <div className="flex items-center gap-2">
-                      <i className="ri-car-line"></i>
-                      Ptec Auto
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="blind">
-                    <div className="flex items-center gap-2">
-                      <i className="ri-shield-line"></i>
-                      Ptec Blind
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="op">
-                    <div className="flex items-center gap-2">
-                      <i className="ri-hammer-line"></i>
-                      Ptec Op
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="armto">
-                    <div className="flex items-center gap-2">
-                      <i className="ri-sword-line"></i>
-                      Ptec Armto
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </Card>
-
-          <div>{renderPtecContent()}</div>
         </TabsContent>
       </Tabs>
     </div>
