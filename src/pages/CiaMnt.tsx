@@ -35,18 +35,12 @@ const CiaMnt = () => {
   });
 
   const handleOpenDialog = async (ptecOrigem?: string) => {
-    try {
-      const nextNumber = await getNextCentralizedOSNumber();
-      setFormData(prev => ({ 
-        ...prev, 
-        numero_os: nextNumber,
-        ptec_origem: ptecOrigem || ""
-      }));
-      setOpen(true);
-    } catch (error) {
-      console.error("Erro ao buscar próximo número de OS:", error);
-      toast.error("Erro ao gerar número da OS");
-    }
+    setFormData(prev => ({ 
+      ...prev, 
+      numero_os: "",
+      ptec_origem: ptecOrigem || ""
+    }));
+    setOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,6 +48,7 @@ const CiaMnt = () => {
 
     // Validação de campos obrigatórios
     const missingFields: string[] = [];
+    if (!formData.numero_os) missingFields.push("Nº OS");
     if (!formData.ptec_origem) missingFields.push("PTEC Origem");
     if (!formData.situacao) missingFields.push("Situação");
     if (!formData.om_apoiada) missingFields.push("OM Apoiada");
@@ -211,8 +206,13 @@ const CiaMnt = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Nº OS</Label>
-                  <Input value={formData.numero_os} disabled className="bg-muted" />
+                  <Label>Nº OS *</Label>
+                  <Input 
+                    value={formData.numero_os}
+                    onChange={(e) => setFormData({ ...formData, numero_os: e.target.value })}
+                    required
+                    placeholder="Digite o número da OS"
+                  />
                 </div>
                 <div>
                   <Label>PTEC Origem *</Label>
