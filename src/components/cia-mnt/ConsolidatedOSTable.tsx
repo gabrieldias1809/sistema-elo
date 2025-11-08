@@ -29,8 +29,7 @@ interface ConsolidatedOS {
 
 const PTEC_LABELS: Record<string, string> = {
   com: "Ptec Com",
-  auto: "Ptec Auto",
-  blind: "Ptec Blind",
+  pel_p_mnt: "Pel P Mnt",
   op: "Ptec Op",
   armto: "Ptec Armto",
 };
@@ -149,8 +148,7 @@ export const ConsolidatedOSTable = () => {
   const getPtecBadgeColor = (ptec: string) => {
     const colors: Record<string, string> = {
       com: "bg-blue-500",
-      auto: "bg-green-500",
-      blind: "bg-purple-500",
+      pel_p_mnt: "bg-green-500",
       op: "bg-orange-500",
       armto: "bg-red-500",
     };
@@ -276,8 +274,7 @@ export const ConsolidatedOSTable = () => {
               <SelectContent>
                 <SelectItem value="all">Todos os PTECs</SelectItem>
                 <SelectItem value="com">Ptec Com</SelectItem>
-                <SelectItem value="auto">Ptec Auto</SelectItem>
-                <SelectItem value="blind">Ptec Blind</SelectItem>
+                <SelectItem value="pel_p_mnt">Pel P Mnt</SelectItem>
                 <SelectItem value="op">Ptec Op</SelectItem>
                 <SelectItem value="armto">Ptec Armto</SelectItem>
               </SelectContent>
@@ -375,7 +372,7 @@ export const ConsolidatedOSTable = () => {
                       </TableCell>
                       <TableCell>{item.om_apoiada}</TableCell>
                       <TableCell>
-                        {item.ptec_origem === 'armto' ? (item as any).registro_material || "-" : item.marca || "-"}
+                        {['armto', 'pel_p_mnt'].includes(item.ptec_origem) ? (item as any).registro_material || "-" : item.marca || "-"}
                       </TableCell>
                       <TableCell>{item.mem || "-"}</TableCell>
                       <TableCell>{item.ptec_origem === 'armto' ? "-" : item.sistema || "-"}</TableCell>
