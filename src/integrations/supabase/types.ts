@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      cia_mnt_os_centralizadas: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          marca: string | null
+          mem: string | null
+          numero_os: string
+          observacoes: string | null
+          om_apoiada: string
+          ptec_origem: string
+          quantidade_classe_iii: number | null
+          servico_realizado: string | null
+          servico_solicitado: string | null
+          sistema: string | null
+          situacao: string
+          situacao_atual: string | null
+          tipo_manutencao: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os: string
+          observacoes?: string | null
+          om_apoiada: string
+          ptec_origem: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao: string
+          situacao_atual?: string | null
+          tipo_manutencao?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          marca?: string | null
+          mem?: string | null
+          numero_os?: string
+          observacoes?: string | null
+          om_apoiada?: string
+          ptec_origem?: string
+          quantidade_classe_iii?: number | null
+          servico_realizado?: string | null
+          servico_solicitado?: string | null
+          sistema?: string | null
+          situacao?: string
+          situacao_atual?: string | null
+          tipo_manutencao?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cia_sup_pedidos_transporte: {
         Row: {
           chefe_viatura: string | null
@@ -919,6 +985,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_next_os_number: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
