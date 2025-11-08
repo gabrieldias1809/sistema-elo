@@ -321,6 +321,7 @@ export type Database = {
           material_empregado: string | null
           militares_necessarios: string | null
           numero_registro: string
+          numero_viatura: string | null
           observacoes: string | null
           origem: string
           situacao_problema: string
@@ -336,6 +337,7 @@ export type Database = {
           material_empregado?: string | null
           militares_necessarios?: string | null
           numero_registro: string
+          numero_viatura?: string | null
           observacoes?: string | null
           origem: string
           situacao_problema: string
@@ -351,6 +353,7 @@ export type Database = {
           material_empregado?: string | null
           militares_necessarios?: string | null
           numero_registro?: string
+          numero_viatura?: string | null
           observacoes?: string | null
           origem?: string
           situacao_problema?: string

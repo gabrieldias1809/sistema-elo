@@ -29,6 +29,7 @@ interface Registro {
   situacao_problema: string;
   material_empregado?: string;
   viatura: string;
+  numero_viatura?: string;
   origem: string;
   militares_necessarios?: string;
   data_hora_inicio?: string;
@@ -48,6 +49,7 @@ export function PColSlvTable() {
     situacao_problema: "",
     material_empregado: "",
     viatura: "",
+    numero_viatura: "",
     origem: "",
     militares_necessarios: "",
     data_hora_inicio: "",
@@ -104,6 +106,7 @@ export function PColSlvTable() {
         situacao_problema: registro.situacao_problema,
         material_empregado: registro.material_empregado || "",
         viatura: registro.viatura,
+        numero_viatura: registro.numero_viatura || "",
         origem: registro.origem,
         militares_necessarios: registro.militares_necessarios || "",
         data_hora_inicio: registro.data_hora_inicio || "",
@@ -119,6 +122,7 @@ export function PColSlvTable() {
         situacao_problema: "",
         material_empregado: "",
         viatura: "",
+        numero_viatura: "",
         origem: "",
         militares_necessarios: "",
         data_hora_inicio: "",
@@ -145,6 +149,7 @@ export function PColSlvTable() {
         situacao_problema: formData.situacao_problema,
         material_empregado: formData.material_empregado || null,
         viatura: formData.viatura,
+        numero_viatura: formData.numero_viatura || null,
         origem: formData.origem,
         militares_necessarios: formData.militares_necessarios || null,
         data_hora_inicio: formData.data_hora_inicio || null,
@@ -209,6 +214,12 @@ export function PColSlvTable() {
     y += 10;
     doc.text(`Viatura: ${registro.viatura}`, 20, y);
     y += 10;
+    
+    if (registro.numero_viatura) {
+      doc.text(`Nº Viatura: ${registro.numero_viatura}`, 20, y);
+      y += 10;
+    }
+    
     doc.text(`Origem: ${registro.origem}`, 20, y);
     y += 10;
     
@@ -264,6 +275,7 @@ export function PColSlvTable() {
               <TableHead>Nº Registro</TableHead>
               <TableHead>Situação Problema</TableHead>
               <TableHead>Viatura</TableHead>
+              <TableHead>Nº Viatura</TableHead>
               <TableHead>Origem</TableHead>
               <TableHead>Data Início</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -275,6 +287,7 @@ export function PColSlvTable() {
                 <TableCell className="font-medium">{registro.numero_registro}</TableCell>
                 <TableCell>{registro.situacao_problema}</TableCell>
                 <TableCell>{registro.viatura}</TableCell>
+                <TableCell>{registro.numero_viatura || "-"}</TableCell>
                 <TableCell>{registro.origem}</TableCell>
                 <TableCell>
                   {registro.data_hora_inicio
@@ -341,17 +354,29 @@ export function PColSlvTable() {
                 />
               </div>
               <div>
-                <Label htmlFor="viatura">Viatura *</Label>
+                <Label htmlFor="numero_viatura">Nº Viatura</Label>
                 <Input
-                  id="viatura"
-                  value={formData.viatura}
+                  id="numero_viatura"
+                  value={formData.numero_viatura}
                   onChange={(e) =>
-                    setFormData({ ...formData, viatura: e.target.value })
+                    setFormData({ ...formData, numero_viatura: e.target.value })
                   }
-                  placeholder="Nome da viatura salvada"
-                  required
+                  placeholder="Ex: 01-2580"
                 />
               </div>
+            </div>
+
+            <div>
+              <Label htmlFor="viatura">Viatura *</Label>
+              <Input
+                id="viatura"
+                value={formData.viatura}
+                onChange={(e) =>
+                  setFormData({ ...formData, viatura: e.target.value })
+                }
+                placeholder="Nome da viatura salvada"
+                required
+              />
             </div>
 
             <div>
@@ -473,6 +498,12 @@ export function PColSlvTable() {
                   <p className="font-medium">{selectedRegistro.viatura}</p>
                 </div>
               </div>
+              {selectedRegistro.numero_viatura && (
+                <div>
+                  <Label className="text-muted-foreground">Nº Viatura</Label>
+                  <p className="font-medium">{selectedRegistro.numero_viatura}</p>
+                </div>
+              )}
               <div>
                 <Label className="text-muted-foreground">Situação Problema</Label>
                 <p className="font-medium">{selectedRegistro.situacao_problema}</p>
