@@ -113,8 +113,8 @@ const CiaMnt = () => {
       dataToSubmit.sistema = formData.sistema;
     }
     
-    // Adicionar registro_material apenas para Armto
-    if (formData.ptec_origem === "armto" && formData.registro_numero_material) {
+    // Adicionar registro_material para Auto, Blind e Armto
+    if (["auto", "blind", "armto"].includes(formData.ptec_origem) && formData.registro_numero_material) {
       dataToSubmit.registro_material = formData.registro_numero_material;
     }
     
@@ -182,7 +182,7 @@ const CiaMnt = () => {
 
   // Determinar quais campos mostrar baseado no PTEC selecionado
   const showSistema = ["com", "op", "auto", "blind"].includes(formData.ptec_origem);
-  const showRegistroMaterial = formData.ptec_origem === "armto";
+  const showRegistroMaterial = ["auto", "blind", "armto"].includes(formData.ptec_origem);
   const showMarca = formData.ptec_origem !== "armto";
 
   return (
