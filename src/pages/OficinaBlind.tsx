@@ -148,19 +148,6 @@ const OficinaBlind = () => {
   };
 
   // Dados para gráficos
-  const combustivelPorOM = os.reduce((acc: any[], item) => {
-    const existing = acc.find((x) => x.name === item.om_apoiada);
-    if (existing) {
-      existing.value += parseFloat(item.quantidade_classe_iii || 0);
-    } else {
-      acc.push({
-        name: item.om_apoiada,
-        value: parseFloat(item.quantidade_classe_iii || 0),
-      });
-    }
-    return acc;
-  }, []);
-
   const marcasData = os.reduce((acc: any[], item) => {
     const existing = acc.find((x) => x.name === item.marca);
     if (existing) {
@@ -169,7 +156,7 @@ const OficinaBlind = () => {
       acc.push({ name: item.marca || "N/A", value: 1 });
     }
     return acc;
-  }, []);
+  }, []).sort((a, b) => b.value - a.value).slice(0, 8);
 
   const memData = os.reduce((acc: any[], item) => {
     const existing = acc.find((x) => x.name === item.mem);
@@ -179,17 +166,17 @@ const OficinaBlind = () => {
       acc.push({ name: item.mem || "N/A", value: 1 });
     }
     return acc;
-  }, []);
+  }, []).sort((a, b) => b.value - a.value).slice(0, 8);
 
-  const sistemaData = os.reduce((acc: any[], item) => {
-    const existing = acc.find((x) => x.name === item.sistema);
+  const omData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.om_apoiada);
     if (existing) {
       existing.value++;
     } else {
-      acc.push({ name: item.sistema || "N/A", value: 1 });
+      acc.push({ name: item.om_apoiada, value: 1 });
     }
     return acc;
-  }, []);
+  }, []).sort((a, b) => b.value - a.value).slice(0, 8);
 
   const situacaoData = os.reduce((acc: any[], item) => {
     const existing = acc.find((x) => x.name === item.situacao);
@@ -200,6 +187,30 @@ const OficinaBlind = () => {
     }
     return acc;
   }, []);
+
+  // Calcular tempo médio de manutenção por mês
+  const tempoManutencaoData = os
+    .filter(item => item.data_inicio && item.data_fim)
+    .map(item => {
+      const inicio = new Date(item.data_inicio);
+      const fim = new Date(item.data_fim);
+      const dias = Math.ceil((fim.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
+      const mes = format(inicio, 'MM/yyyy');
+      return { mes, dias };
+    })
+    .reduce((acc: any[], item) => {
+      const existing = acc.find((x) => x.name === item.mes);
+      if (existing) {
+        existing.total += item.dias;
+        existing.count++;
+      } else {
+        acc.push({ name: item.mes, total: item.dias, count: 1 });
+      }
+      return acc;
+    }, [])
+    .map(item => ({ name: item.name, value: Math.round(item.total / item.count) }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(-6);
 
   return (
     <div>
@@ -272,35 +283,19 @@ const OficinaBlind = () => {
       </Dialog>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Combustível utilizado por OM (Litros)
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={combustivelPorOM}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="value" stroke="#0A7373" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </Card>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Marcas mais recorrentes
           </h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
                 data={marcasData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
@@ -318,10 +313,16 @@ const OficinaBlind = () => {
           <h3 className="text-lg font-semibold text-foreground mb-4">
             MEM mais recorrente
           </h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={300}>
             <BarChart data={memData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis 
+                dataKey="name" 
+                angle={-45} 
+                textAnchor="end" 
+                height={100}
+                interval={0}
+              />
               <YAxis />
               <Tooltip />
               <Bar dataKey="value" fill="#C43302" />
@@ -331,15 +332,21 @@ const OficinaBlind = () => {
 
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Sistemas com mais falhas
+            OM mais recorrentes
           </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={sistemaData}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={omData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis 
+                dataKey="name" 
+                angle={-45} 
+                textAnchor="end" 
+                height={100}
+                interval={0}
+              />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#EDAA25" />
+              <Bar dataKey="value" fill="#0A7373" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -348,14 +355,14 @@ const OficinaBlind = () => {
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Relação OS x Situação
           </h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
                 data={situacaoData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
@@ -366,6 +373,28 @@ const OficinaBlind = () => {
               </Pie>
               <Tooltip />
             </PieChart>
+          </ResponsiveContainer>
+        </Card>
+
+        <Card className="p-6 lg:col-span-2">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Tempo médio de manutenção por mês (dias)
+          </h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={tempoManutencaoData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke="#EDAA25" 
+                strokeWidth={2}
+                name="Dias médios"
+              />
+            </LineChart>
           </ResponsiveContainer>
         </Card>
       </div>
