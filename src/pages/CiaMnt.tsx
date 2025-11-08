@@ -11,9 +11,11 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getNextCentralizedOSNumber } from "@/hooks/useCentralizedOSNumber";
 import { ConsolidatedOSTable } from "@/components/cia-mnt/ConsolidatedOSTable";
+import { PTECOSTable } from "@/components/cia-mnt/PTECOSTable";
 
 const CiaMnt = () => {
   const [open, setOpen] = useState(false);
+  const [selectedPtec, setSelectedPtec] = useState<string>("");
   const [formData, setFormData] = useState({
     numero_os: "",
     ptec_origem: "",
@@ -31,10 +33,14 @@ const CiaMnt = () => {
     observacoes_material: "",
   });
 
-  const handleOpenDialog = async () => {
+  const handleOpenDialog = async (ptecOrigem?: string) => {
     try {
       const nextNumber = await getNextCentralizedOSNumber();
-      setFormData(prev => ({ ...prev, numero_os: nextNumber }));
+      setFormData(prev => ({ 
+        ...prev, 
+        numero_os: nextNumber,
+        ptec_origem: ptecOrigem || ""
+      }));
       setOpen(true);
     } catch (error) {
       console.error("Erro ao buscar próximo número de OS:", error);
@@ -181,14 +187,11 @@ const CiaMnt = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Cia Mnt - Manutenção</h1>
-          <p className="text-muted-foreground mt-1">Gerenciamento centralizado de Ordens de Serviço</p>
+          <p className="text-muted-foreground mt-1">Gerenciamento centralizado de Ordens de Serviço por Posto Técnico</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={handleOpenDialog} className="gradient-primary text-white">
-              <i className="ri-add-line mr-2"></i>Nova OS
-            </Button>
-          </DialogTrigger>
+      </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Nova Ordem de Serviço</DialogTitle>
@@ -370,17 +373,51 @@ const CiaMnt = () => {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
 
       <Tabs defaultValue="consolidado" className="w-full">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="consolidado">
             <i className="ri-dashboard-line mr-2"></i>
-            Visão Consolidada
+            Consolidado
+          </TabsTrigger>
+          <TabsTrigger value="com">
+            <i className="ri-wifi-line mr-2"></i>
+            Ptec Com
+          </TabsTrigger>
+          <TabsTrigger value="auto">
+            <i className="ri-car-line mr-2"></i>
+            Ptec Auto
+          </TabsTrigger>
+          <TabsTrigger value="blind">
+            <i className="ri-shield-line mr-2"></i>
+            Ptec Blind
+          </TabsTrigger>
+          <TabsTrigger value="op">
+            <i className="ri-settings-3-line mr-2"></i>
+            Ptec Op
+          </TabsTrigger>
+          <TabsTrigger value="armto">
+            <i className="ri-gun-line mr-2"></i>
+            Ptec Armto
           </TabsTrigger>
         </TabsList>
         <TabsContent value="consolidado">
           <ConsolidatedOSTable />
+        </TabsContent>
+        <TabsContent value="com">
+          <PTECOSTable ptecOrigem="com" onCreateOS={() => handleOpenDialog("com")} />
+        </TabsContent>
+        <TabsContent value="auto">
+          <PTECOSTable ptecOrigem="auto" onCreateOS={() => handleOpenDialog("auto")} />
+        </TabsContent>
+        <TabsContent value="blind">
+          <PTECOSTable ptecOrigem="blind" onCreateOS={() => handleOpenDialog("blind")} />
+        </TabsContent>
+        <TabsContent value="op">
+          <PTECOSTable ptecOrigem="op" onCreateOS={() => handleOpenDialog("op")} />
+        </TabsContent>
+        <TabsContent value="armto">
+          <PTECOSTable ptecOrigem="armto" onCreateOS={() => handleOpenDialog("armto")} />
         </TabsContent>
       </Tabs>
     </div>
