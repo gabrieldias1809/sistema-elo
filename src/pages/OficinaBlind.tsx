@@ -188,30 +188,6 @@ const OficinaBlind = () => {
     return acc;
   }, []);
 
-  // Calcular tempo médio de manutenção por mês
-  const tempoManutencaoData = os
-    .filter(item => item.data_inicio && item.data_fim)
-    .map(item => {
-      const inicio = new Date(item.data_inicio);
-      const fim = new Date(item.data_fim);
-      const dias = Math.ceil((fim.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
-      const mes = format(inicio, 'MM/yyyy');
-      return { mes, dias };
-    })
-    .reduce((acc: any[], item) => {
-      const existing = acc.find((x) => x.name === item.mes);
-      if (existing) {
-        existing.total += item.dias;
-        existing.count++;
-      } else {
-        acc.push({ name: item.mes, total: item.dias, count: 1 });
-      }
-      return acc;
-    }, [])
-    .map(item => ({ name: item.name, value: Math.round(item.total / item.count) }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .slice(-6);
-
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
@@ -283,7 +259,7 @@ const OficinaBlind = () => {
       </Dialog>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Marcas mais recorrentes
@@ -373,28 +349,6 @@ const OficinaBlind = () => {
               </Pie>
               <Tooltip />
             </PieChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Tempo médio de manutenção por mês (dias)
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={tempoManutencaoData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
-                stroke="#EDAA25" 
-                strokeWidth={2}
-                name="Dias médios"
-              />
-            </LineChart>
           </ResponsiveContainer>
         </Card>
       </div>
