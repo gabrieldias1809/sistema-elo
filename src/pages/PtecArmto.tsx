@@ -28,7 +28,6 @@ const PtecArmto = () => {
   const [osToDelete, setOsToDelete] = useState<any>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
-  const [marcaSuggestions, setMarcaSuggestions] = useState<string[]>([]);
   const [memSuggestions, setMemSuggestions] = useState<string[]>([]);
   const [sistemaSuggestions, setSistemaSuggestions] = useState<string[]>([]);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -38,7 +37,6 @@ const PtecArmto = () => {
     numero_os: "",
     situacao: "",
     om_apoiada: "",
-    marca: "",
     mem: "",
     sistema: "",
     servico_solicitado: "",
@@ -72,7 +70,6 @@ const PtecArmto = () => {
         numero_os: editingOS.numero_os,
         situacao: editingOS.situacao || "",
         om_apoiada: editingOS.om_apoiada || "",
-        marca: editingOS.marca || "",
         mem: editingOS.mem || "",
         sistema: editingOS.sistema || "",
         servico_solicitado: editingOS.servico_solicitado || "",
@@ -99,12 +96,10 @@ const PtecArmto = () => {
     
     // Extract unique suggestions
     const uniqueOms = [...new Set(data?.map(d => d.om_apoiada).filter(Boolean))];
-    const uniqueMarcas = [...new Set(data?.map(d => d.marca).filter(Boolean))];
     const uniqueMems = [...new Set(data?.map(d => d.mem).filter(Boolean))];
     const uniqueSistemas = [...new Set(data?.map(d => d.sistema).filter(Boolean))];
     
     setOmSuggestions(uniqueOms);
-    setMarcaSuggestions(uniqueMarcas);
     setMemSuggestions(uniqueMems);
     setSistemaSuggestions(uniqueSistemas);
   };
@@ -126,7 +121,6 @@ const PtecArmto = () => {
     const missingFields: string[] = [];
     if (!formData.situacao) missingFields.push("Situação");
     if (!formData.om_apoiada) missingFields.push("OM Apoiada");
-    if (!formData.marca) missingFields.push("Marca");
     if (!formData.mem) missingFields.push("MEM");
     if (!formData.sistema) missingFields.push("Sistema");
     if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
@@ -179,7 +173,6 @@ const PtecArmto = () => {
       numero_os: "",
       situacao: "",
       om_apoiada: "",
-      marca: "",
       mem: "",
       sistema: "",
       servico_solicitado: "",
@@ -224,7 +217,6 @@ const PtecArmto = () => {
           <tr><td class="label">Nº OS</td><td>${item.numero_os}</td></tr>
           <tr><td class="label">Situação</td><td>${item.situacao}</td></tr>
           <tr><td class="label">OM Apoiada</td><td>${item.om_apoiada}</td></tr>
-          <tr><td class="label">Marca</td><td>${item.marca || '-'}</td></tr>
           <tr><td class="label">MEM</td><td>${item.mem || '-'}</td></tr>
           <tr><td class="label">Sistema</td><td>${item.sistema || '-'}</td></tr>
           <tr><td class="label">Quantidade Classe III</td><td>${item.quantidade_classe_iii || '-'} L</td></tr>
@@ -268,16 +260,6 @@ const PtecArmto = () => {
   };
 
   // Dados para gráficos
-  const marcasData = os.reduce((acc: any[], item) => {
-    const existing = acc.find((x) => x.name === item.marca);
-    if (existing) {
-      existing.value++;
-    } else {
-      acc.push({ name: item.marca || "N/A", value: 1 });
-    }
-    return acc;
-  }, []);
-
   const memData = os.reduce((acc: any[], item) => {
     const existing = acc.find((x) => x.name === item.mem);
     if (existing) {
@@ -386,17 +368,6 @@ const PtecArmto = () => {
                   />
                 </div>
                 <div>
-                  <Label>Marca</Label>
-                  <AutocompleteInput
-                    value={formData.marca}
-                    onChange={(value) =>
-                      setFormData({ ...formData, marca: value })
-                    }
-                    suggestions={marcaSuggestions}
-                    className="placeholder:text-transparent"
-                  />
-                </div>
-                <div>
                   <Label>MEM</Label>
                   <AutocompleteInput
                     value={formData.mem}
@@ -474,31 +445,6 @@ const PtecArmto = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Marcas mais recorrentes
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={marcasData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {marcasData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
             MEM mais recorrente
           </h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -565,7 +511,7 @@ const PtecArmto = () => {
                 <TableHead>Nº OS</TableHead>
                 <TableHead>Situação</TableHead>
                 <TableHead>OM Apoiada</TableHead>
-                <TableHead>Marca</TableHead>
+                <TableHead>MEM</TableHead>
                 <TableHead>Combustível (L)</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
@@ -587,7 +533,7 @@ const PtecArmto = () => {
                   <TableCell>{item.numero_os}</TableCell>
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
-                  <TableCell>{item.marca}</TableCell>
+                  <TableCell>{item.mem}</TableCell>
                   <TableCell>{item.quantidade_classe_iii || "-"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -673,10 +619,6 @@ const PtecArmto = () => {
                 <div>
                   <Label className="text-muted-foreground">OM Apoiada</Label>
                   <p className="font-medium">{viewingOS.om_apoiada}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Marca</Label>
-                  <p className="font-medium">{viewingOS.marca || "-"}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">MEM</Label>

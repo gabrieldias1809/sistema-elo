@@ -12,9 +12,10 @@ interface PedidoMaterialFormProps {
   ptecOrigem: string;
   oficinaDestino: string;
   onSuccess?: () => void;
+  tipoPedido?: 'suprimento' | 'complementar';
 }
 
-export const PedidoMaterialForm = ({ osOptions, ptecOrigem, oficinaDestino, onSuccess }: PedidoMaterialFormProps) => {
+export const PedidoMaterialForm = ({ osOptions, ptecOrigem, oficinaDestino, onSuccess, tipoPedido = 'suprimento' }: PedidoMaterialFormProps) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     material: "",
@@ -36,6 +37,7 @@ export const PedidoMaterialForm = ({ osOptions, ptecOrigem, oficinaDestino, onSu
         ptec_origem: ptecOrigem,
         oficina_destino: formData.oficina_destino || oficinaDestino,
         status: "Solicitado",
+        tipo_pedido: tipoPedido,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       },
     ]);

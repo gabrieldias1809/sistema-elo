@@ -28,22 +28,17 @@ const PtecOp = () => {
   const [osToDelete, setOsToDelete] = useState<any>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
-  const [marcaSuggestions, setMarcaSuggestions] = useState<string[]>([]);
-  const [memSuggestions, setMemSuggestions] = useState<string[]>([]);
-  const [sistemaSuggestions, setSistemaSuggestions] = useState<string[]>([]);
+  const [tipoPmsSuggestions, setTipoPmsSuggestions] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     numero_os: "",
+    ptec_origem: "op",
     situacao: "",
     om_apoiada: "",
-    marca: "",
-    mem: "",
-    sistema: "",
-    servico_solicitado: "",
+    tipo_pms: "",
     data_inicio: "",
     data_fim: "",
-    quantidade_classe_iii: "",
-    observacoes: "",
+    descricao_problema: "",
   });
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingOS, setViewingOS] = useState<any>(null);
@@ -70,16 +65,13 @@ const PtecOp = () => {
     } else if (open && editingOS) {
       setFormData({
         numero_os: editingOS.numero_os,
+        ptec_origem: editingOS.ptec_origem || "op",
         situacao: editingOS.situacao || "",
         om_apoiada: editingOS.om_apoiada || "",
-        marca: editingOS.marca || "",
-        mem: editingOS.mem || "",
-        sistema: editingOS.sistema || "",
-        servico_solicitado: editingOS.servico_solicitado || "",
+        tipo_pms: editingOS.tipo_pms || "",
         data_inicio: editingOS.data_inicio || "",
         data_fim: editingOS.data_fim || "",
-        quantidade_classe_iii: editingOS.quantidade_classe_iii?.toString() || "",
-        observacoes: editingOS.observacoes || "",
+        descricao_problema: editingOS.descricao_problema || "",
       });
     }
   }, [open, editingOS]);
@@ -99,14 +91,10 @@ const PtecOp = () => {
     
     // Extract unique suggestions
     const uniqueOms = [...new Set(data?.map(d => d.om_apoiada).filter(Boolean))];
-    const uniqueMarcas = [...new Set(data?.map(d => d.marca).filter(Boolean))];
-    const uniqueMems = [...new Set(data?.map(d => d.mem).filter(Boolean))];
-    const uniqueSistemas = [...new Set(data?.map(d => d.sistema).filter(Boolean))];
+    const uniqueTipoPms = [...new Set(data?.map(d => d.tipo_pms).filter(Boolean))];
     
     setOmSuggestions(uniqueOms);
-    setMarcaSuggestions(uniqueMarcas);
-    setMemSuggestions(uniqueMems);
-    setSistemaSuggestions(uniqueSistemas);
+    setTipoPmsSuggestions(uniqueTipoPms);
   };
 
   const getNextOSNumber = async () => {
@@ -126,10 +114,6 @@ const PtecOp = () => {
     const missingFields: string[] = [];
     if (!formData.situacao) missingFields.push("Situação");
     if (!formData.om_apoiada) missingFields.push("OM Apoiada");
-    if (!formData.marca) missingFields.push("Marca");
-    if (!formData.mem) missingFields.push("MEM");
-    if (!formData.sistema) missingFields.push("Sistema");
-    if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
 
     if (missingFields.length > 0) {
       toast.error(`Preencha os seguintes campos: ${missingFields.join(", ")}`);
@@ -140,9 +124,6 @@ const PtecOp = () => {
       ...formData,
       data_inicio: formData.data_inicio || null,
       data_fim: formData.data_fim || null,
-      quantidade_classe_iii: formData.quantidade_classe_iii
-        ? parseFloat(formData.quantidade_classe_iii)
-        : null,
     };
 
     if (editingOS) {
@@ -177,16 +158,13 @@ const PtecOp = () => {
     setEditingOS(null);
     setFormData({
       numero_os: "",
+      ptec_origem: "op",
       situacao: "",
       om_apoiada: "",
-      marca: "",
-      mem: "",
-      sistema: "",
-      servico_solicitado: "",
+      tipo_pms: "",
       data_inicio: "",
       data_fim: "",
-      quantidade_classe_iii: "",
-      observacoes: "",
+      descricao_problema: "",
     });
     fetchOS();
   };
@@ -222,17 +200,13 @@ const PtecOp = () => {
         <h1>Ordem de Serviço - ${item.numero_os}</h1>
         <table>
           <tr><td class="label">Nº OS</td><td>${item.numero_os}</td></tr>
+          <tr><td class="label">PTEC Origem</td><td>${item.ptec_origem?.toUpperCase() || 'OP'}</td></tr>
           <tr><td class="label">Situação</td><td>${item.situacao}</td></tr>
           <tr><td class="label">OM Apoiada</td><td>${item.om_apoiada}</td></tr>
-          <tr><td class="label">Marca</td><td>${item.marca || '-'}</td></tr>
-          <tr><td class="label">MEM</td><td>${item.mem || '-'}</td></tr>
-          <tr><td class="label">Sistema</td><td>${item.sistema || '-'}</td></tr>
-          <tr><td class="label">Quantidade Classe III</td><td>${item.quantidade_classe_iii || '-'} L</td></tr>
+          <tr><td class="label">Tipo de PMS</td><td>${item.tipo_pms || '-'}</td></tr>
           <tr><td class="label">Data Início</td><td>${item.data_inicio ? format(new Date(item.data_inicio), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
           <tr><td class="label">Data Fim</td><td>${item.data_fim ? format(new Date(item.data_fim), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
-          <tr><td class="label">Serviço Solicitado</td><td>${item.servico_solicitado || '-'}</td></tr>
-          <tr><td class="label">Serviço Realizado</td><td>${item.servico_realizado || '-'}</td></tr>
-          <tr><td class="label">Observações</td><td>${item.observacoes || '-'}</td></tr>
+          <tr><td class="label">Descrição do Problema</td><td>${item.descricao_problema || '-'}</td></tr>
         </table>
       </body>
       </html>
@@ -268,32 +242,12 @@ const PtecOp = () => {
   };
 
   // Dados para gráficos
-  const marcasData = os.reduce((acc: any[], item) => {
-    const existing = acc.find((x) => x.name === item.marca);
+  const tipoPmsData = os.reduce((acc: any[], item) => {
+    const existing = acc.find((x) => x.name === item.tipo_pms);
     if (existing) {
       existing.value++;
     } else {
-      acc.push({ name: item.marca || "N/A", value: 1 });
-    }
-    return acc;
-  }, []);
-
-  const memData = os.reduce((acc: any[], item) => {
-    const existing = acc.find((x) => x.name === item.mem);
-    if (existing) {
-      existing.value++;
-    } else {
-      acc.push({ name: item.mem || "N/A", value: 1 });
-    }
-    return acc;
-  }, []);
-
-  const sistemaData = os.reduce((acc: any[], item) => {
-    const existing = acc.find((x) => x.name === item.sistema);
-    if (existing) {
-      existing.value++;
-    } else {
-      acc.push({ name: item.sistema || "N/A", value: 1 });
+      acc.push({ name: item.tipo_pms || "N/A", value: 1 });
     }
     return acc;
   }, []);
@@ -378,35 +332,13 @@ const PtecOp = () => {
                   />
                 </div>
                 <div>
-                  <Label>Marca</Label>
+                  <Label>Tipo de PMS</Label>
                   <AutocompleteInput
-                    value={formData.marca}
+                    value={formData.tipo_pms}
                     onChange={(value) =>
-                      setFormData({ ...formData, marca: value })
+                      setFormData({ ...formData, tipo_pms: value })
                     }
-                    suggestions={marcaSuggestions}
-                    className="placeholder:text-transparent"
-                  />
-                </div>
-                <div>
-                  <Label>MEM</Label>
-                  <AutocompleteInput
-                    value={formData.mem}
-                    onChange={(value) =>
-                      setFormData({ ...formData, mem: value })
-                    }
-                    suggestions={memSuggestions}
-                    className="placeholder:text-transparent"
-                  />
-                </div>
-                <div>
-                  <Label>Sistema</Label>
-                  <AutocompleteInput
-                    value={formData.sistema}
-                    onChange={(value) =>
-                      setFormData({ ...formData, sistema: value })
-                    }
-                    suggestions={sistemaSuggestions}
+                    suggestions={tipoPmsSuggestions}
                     className="placeholder:text-transparent"
                   />
                 </div>
@@ -434,23 +366,14 @@ const PtecOp = () => {
                 </div>
               </div>
               <div>
-                <Label>Serviço Solicitado</Label>
+                <Label>Descrição do Problema</Label>
                 <Textarea
-                  value={formData.servico_solicitado}
+                  value={formData.descricao_problema}
                   onChange={(e) =>
-                    setFormData({ ...formData, servico_solicitado: e.target.value })
+                    setFormData({ ...formData, descricao_problema: e.target.value })
                   }
                   className="placeholder:text-transparent"
-                />
-              </div>
-              <div>
-                <Label>Observações</Label>
-                <Textarea
-                  value={formData.observacoes}
-                  onChange={(e) =>
-                    setFormData({ ...formData, observacoes: e.target.value })
-                  }
-                  className="placeholder:text-transparent"
+                  rows={5}
                 />
               </div>
               <Button type="submit" className="w-full gradient-primary text-white">
@@ -466,55 +389,15 @@ const PtecOp = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Marcas mais recorrentes
+            Tipos de PMS
           </h3>
           <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={marcasData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {marcasData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            MEM mais recorrente
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={memData}>
+            <BarChart data={tipoPmsData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
               <Bar dataKey="value" fill="#C43302" />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Sistemas com mais falhas
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={sistemaData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#EDAA25" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -557,8 +440,8 @@ const PtecOp = () => {
                 <TableHead>Nº OS</TableHead>
                 <TableHead>Situação</TableHead>
                 <TableHead>OM Apoiada</TableHead>
-                <TableHead>Marca</TableHead>
-                <TableHead>Combustível (L)</TableHead>
+                <TableHead>Tipo PMS</TableHead>
+                <TableHead>Data Início</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -579,8 +462,8 @@ const PtecOp = () => {
                   <TableCell>{item.numero_os}</TableCell>
                   <TableCell>{item.situacao}</TableCell>
                   <TableCell>{item.om_apoiada}</TableCell>
-                  <TableCell>{item.marca}</TableCell>
-                  <TableCell>{item.quantidade_classe_iii || "-"}</TableCell>
+                  <TableCell>{item.tipo_pms || "-"}</TableCell>
+                  <TableCell>{item.data_inicio ? format(new Date(item.data_inicio), 'dd/MM/yyyy') : "-"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
@@ -659,6 +542,10 @@ const PtecOp = () => {
                   <p className="font-medium">{viewingOS.numero_os}</p>
                 </div>
                 <div>
+                  <Label className="text-muted-foreground">PTEC Origem</Label>
+                  <p className="font-medium">{viewingOS.ptec_origem?.toUpperCase() || 'OP'}</p>
+                </div>
+                <div>
                   <Label className="text-muted-foreground">Situação</Label>
                   <p className="font-medium">{viewingOS.situacao}</p>
                 </div>
@@ -667,20 +554,8 @@ const PtecOp = () => {
                   <p className="font-medium">{viewingOS.om_apoiada}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">Marca</Label>
-                  <p className="font-medium">{viewingOS.marca || "-"}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">MEM</Label>
-                  <p className="font-medium">{viewingOS.mem || "-"}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Sistema</Label>
-                  <p className="font-medium">{viewingOS.sistema || "-"}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Quantidade Classe III (Litros)</Label>
-                  <p className="font-medium">{viewingOS.quantidade_classe_iii || "-"}</p>
+                  <Label className="text-muted-foreground">Tipo de PMS</Label>
+                  <p className="font-medium">{viewingOS.tipo_pms || "-"}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Data Início</Label>
@@ -700,16 +575,8 @@ const PtecOp = () => {
                 </div>
               </div>
               <div>
-                <Label className="text-muted-foreground">Serviço Solicitado</Label>
-                <p className="font-medium whitespace-pre-wrap">{viewingOS.servico_solicitado || "-"}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Serviço Realizado</Label>
-                <p className="font-medium whitespace-pre-wrap">{viewingOS.servico_realizado || "-"}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Observações</Label>
-                <p className="font-medium whitespace-pre-wrap">{viewingOS.observacoes || "-"}</p>
+                <Label className="text-muted-foreground">Descrição do Problema</Label>
+                <p className="font-medium whitespace-pre-wrap">{viewingOS.descricao_problema || "-"}</p>
               </div>
             </div>
           )}

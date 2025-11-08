@@ -145,6 +145,47 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
     setLoadingPedidos(false);
   };
 
+  const handlePrintOS = (os: ConsolidatedOS) => {
+    const printWindow = window.open('', '', 'width=800,height=600');
+    if (!printWindow) return;
+
+    const content = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>OS ${os.numero_os}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { text-align: center; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          td { padding: 8px; border: 1px solid #ddd; }
+          .label { font-weight: bold; width: 30%; background: #f5f5f5; }
+        </style>
+      </head>
+      <body>
+        <h1>Ordem de Serviço - ${os.numero_os}</h1>
+        <table>
+          <tr><td class="label">Nº OS</td><td>${os.numero_os}</td></tr>
+          <tr><td class="label">PTEC Origem</td><td>${os.ptec_origem?.toUpperCase()}</td></tr>
+          <tr><td class="label">Situação</td><td>${os.situacao}</td></tr>
+          <tr><td class="label">OM Apoiada</td><td>${os.om_apoiada}</td></tr>
+          <tr><td class="label">Marca</td><td>${os.marca || '-'}</td></tr>
+          <tr><td class="label">MEM</td><td>${os.mem || '-'}</td></tr>
+          <tr><td class="label">Sistema</td><td>${os.sistema || '-'}</td></tr>
+          <tr><td class="label">Tipo Manutenção</td><td>${os.tipo_manutencao || '-'}</td></tr>
+          <tr><td class="label">Data Início</td><td>${os.data_inicio ? format(new Date(os.data_inicio), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
+          <tr><td class="label">Data Fim</td><td>${os.data_fim ? format(new Date(os.data_fim), 'dd/MM/yyyy HH:mm') : '-'}</td></tr>
+          <tr><td class="label">Serviço Solicitado</td><td>${os.servico_solicitado || '-'}</td></tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   const handleDeleteOS = async (osId: string) => {
     try {
       const { error } = await supabase
@@ -536,7 +577,20 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Detalhes da OS {selectedOS?.numero_os}</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Detalhes da OS {selectedOS?.numero_os}</span>
+              {selectedOS && (
+                <Button
+                  onClick={() => handlePrintOS(selectedOS)}
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto"
+                >
+                  <i className="ri-printer-line mr-2"></i>
+                  Imprimir
+                </Button>
+              )}
+            </DialogTitle>
           </DialogHeader>
           {selectedOS && (
             <div className="grid grid-cols-2 gap-4">

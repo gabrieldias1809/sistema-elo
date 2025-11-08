@@ -339,7 +339,6 @@ export type Database = {
           data_fim: string | null
           data_inicio: string | null
           id: string
-          marca: string | null
           mem: string | null
           numero_os: string
           observacoes: string | null
@@ -358,7 +357,6 @@ export type Database = {
           data_fim?: string | null
           data_inicio?: string | null
           id?: string
-          marca?: string | null
           mem?: string | null
           numero_os: string
           observacoes?: string | null
@@ -377,7 +375,6 @@ export type Database = {
           data_fim?: string | null
           data_inicio?: string | null
           id?: string
-          marca?: string | null
           mem?: string | null
           numero_os?: string
           observacoes?: string | null
@@ -635,18 +632,13 @@ export type Database = {
           created_by: string | null
           data_fim: string | null
           data_inicio: string | null
+          descricao_problema: string | null
           id: string
-          marca: string | null
-          mem: string | null
           numero_os: string
-          observacoes: string | null
           om_apoiada: string
-          quantidade_classe_iii: number | null
-          servico_realizado: string | null
-          servico_solicitado: string | null
-          sistema: string | null
+          ptec_origem: string
           situacao: string
-          situacao_atual: string | null
+          tipo_pms: string | null
           updated_at: string
         }
         Insert: {
@@ -654,18 +646,13 @@ export type Database = {
           created_by?: string | null
           data_fim?: string | null
           data_inicio?: string | null
+          descricao_problema?: string | null
           id?: string
-          marca?: string | null
-          mem?: string | null
           numero_os: string
-          observacoes?: string | null
           om_apoiada: string
-          quantidade_classe_iii?: number | null
-          servico_realizado?: string | null
-          servico_solicitado?: string | null
-          sistema?: string | null
+          ptec_origem?: string
           situacao: string
-          situacao_atual?: string | null
+          tipo_pms?: string | null
           updated_at?: string
         }
         Update: {
@@ -673,18 +660,13 @@ export type Database = {
           created_by?: string | null
           data_fim?: string | null
           data_inicio?: string | null
+          descricao_problema?: string | null
           id?: string
-          marca?: string | null
-          mem?: string | null
           numero_os?: string
-          observacoes?: string | null
           om_apoiada?: string
-          quantidade_classe_iii?: number | null
-          servico_realizado?: string | null
-          servico_solicitado?: string | null
-          sistema?: string | null
+          ptec_origem?: string
           situacao?: string
-          situacao_atual?: string | null
+          tipo_pms?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -701,6 +683,7 @@ export type Database = {
           ptec_origem: string
           quantidade: number
           status: string
+          tipo_pedido: string
           updated_at: string
         }
         Insert: {
@@ -714,6 +697,7 @@ export type Database = {
           ptec_origem: string
           quantidade?: number
           status?: string
+          tipo_pedido?: string
           updated_at?: string
         }
         Update: {
@@ -727,6 +711,7 @@ export type Database = {
           ptec_origem?: string
           quantidade?: number
           status?: string
+          tipo_pedido?: string
           updated_at?: string
         }
         Relationships: []
