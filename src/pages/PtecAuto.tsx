@@ -32,7 +32,6 @@ const PtecAuto = () => {
   const [omSuggestions, setOmSuggestions] = useState<string[]>([]);
   const [marcaSuggestions, setMarcaSuggestions] = useState<string[]>([]);
   const [memSuggestions, setMemSuggestions] = useState<string[]>([]);
-  const [sistemaSuggestions, setSistemaSuggestions] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     numero_os: "",
@@ -40,7 +39,6 @@ const PtecAuto = () => {
     om_apoiada: "",
     marca: "",
     mem: "",
-    sistema: "",
     tipo_manutencao: "",
     registro_numero_material: "",
     servico_solicitado: "",
@@ -79,7 +77,6 @@ const PtecAuto = () => {
         om_apoiada: editingOS.om_apoiada || "",
         marca: editingOS.marca || "",
         mem: editingOS.mem || "",
-        sistema: editingOS.sistema || "",
         tipo_manutencao: editingOS.tipo_manutencao || "",
         registro_numero_material: editingOS.registro_numero_material || "",
         servico_solicitado: editingOS.servico_solicitado || "",
@@ -107,12 +104,10 @@ const PtecAuto = () => {
     const uniqueOms = [...new Set(data?.map(d => d.om_apoiada).filter(Boolean))];
     const uniqueMarcas = [...new Set(data?.map(d => d.marca).filter(Boolean))];
     const uniqueMems = [...new Set(data?.map(d => d.mem).filter(Boolean))];
-    const uniqueSistemas = [...new Set(data?.map(d => d.sistema).filter(Boolean))];
     
     setOmSuggestions(uniqueOms);
     setMarcaSuggestions(uniqueMarcas);
     setMemSuggestions(uniqueMems);
-    setSistemaSuggestions(uniqueSistemas);
   };
 
   const getNextOSNumber = async () => {
@@ -134,8 +129,7 @@ const PtecAuto = () => {
     if (!formData.om_apoiada) missingFields.push("OM Apoiada");
     if (!formData.marca) missingFields.push("Marca");
     if (!formData.mem) missingFields.push("MEM");
-    if (!formData.sistema) missingFields.push("Sistema");
-    if (!formData.tipo_manutencao) missingFields.push("Tipo de Manutenção");
+    if (!formData.tipo_manutencao) missingFields.push("Tipo de PMS");
     if (!formData.registro_numero_material) missingFields.push("Registro ou Nº do Material");
     if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
 
@@ -186,7 +180,6 @@ const PtecAuto = () => {
       om_apoiada: "",
       marca: "",
       mem: "",
-      sistema: "",
       tipo_manutencao: "",
       registro_numero_material: "",
       servico_solicitado: "",
@@ -427,18 +420,7 @@ const PtecAuto = () => {
                   />
                 </div>
                 <div>
-                  <Label>Sistema</Label>
-                  <AutocompleteInput
-                    value={formData.sistema}
-                    onChange={(value) =>
-                      setFormData({ ...formData, sistema: value })
-                    }
-                    suggestions={sistemaSuggestions}
-                    className="placeholder:text-transparent"
-                  />
-                </div>
-                <div>
-                  <Label>Tipo de Manutenção</Label>
+                  <Label>Tipo de PMS</Label>
                   <Select
                     value={formData.tipo_manutencao}
                     onValueChange={(value) =>
@@ -468,6 +450,19 @@ const PtecAuto = () => {
                   />
                 </div>
               </div>
+              <div>
+                <Label>Observações do Material</Label>
+                <Textarea
+                  value={formData.observacoes_material}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      observacoes_material: e.target.value,
+                    })
+                  }
+                  className="placeholder:text-transparent"
+                />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <Label>Data Início</Label>
@@ -495,16 +490,6 @@ const PtecAuto = () => {
                   value={formData.servico_solicitado}
                   onChange={(e) =>
                     setFormData({ ...formData, servico_solicitado: e.target.value })
-                  }
-                  className="placeholder:text-transparent"
-                />
-              </div>
-              <div>
-                <Label>Observações do Material</Label>
-                <Textarea
-                  value={formData.observacoes_material}
-                  onChange={(e) =>
-                    setFormData({ ...formData, observacoes_material: e.target.value })
                   }
                   className="placeholder:text-transparent"
                 />
