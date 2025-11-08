@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
+import { CustomTooltip } from "@/components/CustomTooltip";
 import jsPDF from "jspdf";
 import { getNextCentralizedOSNumber } from "@/hooks/useCentralizedOSNumber";
 

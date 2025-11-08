@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 const PtecMB = () => {
   const [os, setOS] = useState<any[]>([]);

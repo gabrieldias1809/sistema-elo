@@ -14,6 +14,7 @@ import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { RefreshButton } from "@/components/RefreshButton";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 import { format } from "date-fns";

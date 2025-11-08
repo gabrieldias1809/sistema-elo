@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
 import { format } from "date-fns";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
+import { CustomTooltip } from "@/components/CustomTooltip";
 import { getNextCentralizedOSNumber } from "@/hooks/useCentralizedOSNumber";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];

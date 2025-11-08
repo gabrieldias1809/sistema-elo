@@ -25,6 +25,7 @@ import {
   Cell,
 } from "recharts";
 import { RefreshButton } from "@/components/RefreshButton";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 interface Material {
   material: string;

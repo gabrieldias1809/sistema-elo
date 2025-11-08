@@ -27,6 +27,7 @@ import {
   Cell,
 } from "recharts";
 import { format } from "date-fns";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 const COLORS = ["#010221", "#0A7373", "#B7BF99", "#EDAA25", "#C43302"];
 
