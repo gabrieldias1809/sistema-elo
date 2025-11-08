@@ -45,9 +45,7 @@ const CiaMnt = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">Cia Mnt</h1>
-        <p className="text-muted-foreground">
-          Companhia de Manutenção - Supervisão de Pelotões Técnicos
-        </p>
+        <p className="text-muted-foreground">Companhia de Manutenção - Supervisão de Pelotões Técnicos</p>
       </div>
 
       {/* Tabs */}
@@ -84,31 +82,31 @@ const CiaMnt = () => {
                   <SelectItem value="com">
                     <div className="flex items-center gap-2">
                       <i className="ri-radio-line"></i>
-                      Ptec Com - Comunicações
+                      Ptec Com
                     </div>
                   </SelectItem>
                   <SelectItem value="auto">
                     <div className="flex items-center gap-2">
                       <i className="ri-car-line"></i>
-                      Ptec Auto - Automotiva
+                      Ptec Auto
                     </div>
                   </SelectItem>
                   <SelectItem value="blind">
                     <div className="flex items-center gap-2">
                       <i className="ri-shield-line"></i>
-                      Ptec Blind - Blindados
+                      Ptec Blind
                     </div>
                   </SelectItem>
                   <SelectItem value="op">
                     <div className="flex items-center gap-2">
                       <i className="ri-hammer-line"></i>
-                      Ptec Op - Optrônicos
+                      Ptec Op
                     </div>
                   </SelectItem>
                   <SelectItem value="armto">
                     <div className="flex items-center gap-2">
                       <i className="ri-sword-line"></i>
-                      Ptec Armto - Armamento
+                      Ptec Armto
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -116,9 +114,7 @@ const CiaMnt = () => {
             </div>
           </Card>
 
-          <div>
-            {renderPtecContent()}
-          </div>
+          <div>{renderPtecContent()}</div>
         </TabsContent>
       </Tabs>
     </div>
