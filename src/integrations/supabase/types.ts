@@ -28,12 +28,14 @@ export type Database = {
           om_apoiada: string
           ptec_origem: string
           quantidade_classe_iii: number | null
+          registro_material: string | null
           servico_realizado: string | null
           servico_solicitado: string | null
           sistema: string | null
           situacao: string
           situacao_atual: string | null
           tipo_manutencao: string | null
+          tipo_viatura: string | null
           updated_at: string
         }
         Insert: {
@@ -49,12 +51,14 @@ export type Database = {
           om_apoiada: string
           ptec_origem: string
           quantidade_classe_iii?: number | null
+          registro_material?: string | null
           servico_realizado?: string | null
           servico_solicitado?: string | null
           sistema?: string | null
           situacao: string
           situacao_atual?: string | null
           tipo_manutencao?: string | null
+          tipo_viatura?: string | null
           updated_at?: string
         }
         Update: {
@@ -70,12 +74,14 @@ export type Database = {
           om_apoiada?: string
           ptec_origem?: string
           quantidade_classe_iii?: number | null
+          registro_material?: string | null
           servico_realizado?: string | null
           servico_solicitado?: string | null
           sistema?: string | null
           situacao?: string
           situacao_atual?: string | null
           tipo_manutencao?: string | null
+          tipo_viatura?: string | null
           updated_at?: string
         }
         Relationships: []
