@@ -13,7 +13,6 @@ import { getNextCentralizedOSNumber } from "@/hooks/useCentralizedOSNumber";
 import { ConsolidatedOSTable } from "@/components/cia-mnt/ConsolidatedOSTable";
 import { PTECOSTable } from "@/components/cia-mnt/PTECOSTable";
 import { PColSlvTable } from "@/components/cia-mnt/PColSlvTable";
-import PelPMntOSTable from "@/components/cia-mnt/PelPMntOSTable";
 import { AutocompleteInput } from "@/components/AutocompleteInput";
 import { useSuggestions } from "@/hooks/useSuggestions";
 
@@ -29,7 +28,6 @@ const CiaMnt = () => {
     mem: "",
     sistema: "",
     tipo_manutencao: "",
-    tipo_viatura: "",
     registro_numero_material: "",
     servico_solicitado: "",
     data_inicio: "",
@@ -81,7 +79,8 @@ const CiaMnt = () => {
     // Mapear nome da tabela baseado no PTEC
     const tableMap: Record<string, string> = {
       com: "ptec_com_os",
-      pel_p_mnt: "pel_p_mnt_os",
+      auto: "ptec_auto_os",
+      blind: "ptec_blind_os",
       op: "ptec_op_os",
       armto: "ptec_armto_os",
     };
@@ -114,13 +113,8 @@ const CiaMnt = () => {
       dataToSubmit.sistema = formData.sistema;
     }
     
-    // Adicionar tipo_viatura para Pel P Mnt
-    if (formData.ptec_origem === "pel_p_mnt" && formData.tipo_viatura) {
-      dataToSubmit.tipo_viatura = formData.tipo_viatura;
-    }
-    
-    // Adicionar registro_material para Pel P Mnt e Armto
-    if (["pel_p_mnt", "armto"].includes(formData.ptec_origem) && formData.registro_numero_material) {
+    // Adicionar registro_material para Auto, Blind e Armto
+    if (["auto", "blind", "armto"].includes(formData.ptec_origem) && formData.registro_numero_material) {
       dataToSubmit.registro_material = formData.registro_numero_material;
     }
     
@@ -173,7 +167,6 @@ const CiaMnt = () => {
         mem: "",
         sistema: "",
         tipo_manutencao: "",
-        tipo_viatura: "",
         registro_numero_material: "",
         servico_solicitado: "",
         data_inicio: "",
@@ -189,9 +182,8 @@ const CiaMnt = () => {
 
   // Determinar quais campos mostrar baseado no PTEC selecionado
   const showSistema = ["com", "op"].includes(formData.ptec_origem);
-  const showTipoViatura = formData.ptec_origem === "pel_p_mnt";
-  const showRegistroMaterial = ["pel_p_mnt", "armto"].includes(formData.ptec_origem);
-  const showMarca = !["armto"].includes(formData.ptec_origem);
+  const showRegistroMaterial = ["auto", "blind", "armto"].includes(formData.ptec_origem);
+  const showMarca = formData.ptec_origem !== "armto";
 
   return (
     <div className="space-y-6">
@@ -228,7 +220,8 @@ const CiaMnt = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="com">Ptec Com</SelectItem>
-                      <SelectItem value="pel_p_mnt">Pel P Mnt</SelectItem>
+                      <SelectItem value="auto">Ptec Auto</SelectItem>
+                      <SelectItem value="blind">Ptec Blind</SelectItem>
                       <SelectItem value="op">Ptec Op</SelectItem>
                       <SelectItem value="armto">Ptec Armto</SelectItem>
                     </SelectContent>
@@ -297,23 +290,6 @@ const CiaMnt = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                {showTipoViatura && (
-                  <div>
-                    <Label>Tipo de Viatura</Label>
-                    <Select
-                      value={formData.tipo_viatura}
-                      onValueChange={(value) => setFormData({ ...formData, tipo_viatura: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="blindado">Blindado</SelectItem>
-                        <SelectItem value="não blindado">Não Blindado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
                 {showRegistroMaterial && (
                   <div>
                     <Label>Registro ou Nº do Material</Label>
@@ -397,7 +373,6 @@ const CiaMnt = () => {
                       mem: "",
                       sistema: "",
                       tipo_manutencao: "",
-                      tipo_viatura: "",
                       registro_numero_material: "",
                       servico_solicitado: "",
                       data_inicio: "",
@@ -415,7 +390,7 @@ const CiaMnt = () => {
         </Dialog>
 
       <Tabs defaultValue="consolidado" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="consolidado">
             <i className="ri-dashboard-line mr-2"></i>
             Consolidado
@@ -424,9 +399,13 @@ const CiaMnt = () => {
             <i className="ri-wifi-line mr-2"></i>
             Ptec Com
           </TabsTrigger>
-          <TabsTrigger value="pel-p-mnt">
+          <TabsTrigger value="auto">
             <i className="ri-car-line mr-2"></i>
-            Pel P Mnt
+            Ptec Auto
+          </TabsTrigger>
+          <TabsTrigger value="blind">
+            <i className="ri-shield-line mr-2"></i>
+            Ptec Blind
           </TabsTrigger>
           <TabsTrigger value="op">
             <i className="ri-settings-3-line mr-2"></i>
@@ -447,8 +426,11 @@ const CiaMnt = () => {
         <TabsContent value="com">
           <PTECOSTable ptecOrigem="com" onCreateOS={() => handleOpenDialog("com")} />
         </TabsContent>
-        <TabsContent value="pel-p-mnt">
-          <PelPMntOSTable onCreateOS={() => handleOpenDialog("pel_p_mnt")} />
+        <TabsContent value="auto">
+          <PTECOSTable ptecOrigem="auto" onCreateOS={() => handleOpenDialog("auto")} />
+        </TabsContent>
+        <TabsContent value="blind">
+          <PTECOSTable ptecOrigem="blind" onCreateOS={() => handleOpenDialog("blind")} />
         </TabsContent>
         <TabsContent value="op">
           <PTECOSTable ptecOrigem="op" onCreateOS={() => handleOpenDialog("op")} />
