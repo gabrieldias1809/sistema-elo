@@ -230,6 +230,7 @@ const PtecCom = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("📝 Iniciando criação/atualização de OS", { formData, editingOS });
 
     // Validação de campos obrigatórios
     const missingFields: string[] = [];
@@ -241,6 +242,7 @@ const PtecCom = () => {
     if (!formData.servico_solicitado) missingFields.push("Serviço Solicitado");
 
     if (missingFields.length > 0) {
+      console.error("❌ Campos obrigatórios faltando:", missingFields);
       toast.error(`Preencha os seguintes campos: ${missingFields.join(", ")}`);
       return;
     }
@@ -251,32 +253,43 @@ const PtecCom = () => {
       data_fim: formData.data_fim || null,
       data_inicio: formData.data_inicio || null,
     };
+    
+    console.log("✅ Dados validados, preparando para enviar:", dataToSubmit);
 
     if (editingOS) {
+      console.log("📝 Atualizando OS existente:", editingOS.id);
       const { error } = await supabase
         .from("ptec_com_os")
         .update(dataToSubmit)
         .eq("id", editingOS.id);
 
       if (error) {
+        console.error("❌ Erro ao atualizar OS:", error);
         toast.error("Erro ao atualizar OS");
         return;
       }
 
+      console.log("✅ OS atualizada com sucesso!");
       toast.success("OS atualizada com sucesso!");
     } else {
+      console.log("📝 Criando nova OS");
+      const user = await supabase.auth.getUser();
+      console.log("👤 Usuário atual:", user.data.user?.id);
+      
       const { error } = await supabase.from("ptec_com_os").insert([
         {
           ...dataToSubmit,
-          created_by: (await supabase.auth.getUser()).data.user?.id,
+          created_by: user.data.user?.id,
         },
       ]);
 
       if (error) {
+        console.error("❌ Erro ao criar OS:", error);
         toast.error("Erro ao criar OS");
         return;
       }
 
+      console.log("✅ OS criada com sucesso!");
       toast.success("OS criada com sucesso!");
     }
 
