@@ -348,7 +348,7 @@ export const ConsolidatedOSTable = () => {
                   <TableHead>Nº OS</TableHead>
                   <TableHead>PTEC</TableHead>
                   <TableHead>OM Apoiada</TableHead>
-                  <TableHead>Marca</TableHead>
+                  <TableHead>Marca/Reg. Material</TableHead>
                   <TableHead>MEM</TableHead>
                   <TableHead>Sistema</TableHead>
                   <TableHead>Tipo Mnt</TableHead>
@@ -374,9 +374,11 @@ export const ConsolidatedOSTable = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>{item.om_apoiada}</TableCell>
-                      <TableCell>{item.marca || "-"}</TableCell>
+                      <TableCell>
+                        {item.ptec_origem === 'armto' ? (item as any).registro_material || "-" : item.marca || "-"}
+                      </TableCell>
                       <TableCell>{item.mem || "-"}</TableCell>
-                      <TableCell>{item.sistema || "-"}</TableCell>
+                      <TableCell>{item.ptec_origem === 'armto' ? "-" : item.sistema || "-"}</TableCell>
                       <TableCell>
                         {item.tipo_manutencao ? (
                           <Badge variant="outline">{item.tipo_manutencao}</Badge>
