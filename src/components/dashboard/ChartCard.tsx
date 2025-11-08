@@ -5,7 +5,7 @@ import { ModuleData } from "@/hooks/useDashboardData";
 
 interface ChartCardProps {
   module: ModuleData;
-  chartType: 'bar' | 'pie' | 'sistema' | 'mem';
+  chartType: 'bar' | 'pie' | 'sistema' | 'mem' | 'interacao';
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
@@ -13,7 +13,20 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 export const ChartCard = ({ module, chartType }: ChartCardProps) => {
   // Processar dados para gráficos
   const getChartData = () => {
-    if (chartType === 'sistema') {
+    if (chartType === 'interacao') {
+      // Interação do público (ACISO - Cia RH)
+      if (module.id === 'cia_rh') {
+        const interacaoCount: Record<string, number> = {};
+        module.data.forEach((item: any) => {
+          const key = item.interacao_publico || 'Não especificado';
+          interacaoCount[key] = (interacaoCount[key] || 0) + 1;
+        });
+        return Object.entries(interacaoCount)
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, value]) => ({ name, value }));
+      }
+      return [];
+    } else if (chartType === 'sistema') {
       // Sistemas com mais falhas (PTECs e Oficinas)
       if (module.id.includes('ptec_') || module.id.includes('oficina_')) {
         const sistemaCount: Record<string, number> = {};
@@ -176,7 +189,9 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
   
   // Títulos específicos por módulo
   const getTitle = () => {
-    if (chartType === 'sistema') {
+    if (chartType === 'interacao') {
+      return 'Satisfação do Público';
+    } else if (chartType === 'sistema') {
       return 'Sistemas com Mais Falhas';
     } else if (chartType === 'mem') {
       return 'MEM com Mais Recorrência';
@@ -235,6 +250,14 @@ export const ChartCard = ({ module, chartType }: ChartCardProps) => {
               <YAxis />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="value" fill="hsl(var(--primary))" />
+            </BarChart>
+          ) : chartType === 'interacao' ? (
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="value" fill="hsl(var(--purple-500))" />
             </BarChart>
           ) : (
             <PieChart>

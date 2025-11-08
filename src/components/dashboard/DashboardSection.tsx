@@ -115,6 +115,12 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
           <ChartCard module={module} chartType="pie" />
           <CiaSauCharts module={module} />
         </div>
+      ) : module.id === 'cia_rh' || module.id === 'ptec_rh' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ChartCard module={module} chartType="bar" />
+          <ChartCard module={module} chartType="pie" />
+          <ChartCard module={module} chartType="interacao" />
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ChartCard module={module} chartType="bar" />
