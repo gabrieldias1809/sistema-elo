@@ -36,19 +36,21 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
     
     const totalAcisos = module.data.length;
     
-    // Contar interações com o público
-    const interacaoCount: Record<string, number> = {};
-    module.data.forEach((item: any) => {
-      const key = item.interacao_publico || 'Não especificado';
-      interacaoCount[key] = (interacaoCount[key] || 0) + 1;
-    });
+    // Contar interações específicas
+    const muitoSatisfeito = module.data.filter(
+      (item: any) => item.interacao_publico?.toLowerCase().includes('muito satisfeito')
+    ).length;
     
-    // Pegar as 3 principais interações
-    const topInteracoes = Object.entries(interacaoCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
+    const satisfeito = module.data.filter(
+      (item: any) => item.interacao_publico?.toLowerCase() === 'satisfeito'
+    ).length;
     
-    return { totalAcisos, topInteracoes };
+    const insatisfeito = module.data.filter(
+      (item: any) => item.interacao_publico?.toLowerCase().includes('insatisfeito') &&
+                     !item.interacao_publico?.toLowerCase().includes('muito')
+    ).length;
+    
+    return { totalAcisos, muitoSatisfeito, satisfeito, insatisfeito };
   };
 
   // Calcular estatísticas específicas para Cia Trp, Cia Sup e COL
@@ -105,12 +107,18 @@ export const DashboardSection = ({ module }: DashboardSectionProps) => {
                 <div className="text-sm opacity-90">Total de ACISOs</div>
               </div>
               <div className="grid grid-cols-3 gap-2 mt-4">
-                {rhStats.topInteracoes.map(([interacao, count], index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-2xl font-bold">{count}</div>
-                    <div className="text-xs opacity-90">{interacao}</div>
-                  </div>
-                ))}
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{rhStats.muitoSatisfeito}</div>
+                  <div className="text-xs opacity-90">Muito Satisfeito</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{rhStats.satisfeito}</div>
+                  <div className="text-xs opacity-90">Satisfeito</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{rhStats.insatisfeito}</div>
+                  <div className="text-xs opacity-90">Insatisfeito</div>
+                </div>
               </div>
             </div>
           ) : logisticStats ? (
