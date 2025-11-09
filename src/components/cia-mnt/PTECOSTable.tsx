@@ -232,10 +232,36 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
   const handleUpdateOS = async () => {
     if (!selectedOS) return;
 
+    // Validar se o número da OS mudou e verificar duplicação
+    const osOriginal = os.find(item => item.id === selectedOS.id);
+    
+    if (osOriginal && osOriginal.numero_os !== selectedOS.numero_os) {
+      // Verificar se o novo número já existe no mesmo PTEC
+      const { data: existingOS, error: checkError } = await supabase
+        .from("cia_mnt_os_centralizadas")
+        .select("numero_os")
+        .eq("numero_os", selectedOS.numero_os.trim())
+        .eq("ptec_origem", ptecOrigem)
+        .neq("id", selectedOS.id)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error("❌ Erro ao verificar OS existente:", checkError);
+        toast.error("Erro ao verificar número da OS");
+        return;
+      }
+
+      if (existingOS) {
+        toast.error(`Número da OS ${selectedOS.numero_os} já existe no PTEC ${ptecOrigem.toUpperCase()}. Escolha outro número.`);
+        return;
+      }
+    }
+
     try {
       const { error } = await supabase
         .from("cia_mnt_os_centralizadas")
         .update({
+          numero_os: selectedOS.numero_os,
           situacao: selectedOS.situacao,
           om_apoiada: selectedOS.om_apoiada,
           marca: selectedOS.marca,
@@ -688,6 +714,13 @@ export const PTECOSTable = ({ ptecOrigem, onCreateOS }: PTECOSTableProps) => {
           </DialogHeader>
           {selectedOS && (
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Nº OS</Label>
+                <Input
+                  value={selectedOS.numero_os}
+                  onChange={(e) => setSelectedOS({ ...selectedOS, numero_os: e.target.value })}
+                />
+              </div>
               <div>
                 <Label>Situação</Label>
                 <Select
