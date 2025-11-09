@@ -78,11 +78,17 @@ const CiaMnt = () => {
       return;
     }
 
-    // Verificar se o número da OS já existe
+    if (!formData.ptec_origem) {
+      toast.error("PTEC de origem é obrigatório");
+      return;
+    }
+
+    // Verificar se o número da OS já existe no mesmo PTEC
     const { data: existingOS, error: checkError } = await supabase
       .from("cia_mnt_os_centralizadas")
       .select("numero_os")
       .eq("numero_os", formData.numero_os.trim())
+      .eq("ptec_origem", formData.ptec_origem)
       .maybeSingle();
 
     if (checkError) {
@@ -92,7 +98,7 @@ const CiaMnt = () => {
     }
 
     if (existingOS) {
-      toast.error(`Número da OS ${formData.numero_os} já existe. Escolha outro número.`);
+      toast.error(`Número da OS ${formData.numero_os} já existe no PTEC ${formData.ptec_origem.toUpperCase()}. Escolha outro número.`);
       return;
     }
 
