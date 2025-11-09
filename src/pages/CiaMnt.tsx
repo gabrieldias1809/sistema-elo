@@ -62,12 +62,9 @@ const CiaMnt = () => {
   });
 
   const handleOpenDialog = async (ptecOrigem?: string) => {
-    // Gerar próximo número de OS automaticamente
-    const nextOSNumber = await getNextCentralizedOSNumber();
-    
     setFormData(prev => ({ 
       ...prev, 
-      numero_os: nextOSNumber,
+      numero_os: "",
       ptec_origem: ptecOrigem || ""
     }));
     setOpen(true);
@@ -225,10 +222,9 @@ const CiaMnt = () => {
                   <Label>Nº OS</Label>
                   <Input 
                     value={formData.numero_os}
-                    readOnly
-                    disabled
-                    className="bg-muted"
-                    placeholder="Gerado automaticamente"
+                    onChange={(e) => setFormData({ ...formData, numero_os: e.target.value })}
+                    placeholder="Digite o número da OS"
+                    required
                   />
                 </div>
                 <div>
