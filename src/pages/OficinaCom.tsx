@@ -38,12 +38,12 @@ const OficinaCom = () => {
   useEffect(() => {
     fetchOS();
     
-    // Setup Realtime subscription
+    // Setup Realtime subscription - monitora a tabela centralizada
     const channel = supabase
       .channel("oficina_com_os_changes")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "ptec_com_os" },
+        { event: "*", schema: "public", table: "cia_mnt_os_centralizadas" },
         () => {
           fetchOS();
         }
@@ -66,7 +66,12 @@ const OficinaCom = () => {
   }, [open, editingOS]);
 
   const fetchOS = async () => {
-    const { data, error } = await supabase.from("ptec_com_os").select("*").order("created_at", { ascending: false });
+    // Busca da tabela centralizada filtrada por ptec_origem = 'com'
+    const { data, error } = await supabase
+      .from("cia_mnt_os_centralizadas")
+      .select("*")
+      .eq("ptec_origem", "com")
+      .order("created_at", { ascending: false });
 
     if (error) {
       toast.error("Erro ao carregar dados");
@@ -190,7 +195,11 @@ const OficinaCom = () => {
       situacao: formData.situacao,
     };
 
-    const { error } = await supabase.from("ptec_com_os").update(dataToSubmit).eq("id", editingOS.id);
+    // Atualiza na tabela centralizada
+    const { error } = await supabase
+      .from("cia_mnt_os_centralizadas")
+      .update(dataToSubmit)
+      .eq("id", editingOS.id);
 
     if (error) {
       toast.error("Erro ao atualizar OS");
