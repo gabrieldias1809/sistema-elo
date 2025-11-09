@@ -73,6 +73,29 @@ const CiaMnt = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!formData.numero_os.trim()) {
+      toast.error("Número da OS é obrigatório");
+      return;
+    }
+
+    // Verificar se o número da OS já existe
+    const { data: existingOS, error: checkError } = await supabase
+      .from("cia_mnt_os_centralizadas")
+      .select("numero_os")
+      .eq("numero_os", formData.numero_os.trim())
+      .maybeSingle();
+
+    if (checkError) {
+      console.error("❌ Erro ao verificar OS existente:", checkError);
+      toast.error("Erro ao verificar número da OS");
+      return;
+    }
+
+    if (existingOS) {
+      toast.error(`Número da OS ${formData.numero_os} já existe. Escolha outro número.`);
+      return;
+    }
+
     const user = await supabase.auth.getUser();
     const userId = user.data.user?.id;
 
