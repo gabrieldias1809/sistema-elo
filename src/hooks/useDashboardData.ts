@@ -221,8 +221,24 @@ export const useDashboardData = () => {
     }
 
     const total = data.length;
-    const concluidas = data.filter((item: any) => item.situacao === "Concluída" || item.status === "Entregue").length;
-    const pendentes = total - concluidas;
+    
+    // Cálculo específico para cada módulo
+    let concluidas = 0;
+    let pendentes = 0;
+    
+    if (module === "cia_mnt") {
+      // Para Cia Mnt: Concluídas são "Fechada", Pendentes são "Aberta" ou "Manutenção"
+      concluidas = data.filter((item: any) => item.situacao === "Fechada").length;
+      pendentes = data.filter((item: any) => item.situacao === "Aberta" || item.situacao === "Manutenção").length;
+    } else if (module === "cia_rh" || module === "ptec_rh") {
+      // Para RH: não há conceito de concluídas/pendentes (será tratado no componente)
+      concluidas = 0;
+      pendentes = 0;
+    } else {
+      // Para outros módulos: lógica padrão
+      concluidas = data.filter((item: any) => item.situacao === "Concluída" || item.status === "Entregue").length;
+      pendentes = total - concluidas;
+    }
 
     return {
       id: module,
