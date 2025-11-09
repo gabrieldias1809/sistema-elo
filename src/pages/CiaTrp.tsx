@@ -155,19 +155,16 @@ export default function CiaTrp() {
   };
 
   const fetchPedidosTransporte = async () => {
-    console.log("🔍 Buscando pedidos de transporte...");
     const { data, error } = await supabase
       .from("cia_sup_pedidos_transporte")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("❌ Erro ao carregar pedidos de transporte:", error);
-      toast.error(`Erro ao carregar pedidos de transporte: ${error.message}`);
+      toast.error("Erro ao carregar pedidos de transporte");
       return;
     }
 
-    console.log("✅ Pedidos de transporte carregados:", data?.length, data);
     setPedidosTransporte(data || []);
   };
 
