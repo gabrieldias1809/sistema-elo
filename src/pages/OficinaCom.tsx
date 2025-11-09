@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
+import { PedidosMaterialTable } from "@/components/PedidosMaterialTable";
 import { RefreshButton } from "@/components/RefreshButton";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -406,8 +407,11 @@ const OficinaCom = () => {
         </Card>
       </div>
 
+      {/* Tabela de Pedidos de Material */}
+      <PedidosMaterialTable oficinaDestino="com" />
+
       {/* Tabela */}
-      <Card className="p-6">
+      <Card className="p-6 mt-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Ordens de Serviço</h3>
         <div className="overflow-x-auto">
           <Table>

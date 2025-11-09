@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PedidoMaterialForm } from "@/components/PedidoMaterialForm";
+import { PedidosMaterialTable } from "@/components/PedidosMaterialTable";
 import { RefreshButton } from "@/components/RefreshButton";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
@@ -306,8 +307,11 @@ const OficinaArmto = () => {
         </Card>
       </div>
 
+      {/* Tabela de Pedidos de Material */}
+      <PedidosMaterialTable oficinaDestino="armto" />
+
       {/* Tabela */}
-      <Card className="p-6">
+      <Card className="p-6 mt-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">
           Ordens de Serviço
         </h3>
